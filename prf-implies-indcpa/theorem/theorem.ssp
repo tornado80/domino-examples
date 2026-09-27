@@ -3,40 +3,40 @@ theorem PrfImpliesIndCpa {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
     
-    instance Coll0 = Gcoll {
+    instance Gnonce0 = Gnonce {
         params {
             b: false
         }
     }
 
-    instance Coll1 = Gcoll {
+    instance Gnonce1 = Gnonce {
         params {
             b: true
         }
     }
 
-    instance Prf0 = Gprf {
+    instance Gprf0 = Gprf {
         params {
             b: false,
             prf: prf
         }
     }
 
-    instance Prf1 = Gprf {
+    instance Gprf1 = Gprf {
         params {
             b: true,
             prf: prf
         }
     }
 
-    instance XOR0 = XOR {
+    instance Gxor0 = Gxor {
         params {
             b: false,
             xor: xor
         }
     }
 
-    instance XOR1 = XOR {
+    instance Gxor1 = Gxor {
         params {
             b: true,
             xor: xor
@@ -144,9 +144,9 @@ theorem PrfImpliesIndCpa {
     }
 
     assumptions {
-        Coll: Coll0 ~ Coll1
-        PRF: Prf0 ~ Prf1 
-        XOR: XOR0 ~ XOR1
+        Nonces: Gnonce0 ~ Gnonce1
+        PRF: Gprf0 ~ Gprf1 
+        XOR: Gxor0 ~ Gxor1
     }
 
     gamehops {
@@ -160,10 +160,10 @@ theorem PrfImpliesIndCpa {
         }
         reduction Gmod0 Gmod1 {
             assumption PRF
-            map Prf0 Gmod0 {
+            map Gprf0 Gmod0 {
                 Prf: Prf
             }
-            map Prf1 Gmod1 {
+            map Gprf1 Gmod1 {
                 Prf: Prf
             }
         }
@@ -176,12 +176,12 @@ theorem PrfImpliesIndCpa {
             }
         }
         reduction Gmod2 Gmod3 {
-            assumption Coll
-            map Coll0 Gmod2 {
-                pkg_Nonce: Nonce
+            assumption Nonces
+            map Gnonce0 Gmod2 {
+                Nonce: Nonce
             }
-            map Coll1 Gmod3 {
-                pkg_Nonce: Nonce
+            map Gnonce1 Gmod3 {
+                Nonce: Nonce
             }
         }
         equivalence Gmod3 Gmod4 {
@@ -194,11 +194,11 @@ theorem PrfImpliesIndCpa {
         }
         reduction Gmod4 Gmod5 {
             assumption XOR
-            map XOR0 Gmod4 {
-                XOR: XOR
+            map Gxor0 Gmod4 {
+                Xor: Xor
             }
-            map XOR1 Gmod5 {
-                XOR: XOR
+            map Gxor1 Gmod5 {
+                Xor: Xor
             }
         }
         equivalence Gmod5Real Gmod5Ideal {

@@ -15,7 +15,7 @@
             (and (= sample-id-left  (sample-id "Nonce" "Sample" "nonce"))
                  (= sample-id-right (sample-id "Nonce" "Sample" "nonce")))
             (and (= sample-id-left  (sample-id "Reduction2" "Enc" "pad"))
-                 (= sample-id-right (sample-id "XOR" "Xor" "pad")))))
+                 (= sample-id-right (sample-id "Xor" "Xor" "pad")))))
 )
 
 (define-state-relation invariant (left right)

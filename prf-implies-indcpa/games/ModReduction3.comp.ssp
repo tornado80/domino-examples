@@ -5,7 +5,7 @@ composition ModReduction3 {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
-    instance XOR = XOR {
+    instance Xor = XOR {
         params {
             b: bxor,
             xor: xor
@@ -33,7 +33,7 @@ composition ModReduction3 {
         }
         Reduction3: {
             GetMessage: Message,
-            Xor: XOR,
+            Xor: Xor,
             Sample: Nonce
         }
     }

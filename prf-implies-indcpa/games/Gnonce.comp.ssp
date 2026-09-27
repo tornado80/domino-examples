@@ -1,7 +1,7 @@
-composition Gcoll {
+composition Gnonce {
     const b: Bool;
 
-    instance pkg_Nonce = Nonce {
+    instance Nonce = Nonce {
         params {
             b: b
         }
@@ -10,7 +10,7 @@ composition Gcoll {
 
     compose {
         adversary: {
-            Sample: pkg_Nonce
+            Sample: Nonce
         }
     }
 }

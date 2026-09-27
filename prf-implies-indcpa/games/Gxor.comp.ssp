@@ -1,8 +1,8 @@
-composition XOR {
+composition Gxor {
     const b: Bool;
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
-    instance XOR = XOR {
+    instance Xor = XOR {
         params {
             b: b,
             xor: xor
@@ -11,7 +11,7 @@ composition XOR {
 
     compose {
         adversary: {
-            Xor: XOR
+            Xor: Xor
         }
     }
 }
