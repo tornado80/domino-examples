@@ -1,9 +1,6 @@
-composition ModReduction {
+composition Hybrid0 {
     const b: Bool;
     const bprf: Bool;
-    const bnonce: Bool;
-    const bxor: Bool;
-    const bmod: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
@@ -14,41 +11,25 @@ composition ModReduction {
         }
     }
 
-    instance Nonce = Nonce {
-        params {
-            b: bnonce
-        }
-    }
-
-    instance Xor = XOR {
-        params {
-            b: bxor,
-            xor: xor
-        }
-    }
-
     instance Message = Message {
         params {
             b: b,
         }
     }
 
-    instance Reduction = Reduction {
+    instance Reduction1 = Reduction1 {
         params {
-            b: bmod,
             xor: xor
         }
     }
 
     compose {
         adversary: {
-            Enc: Reduction
+            Enc: Reduction1
         }
-        Reduction: {
-            GetMessage: Message,
-            Sample: Nonce,
+        Reduction1: {
             Eval: Prf,
-            Xor: Xor
+            GetMessage: Message
         }
     }
 }

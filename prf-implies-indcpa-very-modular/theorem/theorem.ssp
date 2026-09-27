@@ -67,7 +67,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod0 = ModReduction {
+    instance Hybrid0 = Hybrid {
         params {
             b: b,
             bprf: false,
@@ -79,7 +79,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod1 = ModReduction {
+    instance Hybrid1 = Hybrid {
         params {
             b: b,
             bprf: true,
@@ -91,7 +91,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod2 = ModReduction {
+    instance Hybrid2 = Hybrid {
         params {
             b: b,
             bprf: true,
@@ -103,7 +103,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod3 = ModReduction {
+    instance Hybrid3 = Hybrid {
         params {
             b: b,
             bprf: true,
@@ -115,7 +115,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod4 = ModReduction {
+    instance Hybrid4 = Hybrid {
         params {
             b: b,
             bprf: true,
@@ -127,7 +127,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod4_0 = ModReduction {
+    instance Hybrid4_0 = Hybrid {
         params {
             b: false,
             bprf: true,
@@ -139,7 +139,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod4_1 = ModReduction {
+    instance Hybrid4_1 = Hybrid {
         params {
             b: true,
             bprf: true,
@@ -158,52 +158,52 @@ theorem PrfImpliesIndCpa {
     }
 
     gamehops {
-        equivalence Gcpa Gmod0 {
+        equivalence Gcpa Hybrid0 {
             invariant: [
-                ./theorem/invariant-Gcpa-Gmod0.smt2
+                ./theorem/invariant-Gcpa-Hybrid0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Gmod0 Gmod1 {
+        reduction Hybrid0 Hybrid1 {
             assumption PRF
-            map Gprf0 Gmod0 {
+            map Gprf0 Hybrid0 {
                 Prf: Prf
             }
-            map Gprf1 Gmod1 {
+            map Gprf1 Hybrid1 {
                 Prf: Prf
             }
         }
-        reduction Gmod1 Gmod2 {
+        reduction Hybrid1 Hybrid2 {
             assumption Nonces
-            map Gnonce0 Gmod1 {
+            map Gnonce0 Hybrid1 {
                 Nonce: Nonce
             }
-            map Gnonce1 Gmod2 {
+            map Gnonce1 Hybrid2 {
                 Nonce: Nonce
             }
         }
-        equivalence Gmod2 Gmod3 {
+        equivalence Hybrid2 Hybrid3 {
             invariant: [
-                ./theorem/invariant-Gmod2-Gmod3.smt2
+                ./theorem/invariant-Hybrid2-Hybrid3.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Gmod3 Gmod4 {
+        reduction Hybrid3 Hybrid4 {
             assumption XOR
-            map Gxor0 Gmod3 {
+            map Gxor0 Hybrid3 {
                 Xor: Xor
             }
-            map Gxor1 Gmod4 {
+            map Gxor1 Hybrid4 {
                 Xor: Xor
             }
         }
-        equivalence Gmod4_0 Gmod4_1 {
+        equivalence Hybrid4_0 Hybrid4_1 {
             invariant: [
-                ./theorem/invariant-Gmod4Real-Gmod4Ideal.smt2
+                ./theorem/invariant-Hybrid4_0-Hybrid4_1.smt2
             ]
             Enc: {
                 randomness: simple

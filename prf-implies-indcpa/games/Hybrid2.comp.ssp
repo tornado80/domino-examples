@@ -1,4 +1,4 @@
-composition ModReduction3 {
+composition Hybrid2 {
     const b: Bool;
     const bxor: Bool;
     const bnonce: Bool;
@@ -12,19 +12,10 @@ composition ModReduction3 {
         }
     }
 
-    instance Nonce = Nonce {
-        params {
-            b: bnonce
-        }
-    }
-
-    instance Message = Message {
-        params {
-            b: b,
-        }
-    }
-
     instance Reduction3 = Reduction3 {
+        params {
+            b: b
+        }
     }
 
     compose {
@@ -32,9 +23,7 @@ composition ModReduction3 {
             Enc: Reduction3
         }
         Reduction3: {
-            GetMessage: Message,
             Xor: Xor,
-            Sample: Nonce
         }
     }
 }
