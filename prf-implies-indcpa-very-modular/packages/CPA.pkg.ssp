@@ -1,0 +1,24 @@
+package CPA {
+    params {
+        prf: fn Bits(256), Bits(256) -> Bits(256)
+    }
+
+    import oracles {
+        GetMessage(m: Bits(256)) -> Bits(256),
+        Enc(k: Bits(256), m: Bits(256)) -> (Bits(256), Bits(256)),
+    }
+
+    state {
+        k: Maybe(Bits(256))
+    }
+
+    oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
+        if (k == None) {
+            k_ <-$ Bits(256) sample-name k;
+            k <- Some(k_);
+        }
+        m <- invoke GetMessage(m);
+        c <- invoke Enc(Unwrap(k), m);
+        return c;
+    }
+}

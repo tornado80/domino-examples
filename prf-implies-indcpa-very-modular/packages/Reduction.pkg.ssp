@@ -1,0 +1,24 @@
+package Reduction {
+    params {
+        b: Bool,
+        xor: fn Bits(256), Bits(256) -> Bits(256)
+    }
+
+    import oracles {
+        GetMessage(m: Bits(256)) -> Bits(256),
+        Sample() -> Bits(256),
+        Eval(x: Bits(256)) -> Bits(256),
+        Xor(m: Bits(256)) -> Bits(256),
+    }
+
+    oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
+        nonce <- invoke Sample();
+        m <- invoke GetMessage(m);
+        if b {
+            c <- invoke Xor(m);
+            return (nonce, c);
+        }
+        pad <- invoke Eval(nonce);
+        return (nonce, xor(pad, m));
+    }
+}

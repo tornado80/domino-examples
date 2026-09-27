@@ -1,0 +1,16 @@
+composition Gnonce {
+    const b: Bool;
+
+    instance Nonce = Nonce {
+        params {
+            b: b
+        }
+        
+    }
+
+    compose {
+        adversary: {
+            Sample: Nonce
+        }
+    }
+}

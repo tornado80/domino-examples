@@ -1,0 +1,18 @@
+package Nonce {
+    params {
+        b: Bool
+    }
+
+    state {
+        T: Table(Bits(256), Bool)
+    }
+
+    oracle Sample() -> Bits(256) {
+        nonce <-$ Bits(256) sample-name nonce;
+        if b {
+            assert (T[nonce] == None);
+            T[nonce] <- Some(true);
+        }
+        return nonce;
+    }
+}

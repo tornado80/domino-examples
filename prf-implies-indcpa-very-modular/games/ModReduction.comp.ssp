@@ -1,0 +1,54 @@
+composition ModReduction {
+    const b: Bool;
+    const bprf: Bool;
+    const bnonce: Bool;
+    const bxor: Bool;
+    const bmod: Bool;
+    const prf: fn Bits(256), Bits(256) -> Bits(256);
+    const xor: fn Bits(256), Bits(256) -> Bits(256);
+
+    instance Prf = PRF {
+        params {
+            b: bprf,
+            prf: prf
+        }
+    }
+
+    instance Nonce = Nonce {
+        params {
+            b: bnonce
+        }
+    }
+
+    instance Xor = XOR {
+        params {
+            b: bxor,
+            xor: xor
+        }
+    }
+
+    instance Message = Message {
+        params {
+            b: b,
+        }
+    }
+
+    instance Reduction = Reduction {
+        params {
+            b: bmod,
+            xor: xor
+        }
+    }
+
+    compose {
+        adversary: {
+            Enc: Reduction
+        }
+        Reduction: {
+            GetMessage: Message,
+            Sample: Nonce,
+            Eval: Prf,
+            Xor: Xor
+        }
+    }
+}
