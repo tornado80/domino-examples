@@ -6,9 +6,9 @@ package Reduction3 {
     }
 
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
-        r <- invoke Sample();
+        nonce <- invoke Sample();
         m <- invoke GetMessage(m);
         c <- invoke Xor(m);
-        return (r, c);
+        return (nonce, c);
     }
 }

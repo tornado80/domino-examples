@@ -9,9 +9,9 @@ package Reduction1 {
     }
 
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
-        r <-$ Bits(256) sample-name r;
-        pad <- invoke Eval(r);
+        nonce <-$ Bits(256) sample-name nonce;
+        pad <- invoke Eval(nonce);
         m <- invoke GetMessage(m);
-        return (r, xor(pad, m));
+        return (nonce, xor(pad, m));
     }
 }

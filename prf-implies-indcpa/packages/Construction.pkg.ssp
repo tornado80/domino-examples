@@ -5,7 +5,7 @@ package Construction {
     }
 
     oracle Enc(k: Bits(256), m: Bits(256)) -> (Bits(256), Bits(256)) {
-        r <-$ Bits(256) sample-name r;
-        return (r, xor(prf(k, r), m));
+        nonce <-$ Bits(256) sample-name nonce;
+        return (nonce, xor(prf(k, nonce), m));
     }
 }

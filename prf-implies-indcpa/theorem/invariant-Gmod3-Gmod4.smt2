@@ -12,8 +12,8 @@
         (= sample-ctr-left 0)
         (= sample-ctr-right 0)
         (or
-            (and (= sample-id-left  (sample-id "Nonce" "Sample" "x"))
-                 (= sample-id-right (sample-id "Nonce" "Sample" "x")))
+            (and (= sample-id-left  (sample-id "Nonce" "Sample" "nonce"))
+                 (= sample-id-right (sample-id "Nonce" "Sample" "nonce")))
             (and (= sample-id-left  (sample-id "Reduction2" "Enc" "pad"))
                  (= sample-id-right (sample-id "XOR" "Xor" "pad")))))
 )

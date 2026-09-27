@@ -13,12 +13,12 @@ package Reduction2 {
     }
 
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
-        r <- invoke Sample();
+        nonce <- invoke Sample();
         m <- invoke GetMessage(m);
-        if (T[r] == None) {
+        if (T[nonce] == None) {
             pad <-$ Bits(256) sample-name pad;
-            T[r] <- Some(pad);
+            T[nonce] <- Some(pad);
         }
-        return (r, xor(Unwrap(T[r]), m));
+        return (nonce, xor(Unwrap(T[nonce]), m));
     }
 }

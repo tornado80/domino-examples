@@ -8,11 +8,11 @@ package Nonce {
     }
 
     oracle Sample() -> Bits(256) {
-        x <-$ Bits(256) sample-name x;
+        nonce <-$ Bits(256) sample-name nonce;
         if b {
-            assert (T[x] == None);
-            T[x] <- Some(true);
+            assert (T[nonce] == None);
+            T[nonce] <- Some(true);
         }
-        return x;
+        return nonce;
     }
 }
