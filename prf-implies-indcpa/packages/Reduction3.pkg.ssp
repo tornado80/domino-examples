@@ -1,15 +1,20 @@
 package Reduction3 {
     import oracles {
         Xor(m: Bits(256)) -> Bits(256),
-        Sample() -> Bits(256),
     }
 
     params {
         b: Bool
     }
 
+    state {
+        T: Table(Bits(256), Bool)
+    }
+
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
-        nonce <- invoke Sample();
+        nonce <-$ Bits(256) sample-name nonce;
+        assert (T[nonce] == None);
+        T[nonce] <- Some(true);
         if b {
             m <- 0_256;
         }

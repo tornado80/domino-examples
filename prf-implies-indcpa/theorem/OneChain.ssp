@@ -1,4 +1,4 @@
-theorem PrfImpliesIndCpa {
+theorem OneChain {
     const b: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
@@ -123,7 +123,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod5Real = ModReduction3 {
+    instance Gmod5_0 = ModReduction3 {
         params {
             b: false,
             bxor: true,
@@ -133,7 +133,7 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Gmod5Ideal = ModReduction3 {
+    instance Gmod5_1 = ModReduction3 {
         params {
             b: true,
             bxor: true,
@@ -201,7 +201,7 @@ theorem PrfImpliesIndCpa {
                 Xor: Xor
             }
         }
-        equivalence Gmod5Real Gmod5Ideal {
+        equivalence Gmod5_0 Gmod5_1 {
             invariant: [
                 ./theorem/invariant-Gmod5Real-Gmod5Ideal.smt2
             ]

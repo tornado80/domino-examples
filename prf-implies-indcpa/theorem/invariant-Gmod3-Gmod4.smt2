@@ -13,14 +13,14 @@
         (= sample-ctr-right 0)
         (or
             (and (= sample-id-left  (sample-id "Nonce" "Sample" "nonce"))
-                 (= sample-id-right (sample-id "Nonce" "Sample" "nonce")))
+                 (= sample-id-right (sample-id "Reduction3" "Enc" "nonce")))
             (and (= sample-id-left  (sample-id "Reduction2" "Enc" "pad"))
                  (= sample-id-right (sample-id "Xor" "Xor" "pad")))))
 )
 
 (define-state-relation invariant (left right)
     (and
-        (= left.Nonce.T right.Nonce.T)
+        (= left.Nonce.T right.Reduction3.T)
         ; pads only exist for nonces that were already drawn
         (forall ((x Bits_256))
             (=> (not (is-mk-none (select left.Reduction2.T x)))

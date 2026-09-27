@@ -1,0 +1,294 @@
+theorem TwoChains {
+    const prf: fn Bits(256), Bits(256) -> Bits(256);
+    const xor: fn Bits(256), Bits(256) -> Bits(256);
+    
+    instance Gnonce0 = Gnonce {
+        params {
+            b: false
+        }
+    }
+
+    instance Gnonce1 = Gnonce {
+        params {
+            b: true
+        }
+    }
+
+    instance Gprf0 = Gprf {
+        params {
+            b: false,
+            prf: prf
+        }
+    }
+
+    instance Gprf1 = Gprf {
+        params {
+            b: true,
+            prf: prf
+        }
+    }
+
+    instance Gxor0 = Gxor {
+        params {
+            b: false,
+            xor: xor
+        }
+    }
+
+    instance Gxor1 = Gxor {
+        params {
+            b: true,
+            xor: xor
+        }
+    }
+
+    instance Gcpa0 = Gcpa {
+        params {
+            b: false,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gcpa1 = Gcpa {
+        params {
+            b: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod0_0 = ModReduction1 {
+        params {
+            b: false,
+            bprf: false,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod0_1 = ModReduction1 {
+        params {
+            b: true,
+            bprf: false,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod1_0 = ModReduction1 {
+        params {
+            b: false,
+            bprf: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod1_1 = ModReduction1 {
+        params {
+            b: true,
+            bprf: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod2_0 = ModReduction2 {
+        params {
+            b: false,
+            bcoll: false,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod2_1 = ModReduction2 {
+        params {
+            b: true,
+            bcoll: false,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod3_0 = ModReduction2 {
+        params {
+            b: false,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod3_1 = ModReduction2 {
+        params {
+            b: true,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod4_0 = ModReduction3 {
+        params {
+            b: false,
+            bxor: false,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod4_1 = ModReduction3 {
+        params {
+            b: true,
+            bxor: false,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod5_0 = ModReduction3 {
+        params {
+            b: false,
+            bxor: true,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    instance Gmod5_1 = ModReduction3 {
+        params {
+            b: true,
+            bxor: true,
+            bcoll: true,
+            prf: prf,
+            xor: xor
+        }
+    }
+
+    assumptions {
+        Nonces: Gnonce0 ~ Gnonce1
+        PRF: Gprf0 ~ Gprf1 
+        XOR: Gxor0 ~ Gxor1
+    }
+
+    gamehops {
+        equivalence Gcpa0 Gmod0_0 {
+            invariant: [
+                ./theorem/invariant-Gcpa-Gmod0.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        equivalence Gcpa1 Gmod0_1 {
+            invariant: [
+                ./theorem/invariant-Gcpa-Gmod0.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        reduction Gmod0_0 Gmod1_0 {
+            assumption PRF
+            map Gprf0 Gmod0_0 {
+                Prf: Prf
+            }
+            map Gprf1 Gmod1_0 {
+                Prf: Prf
+            }
+        }
+        reduction Gmod0_1 Gmod1_1 {
+            assumption PRF
+            map Gprf0 Gmod0_1 {
+                Prf: Prf
+            }
+            map Gprf1 Gmod1_1 {
+                Prf: Prf
+            }
+        }
+        equivalence Gmod1_0 Gmod2_0 {
+            invariant: [
+                ./theorem/invariant-Gmod1-Gmod2.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        equivalence Gmod1_1 Gmod2_1 {
+            invariant: [
+                ./theorem/invariant-Gmod1-Gmod2.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        reduction Gmod2_0 Gmod3_0 {
+            assumption Nonces
+            map Gnonce0 Gmod2_0 {
+                Nonce: Nonce
+            }
+            map Gnonce1 Gmod3_0 {
+                Nonce: Nonce
+            }
+        }
+        reduction Gmod2_1 Gmod3_1 {
+            assumption Nonces
+            map Gnonce0 Gmod2_1 {
+                Nonce: Nonce
+            }
+            map Gnonce1 Gmod3_1 {
+                Nonce: Nonce
+            }
+        }
+        equivalence Gmod3_0 Gmod4_0 {
+            invariant: [
+                ./theorem/invariant-Gmod3-Gmod4.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        equivalence Gmod3_1 Gmod4_1 {
+            invariant: [
+                ./theorem/invariant-Gmod3-Gmod4.smt2
+            ]
+            Enc: {
+                randomness: custom
+            }
+        }
+        reduction Gmod4_0 Gmod5_0 {
+            assumption XOR
+            map Gxor0 Gmod4_0 {
+                Xor: Xor
+            }
+            map Gxor1 Gmod5_0 {
+                Xor: Xor
+            }
+        }
+        reduction Gmod4_1 Gmod5_1 {
+            assumption XOR
+            map Gxor0 Gmod4_1 {
+                Xor: Xor
+            }
+            map Gxor1 Gmod5_1 {
+                Xor: Xor
+            }
+        }
+        equivalence Gmod5_0 Gmod5_1 {
+            invariant: [
+                ./theorem/invariant-Gmod5Real-Gmod5Ideal.smt2
+            ]
+            Enc: {
+                randomness: simple
+            }
+        }
+    }
+    propositions {
+        Main: Gcpa0 ~ Gcpa1
+    }
+}

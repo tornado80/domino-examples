@@ -12,12 +12,6 @@ composition ModReduction3 {
         }
     }
 
-    instance Nonce = Nonce {
-        params {
-            b: bcoll
-        }
-    }
-
     instance Reduction3 = Reduction3 {
         params {
             b: b
@@ -30,7 +24,6 @@ composition ModReduction3 {
         }
         Reduction3: {
             Xor: Xor,
-            Sample: Nonce
         }
     }
 }
