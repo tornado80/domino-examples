@@ -1,12 +1,12 @@
 composition ModReduction2 {
-    const bcoll: Bool;
+    const bnonce: Bool;
     const b: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Nonce = Nonce {
         params {
-            b: bcoll
+            b: bnonce
         }
     }
 

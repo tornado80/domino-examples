@@ -88,7 +88,7 @@ theorem OneChain {
     instance Gmod2 = ModReduction2 {
         params {
             b: b,
-            bcoll: false,
+            bnonce: false,
             prf: prf,
             xor: xor
         }
@@ -97,7 +97,7 @@ theorem OneChain {
     instance Gmod3 = ModReduction2 {
         params {
             b: b,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -107,7 +107,7 @@ theorem OneChain {
         params {
             b: b,
             bxor: false,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -117,7 +117,7 @@ theorem OneChain {
         params {
             b: b,
             bxor: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -127,7 +127,7 @@ theorem OneChain {
         params {
             b: false,
             bxor: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -137,7 +137,7 @@ theorem OneChain {
         params {
             b: true,
             bxor: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }

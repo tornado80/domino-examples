@@ -97,7 +97,7 @@ theorem TwoChains {
     instance Gmod2_0 = ModReduction2 {
         params {
             b: false,
-            bcoll: false,
+            bnonce: false,
             prf: prf,
             xor: xor
         }
@@ -106,7 +106,7 @@ theorem TwoChains {
     instance Gmod2_1 = ModReduction2 {
         params {
             b: true,
-            bcoll: false,
+            bnonce: false,
             prf: prf,
             xor: xor
         }
@@ -115,7 +115,7 @@ theorem TwoChains {
     instance Gmod3_0 = ModReduction2 {
         params {
             b: false,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -124,7 +124,7 @@ theorem TwoChains {
     instance Gmod3_1 = ModReduction2 {
         params {
             b: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -134,7 +134,7 @@ theorem TwoChains {
         params {
             b: false,
             bxor: false,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -144,7 +144,7 @@ theorem TwoChains {
         params {
             b: true,
             bxor: false,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -154,7 +154,7 @@ theorem TwoChains {
         params {
             b: false,
             bxor: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -164,7 +164,7 @@ theorem TwoChains {
         params {
             b: true,
             bxor: true,
-            bcoll: true,
+            bnonce: true,
             prf: prf,
             xor: xor
         }
