@@ -1,0 +1,13 @@
+package Message {
+    params {
+        b: Bool
+    }
+
+    oracle GetMessage(m: Bits(256)) -> Bits(256) {
+        if b {
+            return 0_256;
+        } else {
+            return m;
+        }
+    }
+}

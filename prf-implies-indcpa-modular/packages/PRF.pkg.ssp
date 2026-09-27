@@ -1,0 +1,26 @@
+package PRF {
+    params {
+        b: Bool,
+        prf: fn Bits(256), Bits(256) -> Bits(256)
+    }
+
+    state {
+        k: Maybe(Bits(256)),
+        T: Table(Bits(256), Bits(256))
+    }
+
+    oracle Eval(m: Bits(256)) -> Bits(256) {
+        if b {
+            if (T[m] == None) {
+                r <-$ Bits(256) sample-name r;
+                T[m] <- Some(r);
+            }
+            return Unwrap(T[m]);
+        }
+        if (k == None) {
+            r <-$ Bits(256) sample-name k;
+            k <- Some(r);
+        }
+        return prf(Unwrap(k), m);
+    }
+}
