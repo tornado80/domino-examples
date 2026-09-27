@@ -12,7 +12,7 @@ composition ModReduction3 {
         }
     }
 
-    instance Coll = Coll {
+    instance Nonce = Nonce {
         params {
             b: bcoll
         }
@@ -29,12 +29,12 @@ composition ModReduction3 {
 
     compose {
         adversary: {
-            ENC: Reduction3
+            Enc: Reduction3
         }
         Reduction3: {
-            GET_MSG: Message,
-            XOR: XOR,
-            GET: Coll
+            GetMessage: Message,
+            Xor: XOR,
+            Sample: Nonce
         }
     }
 }

@@ -1,4 +1,4 @@
-package Coll {
+package Nonce {
     params {
         b: Bool
     }
@@ -7,7 +7,7 @@ package Coll {
         T: Table(Bits(256), Bool)
     }
 
-    oracle GET() -> Bits(256) {
+    oracle Sample() -> Bits(256) {
         x <-$ Bits(256) sample-name x;
         if b {
             assert (T[x] == None);

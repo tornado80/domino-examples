@@ -154,7 +154,7 @@ theorem PrfImpliesIndCpa {
             invariant: [
                 ./theorem/invariant-Gcpa-Gmod0.smt2
             ]
-            ENC: {
+            Enc: {
                 randomness: custom
             }
         }
@@ -171,24 +171,24 @@ theorem PrfImpliesIndCpa {
             invariant: [
                 ./theorem/invariant-Gmod1-Gmod2.smt2
             ]
-            ENC: {
+            Enc: {
                 randomness: custom
             }
         }
         reduction Gmod2 Gmod3 {
             assumption Coll
             map Coll0 Gmod2 {
-                pkg_Coll: Coll
+                pkg_Nonce: Nonce
             }
             map Coll1 Gmod3 {
-                pkg_Coll: Coll
+                pkg_Nonce: Nonce
             }
         }
         equivalence Gmod3 Gmod4 {
             invariant: [
                 ./theorem/invariant-Gmod3-Gmod4.smt2
             ]
-            ENC: {
+            Enc: {
                 randomness: custom
             }
         }
@@ -205,7 +205,7 @@ theorem PrfImpliesIndCpa {
             invariant: [
                 ./theorem/invariant-Gmod5Real-Gmod5Ideal.smt2
             ]
-            ENC: {
+            Enc: {
                 randomness: simple
             }
         }

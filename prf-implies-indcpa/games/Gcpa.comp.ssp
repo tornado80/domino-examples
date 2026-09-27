@@ -24,11 +24,11 @@ composition Gcpa {
 
     compose {
         adversary: {
-            ENC: CPA
+            Enc: CPA
         }
         CPA: {
             Enc: Construction,
-            GET_MSG: Message
+            GetMessage: Message
         }
     }
 }

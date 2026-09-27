@@ -1,4 +1,4 @@
-package Prf {
+package PRF {
     params {
         b: Bool,
         prf: fn Bits(256), Bits(256) -> Bits(256)
@@ -9,7 +9,7 @@ package Prf {
         T: Table(Bits(256), Bits(256))
     }
 
-    oracle EVAL(x: Bits(256)) -> Bits(256) {
+    oracle Eval(x: Bits(256)) -> Bits(256) {
         if b {
             if (T[x] == None) {
                 r <-$ Bits(256) sample-name r;

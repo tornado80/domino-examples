@@ -1,7 +1,7 @@
 package Reduction2 {
     import oracles {
-        GET_MSG(m: Bits(256)) -> Bits(256),
-        GET() -> Bits(256),
+        GetMessage(m: Bits(256)) -> Bits(256),
+        Sample() -> Bits(256),
     }
 
     params {
@@ -12,9 +12,9 @@ package Reduction2 {
         T: Table(Bits(256), Bits(256))
     }
 
-    oracle ENC(m: Bits(256)) -> (Bits(256), Bits(256)) {
-        r <- invoke GET();
-        m <- invoke GET_MSG(m);
+    oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
+        r <- invoke Sample();
+        m <- invoke GetMessage(m);
         if (T[r] == None) {
             pad <-$ Bits(256) sample-name pad;
             T[r] <- Some(pad);

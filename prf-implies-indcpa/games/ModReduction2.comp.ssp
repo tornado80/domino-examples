@@ -4,7 +4,7 @@ composition ModReduction2 {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
-    instance Coll = Coll {
+    instance Nonce = Nonce {
         params {
             b: bcoll
         }
@@ -24,11 +24,11 @@ composition ModReduction2 {
 
     compose {
         adversary: {
-            ENC: Reduction2
+            Enc: Reduction2
         }
         Reduction2: {
-            GET_MSG: Message,
-            GET: Coll
+            GetMessage: Message,
+            Sample: Nonce
         }
     }
 }

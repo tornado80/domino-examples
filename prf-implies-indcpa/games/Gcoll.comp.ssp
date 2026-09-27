@@ -1,7 +1,7 @@
 composition Gcoll {
     const b: Bool;
 
-    instance pkg_Coll = Coll {
+    instance pkg_Nonce = Nonce {
         params {
             b: b
         }
@@ -10,7 +10,7 @@ composition Gcoll {
 
     compose {
         adversary: {
-            GET: pkg_Coll
+            Sample: pkg_Nonce
         }
     }
 }

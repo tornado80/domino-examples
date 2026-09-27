@@ -3,7 +3,7 @@ package Message {
         b: Bool
     }
 
-    oracle GET_MSG(m: Bits(256)) -> Bits(256) {
+    oracle GetMessage(m: Bits(256)) -> Bits(256) {
         if b {
             return 0_256;
         } else {

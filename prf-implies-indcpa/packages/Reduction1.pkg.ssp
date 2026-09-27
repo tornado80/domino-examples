@@ -4,14 +4,14 @@ package Reduction1 {
     }
 
     import oracles {
-        GET_MSG(m: Bits(256)) -> Bits(256),
-        EVAL(x: Bits(256)) -> Bits(256),
+        GetMessage(m: Bits(256)) -> Bits(256),
+        Eval(x: Bits(256)) -> Bits(256),
     }
 
-    oracle ENC(m: Bits(256)) -> (Bits(256), Bits(256)) {
+    oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         r <-$ Bits(256) sample-name r;
-        pad <- invoke EVAL(r);
-        m <- invoke GET_MSG(m);
+        pad <- invoke Eval(r);
+        m <- invoke GetMessage(m);
         return (r, xor(pad, m));
     }
 }

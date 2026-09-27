@@ -4,7 +4,7 @@ package CPA {
     }
 
     import oracles {
-        GET_MSG(m: Bits(256)) -> Bits(256),
+        GetMessage(m: Bits(256)) -> Bits(256),
         Enc(k: Bits(256), m: Bits(256)) -> (Bits(256), Bits(256)),
     }
 
@@ -12,12 +12,12 @@ package CPA {
         k: Maybe(Bits(256))
     }
 
-    oracle ENC(m: Bits(256)) -> (Bits(256), Bits(256)) {
+    oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         if (k == None) {
             k_ <-$ Bits(256) sample-name k;
             k <- Some(k_);
         }
-        m <- invoke GET_MSG(m);
+        m <- invoke GetMessage(m);
         c <- invoke Enc(Unwrap(k), m);
         return c;
     }
