@@ -1,0 +1,18 @@
+package Coll {
+    params {
+        b: Bool
+    }
+
+    state {
+        T: Table(Bits(256), Bool)
+    }
+
+    oracle GET() -> Bits(256) {
+        x <-$ Bits(256) sample-name x;
+        if b {
+            assert (T[x] == None);
+            T[x] <- Some(true);
+        }
+        return x;
+    }
+}

@@ -1,0 +1,14 @@
+package Reduction3 {
+    import oracles {
+        XOR(m: Bits(256)) -> Bits(256),
+        GET_MSG(m: Bits(256)) -> Bits(256),
+        GET() -> Bits(256),
+    }
+
+    oracle ENC(m: Bits(256)) -> (Bits(256), Bits(256)) {
+        r <- invoke GET();
+        m <- invoke GET_MSG(m);
+        c <- invoke XOR(m);
+        return (r, c);
+    }
+}

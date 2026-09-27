@@ -1,0 +1,17 @@
+package Reduction1 {
+    params {
+        xor: fn Bits(256), Bits(256) -> Bits(256)
+    }
+
+    import oracles {
+        GET_MSG(m: Bits(256)) -> Bits(256),
+        EVAL(x: Bits(256)) -> Bits(256),
+    }
+
+    oracle ENC(m: Bits(256)) -> (Bits(256), Bits(256)) {
+        r <-$ Bits(256) sample-name r;
+        pad <- invoke EVAL(r);
+        m <- invoke GET_MSG(m);
+        return (r, xor(pad, m));
+    }
+}

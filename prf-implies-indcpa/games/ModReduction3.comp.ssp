@@ -1,0 +1,40 @@
+composition ModReduction3 {
+    const b: Bool;
+    const bxor: Bool;
+    const bcoll: Bool;
+    const prf: fn Bits(256), Bits(256) -> Bits(256);
+    const xor: fn Bits(256), Bits(256) -> Bits(256);
+
+    instance XOR = XOR {
+        params {
+            b: bxor,
+            xor: xor
+        }
+    }
+
+    instance Coll = Coll {
+        params {
+            b: bcoll
+        }
+    }
+
+    instance Message = Message {
+        params {
+            b: b,
+        }
+    }
+
+    instance Reduction3 = Reduction3 {
+    }
+
+    compose {
+        adversary: {
+            ENC: Reduction3
+        }
+        Reduction3: {
+            GET_MSG: Message,
+            XOR: XOR,
+            GET: Coll
+        }
+    }
+}

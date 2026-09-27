@@ -1,0 +1,14 @@
+package XOR {
+    params {
+        b: Bool,
+        xor: fn Bits(256), Bits(256) -> Bits(256)
+    }
+
+    oracle XOR(m: Bits(256)) -> Bits(256) {
+        pad <-$ Bits(256) sample-name pad;
+        if b {
+            return pad;
+        }
+        return xor(pad, m);
+    }
+}

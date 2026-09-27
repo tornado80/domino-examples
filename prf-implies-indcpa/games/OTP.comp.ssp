@@ -1,0 +1,17 @@
+composition XOR {
+    const b: Bool;
+    const xor: fn Bits(256), Bits(256) -> Bits(256);
+
+    instance XOR = XOR {
+        params {
+            b: b,
+            xor: xor
+        }
+    }
+
+    compose {
+        adversary: {
+            XOR: XOR
+        }
+    }
+}
