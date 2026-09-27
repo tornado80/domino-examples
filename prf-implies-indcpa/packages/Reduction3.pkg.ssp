@@ -1,13 +1,18 @@
 package Reduction3 {
     import oracles {
         Xor(m: Bits(256)) -> Bits(256),
-        GetMessage(m: Bits(256)) -> Bits(256),
         Sample() -> Bits(256),
+    }
+
+    params {
+        b: Bool
     }
 
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         nonce <- invoke Sample();
-        m <- invoke GetMessage(m);
+        if b {
+            m <- 0_256;
+        }
         c <- invoke Xor(m);
         return (nonce, c);
     }

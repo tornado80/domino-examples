@@ -1,10 +1,10 @@
 package Reduction2 {
     import oracles {
-        GetMessage(m: Bits(256)) -> Bits(256),
         Sample() -> Bits(256),
     }
 
     params {
+        b: Bool,
         xor: fn Bits(256), Bits(256) -> Bits(256)
     }
 
@@ -14,7 +14,9 @@ package Reduction2 {
 
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         nonce <- invoke Sample();
-        m <- invoke GetMessage(m);
+        if b {
+            m <- 0_256;
+        }
         if (T[nonce] == None) {
             pad <-$ Bits(256) sample-name pad;
             T[nonce] <- Some(pad);

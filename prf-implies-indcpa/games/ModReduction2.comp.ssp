@@ -10,15 +10,10 @@ composition ModReduction2 {
         }
     }
 
-    instance Message = Message {
-        params {
-            b: b,
-        }
-    }
-
     instance Reduction2 = Reduction2 {
         params {
-            xor: xor
+            xor: xor,
+            b: b
         }
     }
 
@@ -27,7 +22,6 @@ composition ModReduction2 {
             Enc: Reduction2
         }
         Reduction2: {
-            GetMessage: Message,
             Sample: Nonce
         }
     }

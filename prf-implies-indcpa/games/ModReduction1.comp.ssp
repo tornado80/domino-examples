@@ -11,15 +11,10 @@ composition ModReduction1 {
         }
     }
 
-    instance Message = Message {
-        params {
-            b: b,
-        }
-    }
-
     instance Reduction1 = Reduction1 {
         params {
-            xor: xor
+            xor: xor,
+            b: b
         }
     }
 
@@ -29,7 +24,6 @@ composition ModReduction1 {
         }
         Reduction1: {
             Eval: Prf,
-            GetMessage: Message
         }
     }
 }

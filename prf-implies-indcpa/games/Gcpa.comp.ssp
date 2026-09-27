@@ -10,15 +10,10 @@ composition Gcpa {
         }
     }
 
-    instance Message = Message {
-        params {
-            b: b,
-        }
-    }
-
     instance CPA = CPA {
         params {
-            prf: prf
+            prf: prf,
+            b: b
         }
     }
 
@@ -28,7 +23,6 @@ composition Gcpa {
         }
         CPA: {
             Enc: Construction,
-            GetMessage: Message
         }
     }
 }
