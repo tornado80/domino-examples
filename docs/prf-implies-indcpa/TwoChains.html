@@ -510,11 +510,6 @@ bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="90.0" y="15
         Prf.T[m] &lt;- Some(r);
     }
     return Unwrap(Prf.T[m]);
-    if (Prf.k == None) {
-        r &lt;-$ Bits(256) sample-name k;
-        Prf.k &lt;- Some(r);
-    }
-    return prf(Unwrap(Prf.k), m);
 }
 </pre><pre class="lossy">Eval(m: Bits(256)) -&gt; Bits(256) {
     if (Prf.T[m] == ⊥) {
@@ -522,11 +517,6 @@ bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="90.0" y="15
         Prf.T[m] &lt;- r;
     }
     return Prf.T[m];
-    if (Prf.k == ⊥) {
-        r &lt;-$ Bits(256);
-        Prf.k &lt;- r;
-    }
-    return prf(Prf.k, m);
 }
 </pre></td></tr>
 </tbody></table></div>
@@ -552,12 +542,10 @@ bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="90.0" y="15
 </pre></td><td><pre class="full">Xor(m: Bits(256)) -&gt; Bits(256) {
     pad &lt;-$ Bits(256) sample-name pad;
     return pad;
-    return xor(pad, m);
 }
 </pre><pre class="lossy">Xor(m: Bits(256)) -&gt; Bits(256) {
     pad &lt;-$ Bits(256);
     return pad;
-    return xor(pad, m);
 }
 </pre></td></tr>
 </tbody></table></div>
@@ -633,12 +621,13 @@ bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="90.0" y="15
                 T[m] &lt;- Some(r);
             }
             return Unwrap(T[m]);
+        } else {
+            if (k == None) {
+                r &lt;-$ Bits(256) sample-name k;
+                k &lt;- Some(r);
+            }
+            return prf(Unwrap(k), m);
         }
-        if (k == None) {
-            r &lt;-$ Bits(256) sample-name k;
-            k &lt;- Some(r);
-        }
-        return prf(Unwrap(k), m);
     }
 }</pre><pre class="pkgsrc" data-pkg="Reduction1">package Reduction1 {
     params {
@@ -716,8 +705,9 @@ bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="90.0" y="15
         pad &lt;-$ Bits(256) sample-name pad;
         if bxor {
             return pad;
+        } else {
+            return xor(pad, m);
         }
-        return xor(pad, m);
     }
 }</pre></div>
 <aside id="pkgpane"><div class="pp-head"><div><div class="pp-title"></div><div class="pp-sub"></div></div><button id="pp-close" title="close (Esc)">×</button></div><div class="pp-body"><h3>instance parameters</h3><pre class="pp-params"></pre><h3>package source</h3><pre class="pp-src"></pre></div></aside>

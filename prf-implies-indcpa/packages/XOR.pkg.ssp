@@ -8,7 +8,8 @@ package XOR {
         pad <-$ Bits(256) sample-name pad;
         if bxor {
             return pad;
+        } else {
+            return xor(pad, m);
         }
-        return xor(pad, m);
     }
 }
