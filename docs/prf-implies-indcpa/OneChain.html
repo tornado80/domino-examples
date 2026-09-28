@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>OneChain</title><style>
+:root { --bg:#ffffff; --fg:#1b1f24; --muted:#6a737d; --line:#d0d7de; --head:#f6f8fa;
+        --accent:#0969da; --accent-bg:#ddf4ff; --pkg:#fff8e1; --pkgline:#8a6d00;
+        --edge:#444c56; --proof:#b3261e; --inst:#8250df; --err:#b3261e; --code:12px; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#8b949e; --line:#30363d; --head:#161b22;
+          --accent:#4493f8; --accent-bg:#132339; --pkg:#2d2610; --pkgline:#d4a72c;
+          --edge:#adbac7; --proof:#ff7b72; --inst:#d2a8ff; --err:#ff7b72; }
+}
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); margin:0; display:flex; flex-direction:column;
+       height:100vh; overflow:hidden;
+       font:14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+code, pre, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+header { flex:none; padding:10px 16px 0; }
+.titlebar { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; justify-content:space-between; }
+h1 { font-size:18px; margin:0; }
+.tools { display:flex; flex-wrap:wrap; gap:14px; align-items:center; color:var(--muted); font-size:13px; }
+.tools label { cursor:pointer; user-select:none; }
+button { font:inherit; color:var(--fg); background:var(--head); border:1px solid var(--line);
+         border-radius:6px; padding:2px 8px; cursor:pointer; }
+button:hover { border-color:var(--accent); }
+kbd { border:1px solid var(--line); border-radius:4px; padding:0 4px; font-size:11px; margin-right:2px; }
+.tabs { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; }
+.tab span { color:var(--muted); font-size:12px; }
+.tab.active { background:var(--accent-bg); border-color:var(--accent); }
+details.hops { color:var(--muted); font-size:13px; margin-bottom:4px; }
+details.hops summary { cursor:pointer; }
+details.hops ol { margin:4px 0; padding-left:28px; }
+details.hops .kind { display:inline-block; min-width:90px; }
+details.hops code { color:var(--fg); }
+section.tabpane { display:none; flex:1; min-height:0; flex-direction:column; padding:0 16px 12px; }
+section.tabpane.active { display:flex; }
+nav.path { flex:none; display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; margin:4px 0 8px; }
+.chip { font-family: ui-monospace, Menlo, monospace; font-size:12px; }
+.chip.visible { background:var(--accent-bg); border-color:var(--accent); }
+.via { color:var(--muted); font-size:11px; cursor:help; }
+.via::before { content:"→ "; } .via::after { content:" →"; }
+.spec { color:var(--proof); font-size:11px; font-weight:normal; }
+.scroller { flex:1; min-height:0; overflow:auto; border:1px solid var(--line); scroll-snap-type:x proximity; }
+table { border-collapse:separate; border-spacing:0; }
+th, td { border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+         vertical-align:top; text-align:left; padding:6px 10px; }
+th.col { scroll-snap-align:start; }
+thead tr:first-child th { position:sticky; top:0; z-index:2; background:var(--head); }
+th.corner, th.oname { position:sticky; left:0; z-index:1; background:var(--head); }
+thead th.corner { z-index:3; }
+.gname { font-weight:600; font-family: ui-monospace, Menlo, monospace; white-space:nowrap; }
+.gname .idx { color:var(--muted); font-weight:normal; font-size:11px; }
+.gsub { color:var(--muted); font-weight:normal; font-size:12px; }
+tr.diagrams td { background:var(--bg); }
+pre { margin:0; font-size:var(--code); line-height:1.35; white-space:pre; }
+body.wrap pre { white-space:pre-wrap; overflow-wrap:anywhere; max-width:80ch; }
+body:not(.show-lossy) .lossy, body.show-lossy .full { display:none; }
+.error { color:var(--err); white-space:pre-wrap; max-width:60ch; }
+svg.diagram { display:block; }
+svg .pkgbox { fill:var(--pkg); stroke:var(--pkgline); stroke-width:1.2; }
+svg .pkg { fill:var(--fg); font:12px ui-monospace, Menlo, monospace; }
+svg .sup { fill:var(--muted); font-size:9px; }
+svg .edge { stroke:var(--edge); stroke-width:1.2; }
+svg .head { fill:var(--edge); }
+svg .oracle { fill:var(--muted); font:10px ui-monospace, Menlo, monospace; }
+svg .inst { fill:var(--muted); font:10px ui-monospace, Menlo, monospace; }
+svg .pkgnode { cursor:pointer; }
+svg .pkgnode:hover .pkgbox { stroke-width:2.2; }
+svg .pkgnode.selected .pkgbox { stroke:var(--accent); stroke-width:2.4; }
+.gbits { font-weight:normal; font-size:12px; }
+.b-fixed { color:var(--muted); } svg .b-fixed { fill:var(--muted); }
+.b-inst { color:var(--inst); font-weight:600; } svg .b-inst { fill:var(--inst); }
+.b-proof { color:var(--proof); font-weight:600; } svg .b-proof { fill:var(--proof); }
+.legend b { margin-left:6px; }
+.bitscap { display:flex; flex-wrap:wrap; gap:4px 12px; margin-bottom:4px;
+           font:11px ui-monospace, Menlo, monospace; color:var(--muted); }
+#pkgpane { position:fixed; top:0; right:0; bottom:0; width:var(--pane); z-index:10;
+           display:flex; flex-direction:column; background:var(--bg);
+           border-left:1px solid var(--line); box-shadow:-8px 0 24px rgba(0,0,0,.25);
+           transform:translateX(100%); transition:transform .15s; }
+:root { --pane:min(680px, 50vw); }
+body.pp-open #pkgpane { transform:none; }
+body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
+.pp-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+           padding:10px 14px; border-bottom:1px solid var(--line); background:var(--head); }
+.pp-title { font:600 15px ui-monospace, Menlo, monospace; }
+.pp-sub { color:var(--muted); font-size:12px; }
+.pp-body { flex:1; min-height:0; overflow:auto; padding:4px 14px 16px; }
+.pp-body h3 { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:12px 0 4px; }
+.pp-body .kw { color:var(--accent); }
+.pp-body .cm { color:var(--muted); font-style:italic; }
+</style></head><body class="">
+<header>
+<div class="titlebar"><h1>theorem <code>OneChain</code></h1><div class="tools"><label><input type="checkbox" id="opt-lossy"> lossy</label><label><input type="checkbox" id="opt-wrap"> wrap lines</label><span class="zoom"><button id="zoom-out" title="smaller code">A−</button><button id="zoom-in" title="larger code">A+</button></span><button id="pp-toggle" title="show / hide the package pane">packages</button><span class="legend" title="colour of Boolean parameters: fixed in the game definition, set by the theorem's game instance, or a proof parameter">bits:<b class="b-fixed">fixed</b><b class="b-inst">instance</b><b class="b-proof">proof</b></span><span class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next game · click a package for its code</span></div></div>
+<nav class="tabs"><button class="tab" data-tab="0"><b>Main</b> <span>Gcpa0 ~ Gcpa1</span></button></nav>
+<details class="hops"><summary>all game hops</summary><ol start="0"><li><span class="kind">equivalence</span> <code>Gcpa == Hybrid0_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></li><li><span class="kind">equivalence</span> <code>Hybrid0_b_1 == Hybrid1_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></li><li><span class="kind">equivalence</span> <code>Hybrid1_b_1 == Hybrid2_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></li><li><span class="kind">equivalence</span> <code>Hybrid2_0_1 == Hybrid2_1_1</code></li></ol></details>
+</header>
+<section class="tabpane" data-tab="0">
+<nav class="path"><button class="chip" data-col="0">Gcpa0</button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="1">Hybrid0_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)">reduction</span><button class="chip" data-col="2">Hybrid0_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="3">Hybrid1_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)">reduction</span><button class="chip" data-col="4">Hybrid1_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="5">Hybrid2_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)">reduction</span><button class="chip" data-col="6">Hybrid2_0_1</button><span class="via" title="Hybrid2_0_1 == Hybrid2_1_1">equivalence</span><button class="chip" data-col="7">Hybrid2_1_1</button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)">reduction</span><button class="chip" data-col="8">Hybrid2_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="9">Hybrid1_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)">reduction</span><button class="chip" data-col="10">Hybrid1_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="11">Hybrid0_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)">reduction</span><button class="chip" data-col="12">Hybrid0_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="13">Gcpa1</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/14</span> Gcpa0 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gcpa</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="3"><div class="gname"><span class="idx">4/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="4"><div class="gname"><span class="idx">5/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="5"><div class="gname"><span class="idx">6/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="6"><div class="gname"><span class="idx">7/14</span> Hybrid2_0_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">0</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="7"><div class="gname"><span class="idx">8/14</span> Hybrid2_1_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid2_0_1 == Hybrid2_1_1</code></div></th><th class="col" data-col="8"><div class="gname"><span class="idx">9/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="9"><div class="gname"><span class="idx">10/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="10"><div class="gname"><span class="idx">11/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="11"><div class="gname"><span class="idx">12/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="12"><div class="gname"><span class="idx">13/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="13"><div class="gname"><span class="idx">14/14</span> Gcpa1 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gcpa</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="Gcpa0"><div class="bitscap"><span>bcpa=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Enc</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Construction" data-inst="Construction" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Construction, instance Construction</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Construction</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="bcpa: Boolean = false
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package CPA, instance CPA
+bcpa = false (instance parameter bcpa)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Eval</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = false (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor
+bmsg: Boolean = false"><title>package Reduction1, instance Reduction1
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction1<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Eval</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor
+bmsg: Boolean = false"><title>package Reduction1, instance Reduction1
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction1<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Sample</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
+bnonce = false (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="bmsg: Boolean = false
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction2<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Sample</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
+bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="bmsg: Boolean = false
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction2<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Xor</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = false (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params="bmsg: Boolean = false"><title>package Reduction3, instance Reduction3
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction3<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid2_0_1"><div class="bitscap"><span>bmsg=<span class="b-inst" title="instance parameter">0</span></span> <span>bxor=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Xor</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = true
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params="bmsg: Boolean = false"><title>package Reduction3, instance Reduction3
+bmsg = false (instance parameter bmsg)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction3<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g></svg></td><td data-game="Hybrid2_1_1"><div class="bitscap"><span>bmsg=<span class="b-inst" title="instance parameter">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Xor</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = true
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params="bmsg: Boolean = true"><title>package Reduction3, instance Reduction3
+bmsg = true (instance parameter bmsg)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction3<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Xor</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = false (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params="bmsg: Boolean = true"><title>package Reduction3, instance Reduction3
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction3<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Sample</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
+bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="bmsg: Boolean = true
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction2<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Sample</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
+bnonce = false (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="bmsg: Boolean = true
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction2<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Eval</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor
+bmsg: Boolean = true"><title>package Reduction1, instance Reduction1
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction1<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Eval</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = false (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor
+bmsg: Boolean = true"><title>package Reduction1, instance Reduction1
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Reduction1<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g></svg></td><td data-game="Gcpa1"><div class="bitscap"><span>bcpa=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">Enc</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Construction" data-inst="Construction" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Construction, instance Construction</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Construction</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="bcpa: Boolean = true
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package CPA, instance CPA
+bcpa = true (instance parameter bcpa)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>Enc</code></th><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    if ((CPA.k == None)) {
+        k_ &lt;-$ Bits(256) sample-name k;
+        CPA.k &lt;- Some(k_);
+    }
+    if (false) {
+        m &lt;- 0;
+    }
+    unwrap-1 &lt;- unwrap(CPA.k);
+    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
+    {
+        k &lt;- unwrap-1;
+        m &lt;- m;
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
+    }
+    return c;
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    if ((CPA.k == ⊥)) {
+        k_ &lt;-$ Bits(256) sample-name k;
+        CPA.k &lt;- k_;
+    }
+    if (false) {
+        m &lt;- 0;
+    }
+    unwrap-1 &lt;- CPA.k;
+    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
+    {
+        k &lt;- unwrap-1;
+        m &lt;- m;
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
+    }
+    return c;
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (false) {
+            if ((Prf.T[m] == None)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- Some(r);
+            }
+            unwrap-1 &lt;- unwrap(Prf.T[m]);
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == None)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- Some(r);
+        }
+        unwrap-2 &lt;- unwrap(Prf.k);
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (false) {
+            if ((Prf.T[m] == ⊥)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- r;
+            }
+            unwrap-1 &lt;- Prf.T[m];
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == ⊥)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- r;
+        }
+        unwrap-2 &lt;- Prf.k;
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (true) {
+            if ((Prf.T[m] == None)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- Some(r);
+            }
+            unwrap-1 &lt;- unwrap(Prf.T[m]);
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == None)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- Some(r);
+        }
+        unwrap-2 &lt;- unwrap(Prf.k);
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (true) {
+            if ((Prf.T[m] == ⊥)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- r;
+            }
+            unwrap-1 &lt;- Prf.T[m];
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == ⊥)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- r;
+        }
+        unwrap-2 &lt;- Prf.k;
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (false) {
+            assert ((Nonce.T[nonce] == None));
+            Nonce.T[nonce] &lt;- Some(true);
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == None)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
+    return (nonce, xor(unwrap-1, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (false) {
+            assert ((Nonce.T[nonce] == ⊥));
+            Nonce.T[nonce] &lt;- true;
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == ⊥)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    unwrap-1 &lt;- Reduction2.T[nonce];
+    return (nonce, xor(unwrap-1, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (true) {
+            assert ((Nonce.T[nonce] == None));
+            Nonce.T[nonce] &lt;- Some(true);
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == None)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
+    return (nonce, xor(unwrap-1, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (true) {
+            assert ((Nonce.T[nonce] == ⊥));
+            Nonce.T[nonce] &lt;- true;
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == ⊥)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    unwrap-1 &lt;- Reduction2.T[nonce];
+    return (nonce, xor(unwrap-1, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == None));
+    Reduction3.T[nonce] &lt;- Some(true);
+    if (b) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (false) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == ⊥));
+    Reduction3.T[nonce] &lt;- true;
+    if (b) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (false) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == None));
+    Reduction3.T[nonce] &lt;- Some(true);
+    if (false) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (true) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == ⊥));
+    Reduction3.T[nonce] &lt;- true;
+    if (false) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (true) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == None));
+    Reduction3.T[nonce] &lt;- Some(true);
+    if (true) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (true) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == ⊥));
+    Reduction3.T[nonce] &lt;- true;
+    if (true) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (true) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == None));
+    Reduction3.T[nonce] &lt;- Some(true);
+    if (b) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (false) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert ((Reduction3.T[nonce] == ⊥));
+    Reduction3.T[nonce] &lt;- true;
+    if (b) {
+        m &lt;- 0;
+    }
+    c &lt;- invoke Xor(m)      // Xor.Xor
+    {
+        m &lt;- m;
+        pad &lt;-$ Bits(256) sample-name pad;
+        if (false) {
+            c &lt;- pad;  // return from Xor.Xor
+        }
+        c &lt;- xor(pad, m);  // return from Xor.Xor
+    }
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (true) {
+            assert ((Nonce.T[nonce] == None));
+            Nonce.T[nonce] &lt;- Some(true);
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == None)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
+    return (nonce, xor(unwrap-1, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (true) {
+            assert ((Nonce.T[nonce] == ⊥));
+            Nonce.T[nonce] &lt;- true;
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == ⊥)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    unwrap-1 &lt;- Reduction2.T[nonce];
+    return (nonce, xor(unwrap-1, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (false) {
+            assert ((Nonce.T[nonce] == None));
+            Nonce.T[nonce] &lt;- Some(true);
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == None)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
+    return (nonce, xor(unwrap-1, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;- invoke Sample()      // Nonce.Sample
+    {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if (false) {
+            assert ((Nonce.T[nonce] == ⊥));
+            Nonce.T[nonce] &lt;- true;
+        }
+        nonce &lt;- nonce;  // return from Nonce.Sample
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    if ((Reduction2.T[nonce] == ⊥)) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    unwrap-1 &lt;- Reduction2.T[nonce];
+    return (nonce, xor(unwrap-1, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (true) {
+            if ((Prf.T[m] == None)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- Some(r);
+            }
+            unwrap-1 &lt;- unwrap(Prf.T[m]);
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == None)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- Some(r);
+        }
+        unwrap-2 &lt;- unwrap(Prf.k);
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (true) {
+            if ((Prf.T[m] == ⊥)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- r;
+            }
+            unwrap-1 &lt;- Prf.T[m];
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == ⊥)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- r;
+        }
+        unwrap-2 &lt;- Prf.k;
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (false) {
+            if ((Prf.T[m] == None)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- Some(r);
+            }
+            unwrap-1 &lt;- unwrap(Prf.T[m]);
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == None)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- Some(r);
+        }
+        unwrap-2 &lt;- unwrap(Prf.k);
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    pad &lt;- invoke Eval(nonce)      // Prf.Eval
+    {
+        m &lt;- nonce;
+        if (false) {
+            if ((Prf.T[m] == ⊥)) {
+                r &lt;-$ Bits(256) sample-name r;
+                Prf.T[m] &lt;- r;
+            }
+            unwrap-1 &lt;- Prf.T[m];
+            pad &lt;- unwrap-1;  // return from Prf.Eval
+        }
+        if ((Prf.k == ⊥)) {
+            r &lt;-$ Bits(256) sample-name k;
+            Prf.k &lt;- r;
+        }
+        unwrap-2 &lt;- Prf.k;
+        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
+    }
+    if (b) {
+        m &lt;- 0;
+    }
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    if ((CPA.k == None)) {
+        k_ &lt;-$ Bits(256) sample-name k;
+        CPA.k &lt;- Some(k_);
+    }
+    if (true) {
+        m &lt;- 0;
+    }
+    unwrap-1 &lt;- unwrap(CPA.k);
+    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
+    {
+        k &lt;- unwrap-1;
+        m &lt;- m;
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
+    }
+    return c;
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    if ((CPA.k == ⊥)) {
+        k_ &lt;-$ Bits(256) sample-name k;
+        CPA.k &lt;- k_;
+    }
+    if (true) {
+        m &lt;- 0;
+    }
+    unwrap-1 &lt;- CPA.k;
+    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
+    {
+        k &lt;- unwrap-1;
+        m &lt;- m;
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
+    }
+    return c;
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<div hidden><pre class="pkgsrc" data-pkg="CPA">package CPA {
+    params {
+        bcpa: Bool,
+        prf: fn Bits(256), Bits(256) -&gt; Bits(256)
+    }
+
+    import oracles {
+        Enc(k: Bits(256), m: Bits(256)) -&gt; (Bits(256), Bits(256)),
+    }
+
+    state {
+        k: Maybe(Bits(256))
+    }
+
+    oracle Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+        if (k == None) {
+            k_ &lt;-$ Bits(256) sample-name k;
+            k &lt;- Some(k_);
+        }
+        if bcpa {
+            m &lt;- 0_256;
+        }
+        c &lt;- invoke Enc(Unwrap(k), m);
+        return c;
+    }
+}
+</pre><pre class="pkgsrc" data-pkg="Construction">package Construction {
+    params {
+        prf: fn Bits(256), Bits(256) -&gt; Bits(256),
+        xor: fn Bits(256), Bits(256) -&gt; Bits(256)
+    }
+
+    oracle Enc(k: Bits(256), m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        return (nonce, xor(prf(k, nonce), m));
+    }
+}</pre><pre class="pkgsrc" data-pkg="Nonce">package Nonce {
+    params {
+        bnonce: Bool
+    }
+
+    state {
+        T: Table(Bits(256), Bool)
+    }
+
+    oracle Sample() -&gt; Bits(256) {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        if bnonce {
+            assert (T[nonce] == None);
+            T[nonce] &lt;- Some(true);
+        }
+        return nonce;
+    }
+}</pre><pre class="pkgsrc" data-pkg="PRF">package PRF {
+    params {
+        bprf: Bool,
+        prf: fn Bits(256), Bits(256) -&gt; Bits(256)
+    }
+
+    state {
+        k: Maybe(Bits(256)),
+        T: Table(Bits(256), Bits(256))
+    }
+
+    oracle Eval(m: Bits(256)) -&gt; Bits(256) {
+        if bprf {
+            if (T[m] == None) {
+                r &lt;-$ Bits(256) sample-name r;
+                T[m] &lt;- Some(r);
+            }
+            return Unwrap(T[m]);
+        }
+        if (k == None) {
+            r &lt;-$ Bits(256) sample-name k;
+            k &lt;- Some(r);
+        }
+        return prf(Unwrap(k), m);
+    }
+}</pre><pre class="pkgsrc" data-pkg="Reduction1">package Reduction1 {
+    params {
+        xor: fn Bits(256), Bits(256) -&gt; Bits(256),
+        bmsg: Bool
+    }
+
+    import oracles {
+        Eval(x: Bits(256)) -&gt; Bits(256),
+    }
+
+    oracle Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        pad &lt;- invoke Eval(nonce);
+        if bmsg {
+            m &lt;- 0_256;
+        }
+        return (nonce, xor(pad, m));
+    }
+}</pre><pre class="pkgsrc" data-pkg="Reduction2">package Reduction2 {
+    import oracles {
+        Sample() -&gt; Bits(256),
+    }
+
+    params {
+        bmsg: Bool,
+        xor: fn Bits(256), Bits(256) -&gt; Bits(256)
+    }
+
+    state {
+        T: Table(Bits(256), Bits(256))
+    }
+
+    oracle Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+        nonce &lt;- invoke Sample();
+        if bmsg {
+            m &lt;- 0_256;
+        }
+        if (T[nonce] == None) {
+            pad &lt;-$ Bits(256) sample-name pad;
+            T[nonce] &lt;- Some(pad);
+        }
+        return (nonce, xor(Unwrap(T[nonce]), m));
+    }
+}</pre><pre class="pkgsrc" data-pkg="Reduction3">package Reduction3 {
+    import oracles {
+        Xor(m: Bits(256)) -&gt; Bits(256),
+    }
+
+    params {
+        bmsg: Bool
+    }
+
+    state {
+        T: Table(Bits(256), Bool)
+    }
+
+    oracle Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (T[nonce] == None);
+        T[nonce] &lt;- Some(true);
+        if bmsg {
+            m &lt;- 0_256;
+        }
+        c &lt;- invoke Xor(m);
+        return (nonce, c);
+    }
+}</pre><pre class="pkgsrc" data-pkg="XOR">package XOR {
+    params {
+        bxor: Bool,
+        xor: fn Bits(256), Bits(256) -&gt; Bits(256)
+    }
+
+    oracle Xor(m: Bits(256)) -&gt; Bits(256) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        if bxor {
+            return pad;
+        }
+        return xor(pad, m);
+    }
+}</pre></div>
+<aside id="pkgpane"><div class="pp-head"><div><div class="pp-title"></div><div class="pp-sub"></div></div><button id="pp-close" title="close (Esc)">×</button></div><div class="pp-body"><h3>instance parameters</h3><pre class="pp-params"></pre><h3>package source</h3><pre class="pp-src"></pre></div></aside>
+<script>
+(function () {
+  const store = {
+    get(k) { try { return localStorage.getItem('domino-html-' + k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem('domino-html-' + k, v); } catch (e) {} },
+  };
+  const body = document.body;
+  const tabs = [...document.querySelectorAll('.tab')];
+  const panes = [...document.querySelectorAll('.tabpane')];
+  const pane = () => document.querySelector('.tabpane.active');
+
+  // Package side pane.
+  const ppane = document.getElementById('pkgpane');
+  const sources = {};
+  document.querySelectorAll('pre.pkgsrc').forEach(p => { sources[p.dataset.pkg] = p.textContent; });
+  const TOKENS = /\/\*[\s\S]*?\*\/|\/\/[^\n]*|\b(?:package|composition|theorem|params|state|types|import|oracles|oracle|return|if|else|assert|abort|invoke|for|in|const|Bool|Integer|Bits|Maybe|Table|Some|None|unwrap|true|false)\b/g;
+  function highlight(text) {
+    const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let out = '', last = 0;
+    for (const m of text.matchAll(TOKENS)) {
+      const cls = m[0].startsWith('/') ? 'cm' : 'kw';
+      out += esc(text.slice(last, m.index)) + '<span class="' + cls + '">' + esc(m[0]) + '</span>';
+      last = m.index + m[0].length;
+    }
+    return out + esc(text.slice(last));
+  }
+  function setPane(open) {
+    body.classList.toggle('pp-open', open);
+    refresh();
+  }
+  function openPkg(node) {
+    document.querySelectorAll('.pkgnode.selected').forEach(n => n.classList.remove('selected'));
+    node.classList.add('selected');
+    const cell = node.closest('td');
+    const pkg = node.dataset.pkg;
+    ppane.querySelector('.pp-title').textContent = 'package ' + pkg;
+    ppane.querySelector('.pp-sub').textContent =
+      'instance ' + node.dataset.inst + (cell ? ' in game instance ' + cell.dataset.game : '');
+    ppane.querySelector('.pp-params').textContent = node.dataset.params || '(no parameters)';
+    ppane.querySelector('.pp-src').innerHTML = highlight(sources[pkg] || '(source not available)');
+    ppane.querySelector('.pp-body').scrollTop = 0;
+    setPane(true);
+  }
+  ppane.querySelector('.pp-title').textContent = 'packages';
+  ppane.querySelector('.pp-sub').textContent = 'click a package in a diagram';
+  document.addEventListener('click', e => {
+    const node = e.target.closest && e.target.closest('.pkgnode');
+    if (node) openPkg(node);
+  });
+  document.getElementById('pp-close').addEventListener('click', () => setPane(false));
+  document.getElementById('pp-toggle').addEventListener('click',
+    () => setPane(!body.classList.contains('pp-open')));
+
+  function option(id, cls, key) {
+    const box = document.getElementById(id);
+    const saved = store.get(key);
+    if (saved !== null) body.classList.toggle(cls, saved === '1');
+    box.checked = body.classList.contains(cls);
+    box.addEventListener('change', () => {
+      body.classList.toggle(cls, box.checked);
+      store.set(key, box.checked ? '1' : '0');
+      refresh();
+    });
+  }
+  option('opt-lossy', 'show-lossy', 'lossy');
+  option('opt-wrap', 'wrap', 'wrap');
+
+  let code = parseInt(store.get('code'), 10) || 12;
+  function zoom(d) {
+    code = Math.min(20, Math.max(8, code + d));
+    document.documentElement.style.setProperty('--code', code + 'px');
+    store.set('code', String(code));
+    refresh();
+  }
+  zoom(0);
+  document.getElementById('zoom-in').addEventListener('click', () => zoom(1));
+  document.getElementById('zoom-out').addEventListener('click', () => zoom(-1));
+
+  function showTab(t) {
+    tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === String(t)));
+    panes.forEach(p => p.classList.toggle('active', p.dataset.tab === String(t)));
+    store.set('tab:' + document.title, String(t));
+    refresh();
+  }
+  tabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  // Geometry of the active pane: the scroller, its game columns, and the left
+  // edge of the area not covered by the sticky oracle-name column.
+  function geo(p) {
+    const sc = p.querySelector('.scroller');
+    const cols = [...p.querySelectorAll('th.col')];
+    const corner = p.querySelector('th.corner');
+    const r = sc.getBoundingClientRect();
+    return { sc, cols, left: r.left + corner.offsetWidth, right: r.right, cornerW: corner.offsetWidth };
+  }
+  function scrollToCol(p, i) {
+    const g = geo(p);
+    const c = g.cols[Math.max(0, Math.min(g.cols.length - 1, i))];
+    if (!c) return;
+    g.sc.scrollTo({ left: g.sc.scrollLeft + c.getBoundingClientRect().left - g.left, behavior: 'smooth' });
+  }
+  function refresh() {
+    const p = pane();
+    if (!p) return;
+    const g = geo(p);
+    g.sc.style.scrollPaddingLeft = g.cornerW + 'px';
+    const chips = p.querySelectorAll('.chip');
+    g.cols.forEach((c, i) => {
+      const r = c.getBoundingClientRect();
+      chips[i].classList.toggle('visible', r.right > g.left + 20 && r.left < g.right - 20);
+    });
+  }
+
+  panes.forEach(p => {
+    p.querySelectorAll('.chip').forEach(ch =>
+      ch.addEventListener('click', () => scrollToCol(p, parseInt(ch.dataset.col, 10))));
+    let queued = false;
+    p.querySelector('.scroller').addEventListener('scroll', () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; refresh(); });
+    });
+  });
+  window.addEventListener('resize', refresh);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && body.classList.contains('pp-open')) { setPane(false); return; }
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select')) return;
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const p = pane();
+    if (!p) return;
+    const g = geo(p);
+    const lefts = g.cols.map(c => c.getBoundingClientRect().left - g.left);
+    let target;
+    if (e.key === 'ArrowRight') {
+      target = lefts.findIndex(x => x > 5);
+      if (target < 0) return;
+    } else {
+      target = -1;
+      lefts.forEach((x, i) => { if (x < -5) target = i; });
+      if (target < 0) return;
+    }
+    e.preventDefault();
+    scrollToCol(p, target);
+  });
+
+  const saved = parseInt(store.get('tab:' + document.title), 10);
+  showTab(saved >= 0 && saved < tabs.length ? saved : 0);
+})();
+</script>
+</body></html>
