@@ -2,11 +2,12 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PrfImpliesIndCpaModular</title><style>
 :root { --bg:#ffffff; --fg:#1b1f24; --muted:#6a737d; --line:#d0d7de; --head:#f6f8fa;
         --accent:#0969da; --accent-bg:#ddf4ff; --pkg:#fff8e1; --pkgline:#8a6d00;
-        --edge:#444c56; --proof:#b3261e; --inst:#8250df; --err:#b3261e; --code:12px; }
+        --edge:#444c56; --proof:#b3261e; --inst:#8250df; --err:#b3261e; --assm:#cf222e;
+        --code:12px; }
 @media (prefers-color-scheme: dark) {
   :root { --bg:#0d1117; --fg:#e6edf3; --muted:#8b949e; --line:#30363d; --head:#161b22;
           --accent:#4493f8; --accent-bg:#132339; --pkg:#2d2610; --pkgline:#d4a72c;
-          --edge:#adbac7; --proof:#ff7b72; --inst:#d2a8ff; --err:#ff7b72; }
+          --edge:#adbac7; --proof:#ff7b72; --inst:#d2a8ff; --err:#ff7b72; --assm:#f85149; }
 }
 html, body { height:100%; }
 body { background:var(--bg); color:var(--fg); margin:0; display:flex; flex-direction:column;
@@ -25,6 +26,12 @@ kbd { border:1px solid var(--line); border-radius:4px; padding:0 4px; font-size:
 .tabs { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; }
 .tab span { color:var(--muted); font-size:12px; }
 .tab.active { background:var(--accent-bg); border-color:var(--accent); }
+.tabgroup { align-self:center; margin-left:10px; padding-left:12px; border-left:1px solid var(--line);
+            color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+.tab.assm b { color:var(--assm); }
+[data-assumption]:not(.tab) { cursor:pointer; }
+code[data-assumption]:hover, .via[data-assumption]:hover { text-decoration:underline; }
+.sim { color:var(--muted); font-size:13px; }
 details.hops { color:var(--muted); font-size:13px; margin-bottom:4px; }
 details.hops summary { cursor:pointer; }
 details.hops ol { margin:4px 0; padding-left:28px; }
@@ -65,11 +72,15 @@ svg .inst { fill:var(--muted); font:10px ui-monospace, Menlo, monospace; }
 svg .pkgnode { cursor:pointer; }
 svg .pkgnode:hover .pkgbox { stroke-width:2.2; }
 svg .pkgnode.selected .pkgbox { stroke:var(--accent); stroke-width:2.4; }
+svg .assm rect { fill:none; stroke:var(--assm); stroke-width:1.4; stroke-dasharray:6 4; pointer-events:none; }
+svg .assm text { fill:var(--assm); font:10px ui-monospace, Menlo, monospace; }
+svg .assm:hover text { text-decoration:underline; }
 .gbits { font-weight:normal; font-size:12px; }
 .b-fixed { color:var(--muted); } svg .b-fixed { fill:var(--muted); }
 .b-inst { color:var(--inst); font-weight:600; } svg .b-inst { fill:var(--inst); }
 .b-proof { color:var(--proof); font-weight:600; } svg .b-proof { fill:var(--proof); }
 .legend b { margin-left:6px; }
+.assm-key { color:var(--assm); font-weight:600; }
 .bitscap { display:flex; flex-wrap:wrap; gap:4px 12px; margin-bottom:4px;
            font:11px ui-monospace, Menlo, monospace; color:var(--muted); }
 #pkgpane { position:fixed; top:0; right:0; bottom:0; width:var(--pane); z-index:10;
@@ -89,27 +100,27 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 .pp-body .cm { color:var(--muted); font-style:italic; }
 </style></head><body class="">
 <header>
-<div class="titlebar"><h1>theorem <code>PrfImpliesIndCpaModular</code></h1><div class="tools"><label><input type="checkbox" id="opt-lossy"> lossy</label><label><input type="checkbox" id="opt-wrap"> wrap lines</label><span class="zoom"><button id="zoom-out" title="smaller code">A−</button><button id="zoom-in" title="larger code">A+</button></span><button id="pp-toggle" title="show / hide the package pane">packages</button><span class="legend" title="colour of Boolean parameters: fixed in the game definition, set by the theorem's game instance, or a proof parameter">bits:<b class="b-fixed">fixed</b><b class="b-inst">instance</b><b class="b-proof">proof</b></span><span class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next game · click a package for its code</span></div></div>
-<nav class="tabs"><button class="tab" data-tab="0"><b>Main</b> <span>Gcpa0 ~ Gcpa1</span></button></nav>
+<div class="titlebar"><h1>theorem <code>PrfImpliesIndCpaModular</code></h1><div class="tools"><label><input type="checkbox" id="opt-lossy"> lossy</label><label><input type="checkbox" id="opt-wrap"> wrap lines</label><span class="zoom"><button id="zoom-out" title="smaller code">A−</button><button id="zoom-in" title="larger code">A+</button></span><button id="pp-toggle" title="show / hide the package pane">packages</button><span class="legend" title="colour of Boolean parameters: fixed in the game definition, set by the theorem's game instance, or a proof parameter">bits:<b class="b-fixed">fixed</b><b class="b-inst">instance</b><b class="b-proof">proof</b></span><span class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next game · click a package for its code · <span class="assm-key">- - -</span> assumption packages</span></div></div>
+<nav class="tabs"><button class="tab" data-tab="0"><b>Main</b> <span>Gcpa0 ~ Gcpa1</span></button><span class="tabgroup">assumptions</span><button class="tab assm" data-tab="1" data-assumption="Nonces"><b>Nonces</b> <span>Gnonce0 ~ Gnonce1</span></button><button class="tab assm" data-tab="2" data-assumption="PRF"><b>PRF</b> <span>Gprf0 ~ Gprf1</span></button><button class="tab assm" data-tab="3" data-assumption="XOR"><b>XOR</b> <span>Gxor0 ~ Gxor1</span></button></nav>
 <details class="hops"><summary>all game hops</summary><ol start="0"><li><span class="kind">equivalence</span> <code>Gcpa == Hybrid0_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></li><li><span class="kind">equivalence</span> <code>Hybrid0_b_1 == Hybrid1_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></li><li><span class="kind">equivalence</span> <code>Hybrid1_b_1 == Hybrid2_b_0</code></li><li><span class="kind">reduction</span> <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></li><li><span class="kind">equivalence</span> <code>Hybrid2_0_1 == Hybrid2_1_1</code></li></ol></details>
 </header>
 <section class="tabpane" data-tab="0">
-<nav class="path"><button class="chip" data-col="0">Gcpa0</button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="1">Hybrid0_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)">reduction</span><button class="chip" data-col="2">Hybrid0_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="3">Hybrid1_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)">reduction</span><button class="chip" data-col="4">Hybrid1_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="5">Hybrid2_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)">reduction</span><button class="chip" data-col="6">Hybrid2_0_1</button><span class="via" title="Hybrid2_0_1 == Hybrid2_1_1">equivalence</span><button class="chip" data-col="7">Hybrid2_1_1</button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)">reduction</span><button class="chip" data-col="8">Hybrid2_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="9">Hybrid1_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)">reduction</span><button class="chip" data-col="10">Hybrid1_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="11">Hybrid0_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)">reduction</span><button class="chip" data-col="12">Hybrid0_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="13">Gcpa1</button></nav>
+<nav class="path"><button class="chip" data-col="0">Gcpa0</button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="1">Hybrid0_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)" data-assumption="PRF">reduction</span><button class="chip" data-col="2">Hybrid0_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="3">Hybrid1_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)" data-assumption="Nonces">reduction</span><button class="chip" data-col="4">Hybrid1_b_1 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="5">Hybrid2_b_0 <span class="spec">[b ↦ 0]</span></button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)" data-assumption="XOR">reduction</span><button class="chip" data-col="6">Hybrid2_0_1</button><span class="via" title="Hybrid2_0_1 == Hybrid2_1_1">equivalence</span><button class="chip" data-col="7">Hybrid2_1_1</button><span class="via" title="Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)" data-assumption="XOR">reduction</span><button class="chip" data-col="8">Hybrid2_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_1 == Hybrid2_b_0">equivalence</span><button class="chip" data-col="9">Hybrid1_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)" data-assumption="Nonces">reduction</span><button class="chip" data-col="10">Hybrid1_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_1 == Hybrid1_b_0">equivalence</span><button class="chip" data-col="11">Hybrid0_b_1 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)" data-assumption="PRF">reduction</span><button class="chip" data-col="12">Hybrid0_b_0 <span class="spec">[b ↦ 1]</span></button><span class="via" title="Gcpa == Hybrid0_b_0">equivalence</span><button class="chip" data-col="13">Gcpa1</button></nav>
 <div class="scroller"><table>
-<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/14</span> Gcpa0 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gcpa</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="3"><div class="gname"><span class="idx">4/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="4"><div class="gname"><span class="idx">5/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="5"><div class="gname"><span class="idx">6/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="6"><div class="gname"><span class="idx">7/14</span> Hybrid2_0_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">0</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="7"><div class="gname"><span class="idx">8/14</span> Hybrid2_1_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">1</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid2_0_1 == Hybrid2_1_1</code></div></th><th class="col" data-col="8"><div class="gname"><span class="idx">9/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code>Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="9"><div class="gname"><span class="idx">10/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="10"><div class="gname"><span class="idx">11/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code>Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="11"><div class="gname"><span class="idx">12/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="12"><div class="gname"><span class="idx">13/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code>Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="13"><div class="gname"><span class="idx">14/14</span> Gcpa1 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gcpa</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th></tr>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/14</span> Gcpa0 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gcpa</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="PRF">Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="3"><div class="gname"><span class="idx">4/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="4"><div class="gname"><span class="idx">5/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code data-assumption="Nonces">Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="5"><div class="gname"><span class="idx">6/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 0]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="6"><div class="gname"><span class="idx">7/14</span> Hybrid2_0_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">0</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code data-assumption="XOR">Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="7"><div class="gname"><span class="idx">8/14</span> Hybrid2_1_1 <span class="gbits">[bmsg -&gt; <span class="b-inst" title="instance parameter">1</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via equivalence <code>Hybrid2_0_1 == Hybrid2_1_1</code></div></th><th class="col" data-col="8"><div class="gname"><span class="idx">9/14</span> Hybrid2_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>, bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid2</code></div><div class="gsub">via reduction <code data-assumption="XOR">Hybrid2_b_0 ~= Hybrid2_b_1 (XOR)</code></div></th><th class="col" data-col="9"><div class="gname"><span class="idx">10/14</span> Hybrid1_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via equivalence <code>Hybrid1_b_1 == Hybrid2_b_0</code></div></th><th class="col" data-col="10"><div class="gname"><span class="idx">11/14</span> Hybrid1_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid1</code></div><div class="gsub">via reduction <code data-assumption="Nonces">Hybrid1_b_0 ~= Hybrid1_b_1 (Nonces)</code></div></th><th class="col" data-col="11"><div class="gname"><span class="idx">12/14</span> Hybrid0_b_1 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via equivalence <code>Hybrid0_b_1 == Hybrid1_b_0</code></div></th><th class="col" data-col="12"><div class="gname"><span class="idx">13/14</span> Hybrid0_b_0 <span class="gbits">[bmsg -&gt; <span class="b-proof" title="proof parameter">b</span>, bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span> <span class="spec">[b ↦ 1]</span></div><div class="gsub">game <code>Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="PRF">Hybrid0_b_0 ~= Hybrid0_b_1 (PRF)</code></div></th><th class="col" data-col="13"><div class="gname"><span class="idx">14/14</span> Gcpa1 <span class="gbits">[bcpa -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gcpa</code></div><div class="gsub">via equivalence <code>Gcpa == Hybrid0_b_0</code></div></th></tr>
 <tr class="diagrams"><th class="corner"></th><td data-game="Gcpa0"><div class="bitscap"><span>bcpa=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Construction" data-inst="Construction" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf
 xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Construction, instance Construction</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Construction</text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
-bmsg = false (instance parameter bcpa)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package CPA, instance CPA</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">CPA</text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
+bmsg = false (instance parameter bcpa)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package CPA, instance CPA</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">CPA</text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="PRF"><title>assumption PRF: Gprf0 ~ Gprf1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">PRF</text></g><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
 prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
 bprf = false (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
-bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="PRF"><title>assumption PRF: Gprf0 ~ Gprf1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">PRF</text></g><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
 prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
 bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
-bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="Nonces"><title>assumption Nonces: Gnonce0 ~ Gnonce1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">Nonces</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
 bnonce = false (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
-bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="Nonces"><title>assumption Nonces: Gnonce0 ~ Gnonce1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">Nonces</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
 bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
-bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="230" viewBox="0 0 380.0 230.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Xor</text><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
+bmsg = false (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">0</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="230" viewBox="0 0 387.5 230.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Xor</text><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="XOR"><title>assumption XOR: Gxor0 ~ Gxor1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">XOR</text></g><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
 xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
 bxor = false (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
 bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="190.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = false"><title>package Message, instance Message
@@ -121,18 +132,18 @@ bmsg = false (instance parameter bmsg)</title><rect class="pkgbox" x="265.0" y="
 xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
 bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
 bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="190.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
-bmsg = true (instance parameter bmsg)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params=""><title>package Reduction3, instance Reduction3</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Reduction3</text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="230" viewBox="0 0 380.0 230.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Xor</text><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
+bmsg = true (instance parameter bmsg)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params=""><title>package Reduction3, instance Reduction3</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Reduction3</text></g></svg></td><td data-game="Hybrid2_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span> <span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="230" viewBox="0 0 387.5 230.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Xor</text><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="XOR"><title>assumption XOR: Gxor0 ~ Gxor1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">XOR</text></g><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
 xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
 bxor = false (instance parameter bxor)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
 bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="190.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
-bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params=""><title>package Reduction3, instance Reduction3</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Reduction3</text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction3" data-inst="Reduction3" data-params=""><title>package Reduction3, instance Reduction3</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Reduction3</text></g></svg></td><td data-game="Hybrid1_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="Nonces"><title>assumption Nonces: Gnonce0 ~ Gnonce1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">Nonces</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
 bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
-bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid1_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Sample</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="Nonces"><title>assumption Nonces: Gnonce0 ~ Gnonce1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">Nonces</text></g><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
 bnonce = false (instance parameter bnonce)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
-bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction2" data-inst="Reduction2" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction2, instance Reduction2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction2</text></g></svg></td><td data-game="Hybrid0_b_1"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="PRF"><title>assumption PRF: Gprf0 ~ Gprf1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">PRF</text></g><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
 prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
 bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
-bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
+bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Hybrid0_b_0"><div class="bitscap"><span>bmsg=<span class="b-proof" title="proof parameter b">1</span></span> <span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Eval</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="65.0" x2="90.0" y2="65.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="61.0" text-anchor="middle">Enc</text><g class="assm" data-assumption="PRF"><title>assumption PRF: Gprf0 ~ Gprf1</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">PRF</text></g><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
 prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
 bprf = false (instance parameter bprf)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g><g class="pkgnode" data-pkg="Message" data-inst="Message" data-params="bmsg: Boolean = true"><title>package Message, instance Message
 bmsg = true (proof parameter b)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-proof">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="Reduction1" data-inst="Reduction1" data-params="xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Reduction1, instance Reduction1</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">Reduction1</text></g></svg></td><td data-game="Gcpa1"><div class="bitscap"><span>bcpa=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetMessage</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">Enc</text><g class="pkgnode" data-pkg="Construction" data-inst="Construction" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf
@@ -140,796 +151,443 @@ xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package Construction,
 bmsg = true (instance parameter bcpa)</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Message<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package CPA, instance CPA</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle">CPA</text></g></svg></td></tr></thead>
 <tbody>
 <tr><th class="oname"><code>Enc</code></th><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    if ((CPA.k == None)) {
+    if (CPA.k == None) {
         k_ &lt;-$ Bits(256) sample-name k;
         CPA.k &lt;- Some(k_);
     }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (false) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    unwrap-1 &lt;- unwrap(CPA.k);
-    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
-    {
-        k &lt;- unwrap-1;
-        m &lt;- m;
+    // inlined Message.GetMessage
+    // inlined Construction.Enc
+        k &lt;- Unwrap(CPA.k);
         nonce &lt;-$ Bits(256) sample-name nonce;
-        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
-    }
+        c &lt;- (nonce, xor(prf(k, nonce), m));
     return c;
 }
 </pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    if ((CPA.k == ⊥)) {
-        k_ &lt;-$ Bits(256) sample-name k;
+    if (CPA.k == ⊥) {
+        k_ &lt;-$ Bits(256);
         CPA.k &lt;- k_;
     }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (false) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    unwrap-1 &lt;- CPA.k;
-    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
-    {
-        k &lt;- unwrap-1;
-        m &lt;- m;
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
-    }
+    // inlined Message.GetMessage
+    // inlined Construction.Enc
+        k &lt;- CPA.k;
+        nonce &lt;-$ Bits(256);
+        c &lt;- (nonce, xor(prf(k, nonce), m));
     return c;
 }
 </pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
     nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (false) {
-            if ((Prf.T[m] == None)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- Some(r);
-            }
-            unwrap-1 &lt;- unwrap(Prf.T[m]);
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == None)) {
+    // inlined Prf.Eval
+        if (Prf.k == None) {
             r &lt;-$ Bits(256) sample-name k;
             Prf.k &lt;- Some(r);
         }
-        unwrap-2 &lt;- unwrap(Prf.k);
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
+        pad &lt;- prf(Unwrap(Prf.k), nonce);
+    // inlined Message.GetMessage
     return (nonce, xor(pad, m));
 }
 </pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (false) {
-            if ((Prf.T[m] == ⊥)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- r;
-            }
-            unwrap-1 &lt;- Prf.T[m];
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == ⊥)) {
-            r &lt;-$ Bits(256) sample-name k;
+    nonce &lt;-$ Bits(256);
+    // inlined Prf.Eval
+        if (Prf.k == ⊥) {
+            r &lt;-$ Bits(256);
             Prf.k &lt;- r;
         }
-        unwrap-2 &lt;- Prf.k;
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
+        pad &lt;- prf(Prf.k, nonce);
+    // inlined Message.GetMessage
     return (nonce, xor(pad, m));
 }
 </pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
     nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (true) {
-            if ((Prf.T[m] == None)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- Some(r);
-            }
-            unwrap-1 &lt;- unwrap(Prf.T[m]);
-            pad &lt;- unwrap-1;  // return from Prf.Eval
+    // inlined Prf.Eval
+        if (Prf.T[nonce] == None) {
+            r &lt;-$ Bits(256) sample-name r;
+            Prf.T[nonce] &lt;- Some(r);
         }
-        if ((Prf.k == None)) {
+        pad &lt;- Unwrap(Prf.T[nonce]);
+    // inlined Message.GetMessage
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256);
+    // inlined Prf.Eval
+        if (Prf.T[nonce] == ⊥) {
+            r &lt;-$ Bits(256);
+            Prf.T[nonce] &lt;- r;
+        }
+        pad &lt;- Prf.T[nonce];
+    // inlined Message.GetMessage
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+    // inlined Message.GetMessage
+    if (Reduction2.T[nonce] == None) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    return (nonce, xor(Unwrap(Reduction2.T[nonce]), m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+    // inlined Message.GetMessage
+    if (Reduction2.T[nonce] == ⊥) {
+        pad &lt;-$ Bits(256);
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    return (nonce, xor(Reduction2.T[nonce], m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+    if (Reduction2.T[nonce] == None) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    return (nonce, xor(Unwrap(Reduction2.T[nonce]), m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+    if (Reduction2.T[nonce] == ⊥) {
+        pad &lt;-$ Bits(256);
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    return (nonce, xor(Reduction2.T[nonce], m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256) sample-name pad;
+        c &lt;- xor(pad, m);
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256);
+        c &lt;- xor(pad, m);
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256) sample-name pad;
+        c &lt;- pad;
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256);
+        c &lt;- pad;
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256) sample-name pad;
+        c &lt;- pad;
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256);
+        c &lt;- pad;
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256) sample-name pad;
+        c &lt;- xor(pad, m);
+    return (nonce, c);
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Xor.Xor
+        pad &lt;-$ Bits(256);
+        c &lt;- xor(pad, m);
+    return (nonce, c);
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+        assert (Nonce.T[nonce] == None);
+        Nonce.T[nonce] &lt;- Some(true);
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    if (Reduction2.T[nonce] == None) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    return (nonce, xor(Unwrap(Reduction2.T[nonce]), m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+        assert (Nonce.T[nonce] == ⊥);
+        Nonce.T[nonce] &lt;- true;
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    if (Reduction2.T[nonce] == ⊥) {
+        pad &lt;-$ Bits(256);
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    return (nonce, xor(Reduction2.T[nonce], m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256) sample-name nonce;
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    if (Reduction2.T[nonce] == None) {
+        pad &lt;-$ Bits(256) sample-name pad;
+        Reduction2.T[nonce] &lt;- Some(pad);
+    }
+    return (nonce, xor(Unwrap(Reduction2.T[nonce]), m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    // inlined Nonce.Sample
+        nonce &lt;-$ Bits(256);
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    if (Reduction2.T[nonce] == ⊥) {
+        pad &lt;-$ Bits(256);
+        Reduction2.T[nonce] &lt;- pad;
+    }
+    return (nonce, xor(Reduction2.T[nonce], m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    // inlined Prf.Eval
+        if (Prf.T[nonce] == None) {
+            r &lt;-$ Bits(256) sample-name r;
+            Prf.T[nonce] &lt;- Some(r);
+        }
+        pad &lt;- Unwrap(Prf.T[nonce]);
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    return (nonce, xor(pad, m));
+}
+</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256);
+    // inlined Prf.Eval
+        if (Prf.T[nonce] == ⊥) {
+            r &lt;-$ Bits(256);
+            Prf.T[nonce] &lt;- r;
+        }
+        pad &lt;- Prf.T[nonce];
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    return (nonce, xor(pad, m));
+}
+</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    // inlined Prf.Eval
+        if (Prf.k == None) {
             r &lt;-$ Bits(256) sample-name k;
             Prf.k &lt;- Some(r);
         }
-        unwrap-2 &lt;- unwrap(Prf.k);
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
+        pad &lt;- prf(Unwrap(Prf.k), nonce);
+    // inlined Message.GetMessage
+        m &lt;- 0;
     return (nonce, xor(pad, m));
 }
 </pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (true) {
-            if ((Prf.T[m] == ⊥)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- r;
-            }
-            unwrap-1 &lt;- Prf.T[m];
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == ⊥)) {
-            r &lt;-$ Bits(256) sample-name k;
+    nonce &lt;-$ Bits(256);
+    // inlined Prf.Eval
+        if (Prf.k == ⊥) {
+            r &lt;-$ Bits(256);
             Prf.k &lt;- r;
         }
-        unwrap-2 &lt;- Prf.k;
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
+        pad &lt;- prf(Prf.k, nonce);
+    // inlined Message.GetMessage
+        m &lt;- 0;
     return (nonce, xor(pad, m));
 }
 </pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (false) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == None)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- Some(pad);
-    }
-    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
-    return (nonce, xor(unwrap-1, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (false) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == ⊥)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- pad;
-    }
-    unwrap-1 &lt;- Reduction2.T[nonce];
-    return (nonce, xor(unwrap-1, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == None)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- Some(pad);
-    }
-    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
-    return (nonce, xor(unwrap-1, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == ⊥)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- pad;
-    }
-    unwrap-1 &lt;- Reduction2.T[nonce];
-    return (nonce, xor(unwrap-1, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (false) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (false) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (false) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (true) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (false) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (true) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (true) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (true) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (true) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (true) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (false) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    c &lt;- invoke Xor(m)      // Xor.Xor
-    {
-        m &lt;- m;
-        pad &lt;-$ Bits(256) sample-name pad;
-        if (false) {
-            c &lt;- pad;  // return from Xor.Xor
-        }
-        c &lt;- xor(pad, m);  // return from Xor.Xor
-    }
-    return (nonce, c);
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == None)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- Some(pad);
-    }
-    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
-    return (nonce, xor(unwrap-1, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (true) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == ⊥)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- pad;
-    }
-    unwrap-1 &lt;- Reduction2.T[nonce];
-    return (nonce, xor(unwrap-1, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (false) {
-            assert ((Nonce.T[nonce] == None));
-            Nonce.T[nonce] &lt;- Some(true);
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == None)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- Some(pad);
-    }
-    unwrap-1 &lt;- unwrap(Reduction2.T[nonce]);
-    return (nonce, xor(unwrap-1, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;- invoke Sample()      // Nonce.Sample
-    {
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        if (false) {
-            assert ((Nonce.T[nonce] == ⊥));
-            Nonce.T[nonce] &lt;- true;
-        }
-        nonce &lt;- nonce;  // return from Nonce.Sample
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    if ((Reduction2.T[nonce] == ⊥)) {
-        pad &lt;-$ Bits(256) sample-name pad;
-        Reduction2.T[nonce] &lt;- pad;
-    }
-    unwrap-1 &lt;- Reduction2.T[nonce];
-    return (nonce, xor(unwrap-1, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (true) {
-            if ((Prf.T[m] == None)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- Some(r);
-            }
-            unwrap-1 &lt;- unwrap(Prf.T[m]);
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == None)) {
-            r &lt;-$ Bits(256) sample-name k;
-            Prf.k &lt;- Some(r);
-        }
-        unwrap-2 &lt;- unwrap(Prf.k);
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    return (nonce, xor(pad, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (true) {
-            if ((Prf.T[m] == ⊥)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- r;
-            }
-            unwrap-1 &lt;- Prf.T[m];
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == ⊥)) {
-            r &lt;-$ Bits(256) sample-name k;
-            Prf.k &lt;- r;
-        }
-        unwrap-2 &lt;- Prf.k;
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    return (nonce, xor(pad, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (false) {
-            if ((Prf.T[m] == None)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- Some(r);
-            }
-            unwrap-1 &lt;- unwrap(Prf.T[m]);
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == None)) {
-            r &lt;-$ Bits(256) sample-name k;
-            Prf.k &lt;- Some(r);
-        }
-        unwrap-2 &lt;- unwrap(Prf.k);
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    return (nonce, xor(pad, m));
-}
-</pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    nonce &lt;-$ Bits(256) sample-name nonce;
-    pad &lt;- invoke Eval(nonce)      // Prf.Eval
-    {
-        m &lt;- nonce;
-        if (false) {
-            if ((Prf.T[m] == ⊥)) {
-                r &lt;-$ Bits(256) sample-name r;
-                Prf.T[m] &lt;- r;
-            }
-            unwrap-1 &lt;- Prf.T[m];
-            pad &lt;- unwrap-1;  // return from Prf.Eval
-        }
-        if ((Prf.k == ⊥)) {
-            r &lt;-$ Bits(256) sample-name k;
-            Prf.k &lt;- r;
-        }
-        unwrap-2 &lt;- Prf.k;
-        pad &lt;- prf(unwrap-2, m);  // return from Prf.Eval
-    }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (b) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    return (nonce, xor(pad, m));
-}
-</pre></td><td><pre class="full">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    if ((CPA.k == None)) {
+    if (CPA.k == None) {
         k_ &lt;-$ Bits(256) sample-name k;
         CPA.k &lt;- Some(k_);
     }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (true) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    unwrap-1 &lt;- unwrap(CPA.k);
-    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
-    {
-        k &lt;- unwrap-1;
-        m &lt;- m;
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Construction.Enc
+        k &lt;- Unwrap(CPA.k);
         nonce &lt;-$ Bits(256) sample-name nonce;
-        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
-    }
+        c &lt;- (nonce, xor(prf(k, nonce), m));
     return c;
 }
 </pre><pre class="lossy">Enc(m: Bits(256)) -&gt; (Bits(256), Bits(256)) {
-    if ((CPA.k == ⊥)) {
-        k_ &lt;-$ Bits(256) sample-name k;
+    if (CPA.k == ⊥) {
+        k_ &lt;-$ Bits(256);
         CPA.k &lt;- k_;
     }
-    m &lt;- invoke GetMessage(m)      // Message.GetMessage
-    {
-        m &lt;- m;
-        if (true) {
-            m &lt;- 0;  // return from Message.GetMessage
-        } else {
-            m &lt;- m;  // return from Message.GetMessage
-        }
-    }
-    unwrap-1 &lt;- CPA.k;
-    c &lt;- invoke Enc(unwrap-1, m)      // Construction.Enc
-    {
-        k &lt;- unwrap-1;
-        m &lt;- m;
-        nonce &lt;-$ Bits(256) sample-name nonce;
-        c &lt;- (nonce, xor(prf(k, nonce), m));  // return from Construction.Enc
-    }
+    // inlined Message.GetMessage
+        m &lt;- 0;
+    // inlined Construction.Enc
+        k &lt;- CPA.k;
+        nonce &lt;-$ Bits(256);
+        c &lt;- (nonce, xor(prf(k, nonce), m));
     return c;
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<section class="tabpane" data-tab="1">
+<nav class="path"><button class="chip" data-col="0">Gnonce0</button><span class="sim" title="indistinguishable">~</span><button class="chip" data-col="1">Gnonce1</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> Gnonce0 <span class="gbits">[bnonce -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gnonce</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> Gnonce1 <span class="gbits">[bnonce -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gnonce</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="Gnonce0"><div class="bitscap"><span>bnonce=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Sample</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = false"><title>package Nonce, instance Nonce
+bnonce = false (instance parameter bnonce)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g></svg></td><td data-game="Gnonce1"><div class="bitscap"><span>bnonce=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Sample</text><g class="pkgnode" data-pkg="Nonce" data-inst="Nonce" data-params="bnonce: Boolean = true"><title>package Nonce, instance Nonce
+bnonce = true (instance parameter bnonce)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle">Nonce<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>Sample</code></th><td><pre class="full">Sample() -&gt; Bits(256) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    return nonce;
+}
+</pre><pre class="lossy">Sample() -&gt; Bits(256) {
+    nonce &lt;-$ Bits(256);
+    return nonce;
+}
+</pre></td><td><pre class="full">Sample() -&gt; Bits(256) {
+    nonce &lt;-$ Bits(256) sample-name nonce;
+    assert (Nonce.T[nonce] == None);
+    Nonce.T[nonce] &lt;- Some(true);
+    return nonce;
+}
+</pre><pre class="lossy">Sample() -&gt; Bits(256) {
+    nonce &lt;-$ Bits(256);
+    assert (Nonce.T[nonce] == ⊥);
+    Nonce.T[nonce] &lt;- true;
+    return nonce;
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<section class="tabpane" data-tab="2">
+<nav class="path"><button class="chip" data-col="0">Gprf0</button><span class="sim" title="indistinguishable">~</span><button class="chip" data-col="1">Gprf1</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> Gprf0 <span class="gbits">[bprf -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gprf</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> Gprf1 <span class="gbits">[bprf -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gprf</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="Gprf0"><div class="bitscap"><span>bprf=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Eval</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = false
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = false (instance parameter bprf)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="140.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g></svg></td><td data-game="Gprf1"><div class="bitscap"><span>bprf=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Eval</text><g class="pkgnode" data-pkg="PRF" data-inst="Prf" data-params="bprf: Boolean = true
+prf: fn Bits(256), Bits(256) -&gt; Bits(256) = prf"><title>package PRF, instance Prf
+bprf = true (instance parameter bprf)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="33.0" text-anchor="middle" dominant-baseline="middle">PRF<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="140.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Prf)</text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>Eval</code></th><td><pre class="full">Eval(m: Bits(256)) -&gt; Bits(256) {
+    if (Prf.k == None) {
+        r &lt;-$ Bits(256) sample-name k;
+        Prf.k &lt;- Some(r);
+    }
+    return prf(Unwrap(Prf.k), m);
+}
+</pre><pre class="lossy">Eval(m: Bits(256)) -&gt; Bits(256) {
+    if (Prf.k == ⊥) {
+        r &lt;-$ Bits(256);
+        Prf.k &lt;- r;
+    }
+    return prf(Prf.k, m);
+}
+</pre></td><td><pre class="full">Eval(m: Bits(256)) -&gt; Bits(256) {
+    if (Prf.T[m] == None) {
+        r &lt;-$ Bits(256) sample-name r;
+        Prf.T[m] &lt;- Some(r);
+    }
+    return Unwrap(Prf.T[m]);
+    if (Prf.k == None) {
+        r &lt;-$ Bits(256) sample-name k;
+        Prf.k &lt;- Some(r);
+    }
+    return prf(Unwrap(Prf.k), m);
+}
+</pre><pre class="lossy">Eval(m: Bits(256)) -&gt; Bits(256) {
+    if (Prf.T[m] == ⊥) {
+        r &lt;-$ Bits(256);
+        Prf.T[m] &lt;- r;
+    }
+    return Prf.T[m];
+    if (Prf.k == ⊥) {
+        r &lt;-$ Bits(256);
+        Prf.k &lt;- r;
+    }
+    return prf(Prf.k, m);
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<section class="tabpane" data-tab="3">
+<nav class="path"><button class="chip" data-col="0">Gxor0</button><span class="sim" title="indistinguishable">~</span><button class="chip" data-col="1">Gxor1</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> Gxor0 <span class="gbits">[bxor -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code>Gxor</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> Gxor1 <span class="gbits">[bxor -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code>Gxor</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="Gxor0"><div class="bitscap"><span>bxor=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Xor</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = false
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = false (instance parameter bxor)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="140.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g></svg></td><td data-game="Gxor1"><div class="bitscap"><span>bxor=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">Xor</text><g class="pkgnode" data-pkg="XOR" data-inst="Xor" data-params="bxor: Boolean = true
+xor: fn Bits(256), Bits(256) -&gt; Bits(256) = xor"><title>package XOR, instance Xor
+bxor = true (instance parameter bxor)</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="33.0" text-anchor="middle" dominant-baseline="middle">XOR<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="140.0" y="49.0" text-anchor="middle" dominant-baseline="middle">(Xor)</text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>Xor</code></th><td><pre class="full">Xor(m: Bits(256)) -&gt; Bits(256) {
+    pad &lt;-$ Bits(256) sample-name pad;
+    return xor(pad, m);
+}
+</pre><pre class="lossy">Xor(m: Bits(256)) -&gt; Bits(256) {
+    pad &lt;-$ Bits(256);
+    return xor(pad, m);
+}
+</pre></td><td><pre class="full">Xor(m: Bits(256)) -&gt; Bits(256) {
+    pad &lt;-$ Bits(256) sample-name pad;
+    return pad;
+    return xor(pad, m);
+}
+</pre><pre class="lossy">Xor(m: Bits(256)) -&gt; Bits(256) {
+    pad &lt;-$ Bits(256);
+    return pad;
+    return xor(pad, m);
 }
 </pre></td></tr>
 </tbody></table></div>
@@ -1135,8 +793,13 @@ bmsg = true (instance parameter bcpa)</title><rect class="pkgbox" x="265.0" y="1
   ppane.querySelector('.pp-title').textContent = 'packages';
   ppane.querySelector('.pp-sub').textContent = 'click a package in a diagram';
   document.addEventListener('click', e => {
-    const node = e.target.closest && e.target.closest('.pkgnode');
-    if (node) openPkg(node);
+    if (!e.target.closest) return;
+    const node = e.target.closest('.pkgnode');
+    if (node) { openPkg(node); return; }
+    // A reduction's label or frame opens its assumption's tab.
+    const ref = e.target.closest('[data-assumption]:not(.tab)');
+    const tab = ref && tabs.find(b => b.dataset.assumption === ref.dataset.assumption);
+    if (tab) showTab(tab.dataset.tab);
   });
   document.getElementById('pp-close').addEventListener('click', () => setPane(false));
   document.getElementById('pp-toggle').addEventListener('click',
