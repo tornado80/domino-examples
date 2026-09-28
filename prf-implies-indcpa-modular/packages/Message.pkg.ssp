@@ -1,10 +1,10 @@
 package Message {
     params {
-        b: Bool
+        bmsg: Bool
     }
 
     oracle GetMessage(m: Bits(256)) -> Bits(256) {
-        if b {
+        if bmsg {
             return 0_256;
         } else {
             return m;

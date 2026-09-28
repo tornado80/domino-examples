@@ -1,10 +1,10 @@
 composition Gprf {
-    const b: Bool;
+    const bprf: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Prf = PRF {
         params {
-            b: b,
+            bprf: bprf,
             prf: prf
         }
     }

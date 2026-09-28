@@ -1,5 +1,5 @@
 composition Hybrid {
-    const b: Bool;
+    const bmsg: Bool;
     const bprf: Bool;
     const bnonce: Bool;
     const bxor: Bool;
@@ -9,33 +9,33 @@ composition Hybrid {
 
     instance Prf = PRF {
         params {
-            b: bprf,
+            bprf: bprf,
             prf: prf
         }
     }
 
     instance Nonce = Nonce {
         params {
-            b: bnonce
+            bnonce: bnonce
         }
     }
 
     instance Xor = XOR {
         params {
-            b: bxor,
+            bxor: bxor,
             xor: xor
         }
     }
 
     instance Message = Message {
         params {
-            b: b,
+            bmsg: bmsg,
         }
     }
 
     instance Reduction = Reduction {
         params {
-            b: bmod,
+            bmod: bmod,
             xor: xor
         }
     }

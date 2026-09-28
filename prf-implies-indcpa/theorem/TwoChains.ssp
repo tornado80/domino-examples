@@ -4,47 +4,47 @@ theorem TwoChains {
     
     instance Gnonce0 = Gnonce {
         params {
-            b: false
+            bnonce: false
         }
     }
 
     instance Gnonce1 = Gnonce {
         params {
-            b: true
+            bnonce: true
         }
     }
 
     instance Gprf0 = Gprf {
         params {
-            b: false,
+            bprf: false,
             prf: prf
         }
     }
 
     instance Gprf1 = Gprf {
         params {
-            b: true,
+            bprf: true,
             prf: prf
         }
     }
 
     instance Gxor0 = Gxor {
         params {
-            b: false,
+            bxor: false,
             xor: xor
         }
     }
 
     instance Gxor1 = Gxor {
         params {
-            b: true,
+            bxor: true,
             xor: xor
         }
     }
 
     instance Gcpa0 = Gcpa {
         params {
-            b: false,
+            bcpa: false,
             prf: prf,
             xor: xor
         }
@@ -52,119 +52,115 @@ theorem TwoChains {
 
     instance Gcpa1 = Gcpa {
         params {
-            b: true,
+            bcpa: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid0_0 = Hybrid0 {
+    instance Hybrid0_0_0 = Hybrid0 {
         params {
-            b: false,
+            bmsg: false,
             bprf: false,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid0_1 = Hybrid0 {
+    instance Hybrid0_1_0 = Hybrid0 {
         params {
-            b: true,
+            bmsg: true,
             bprf: false,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid1_0 = Hybrid0 {
+    instance Hybrid0_0_1 = Hybrid0 {
         params {
-            b: false,
+            bmsg: false,
             bprf: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid1_1 = Hybrid0 {
+    instance Hybrid0_1_1 = Hybrid0 {
         params {
-            b: true,
+            bmsg: true,
             bprf: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid2_0 = Hybrid1 {
+    instance Hybrid1_0_0 = Hybrid1 {
         params {
-            b: false,
+            bmsg: false,
             bnonce: false,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid2_1 = Hybrid1 {
+    instance Hybrid1_1_0 = Hybrid1 {
         params {
-            b: true,
+            bmsg: true,
             bnonce: false,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid3_0 = Hybrid1 {
+    instance Hybrid1_0_1 = Hybrid1 {
         params {
-            b: false,
+            bmsg: false,
             bnonce: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid3_1 = Hybrid1 {
+    instance Hybrid1_1_1 = Hybrid1 {
         params {
-            b: true,
+            bmsg: true,
             bnonce: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid4_0 = Hybrid2 {
+    instance Hybrid2_0_0 = Hybrid2 {
         params {
-            b: false,
+            bmsg: false,
             bxor: false,
-            bnonce: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid4_1 = Hybrid2 {
+    instance Hybrid2_1_0 = Hybrid2 {
         params {
-            b: true,
+            bmsg: true,
             bxor: false,
-            bnonce: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid5_0 = Hybrid2 {
+    instance Hybrid2_0_1 = Hybrid2 {
         params {
-            b: false,
+            bmsg: false,
             bxor: true,
-            bnonce: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid5_1 = Hybrid2 {
+    instance Hybrid2_1_1 = Hybrid2 {
         params {
-            b: true,
+            bmsg: true,
             bxor: true,
-            bnonce: true,
             prf: prf,
             xor: xor
         }
@@ -177,111 +173,111 @@ theorem TwoChains {
     }
 
     gamehops {
-        equivalence Gcpa0 Hybrid0_0 {
+        equivalence Gcpa0 Hybrid0_0_0 {
             invariant: [
-                ./theorem/invariant-Gcpa-Hybrid0.smt2
+                ./theorem/invariant-Gcpa-Hybrid0_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        equivalence Gcpa1 Hybrid0_1 {
+        equivalence Gcpa1 Hybrid0_1_0 {
             invariant: [
-                ./theorem/invariant-Gcpa-Hybrid0.smt2
+                ./theorem/invariant-Gcpa-Hybrid0_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Hybrid0_0 Hybrid1_0 {
+        reduction Hybrid0_0_0 Hybrid0_0_1 {
             assumption PRF
-            map Gprf0 Hybrid0_0 {
+            map Gprf0 Hybrid0_0_0 {
                 Prf: Prf
             }
-            map Gprf1 Hybrid1_0 {
+            map Gprf1 Hybrid0_0_1 {
                 Prf: Prf
             }
         }
-        reduction Hybrid0_1 Hybrid1_1 {
+        reduction Hybrid0_1_0 Hybrid0_1_1 {
             assumption PRF
-            map Gprf0 Hybrid0_1 {
+            map Gprf0 Hybrid0_1_0 {
                 Prf: Prf
             }
-            map Gprf1 Hybrid1_1 {
+            map Gprf1 Hybrid0_1_1 {
                 Prf: Prf
             }
         }
-        equivalence Hybrid1_0 Hybrid2_0 {
+        equivalence Hybrid0_0_1 Hybrid1_0_0 {
             invariant: [
-                ./theorem/invariant-Hybrid1-Hybrid2.smt2
+                ./theorem/invariant-Hybrid0_b_1-Hybrid1_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        equivalence Hybrid1_1 Hybrid2_1 {
+        equivalence Hybrid0_1_1 Hybrid1_1_0 {
             invariant: [
-                ./theorem/invariant-Hybrid1-Hybrid2.smt2
+                ./theorem/invariant-Hybrid0_b_1-Hybrid1_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Hybrid2_0 Hybrid3_0 {
+        reduction Hybrid1_0_0 Hybrid1_0_1 {
             assumption Nonces
-            map Gnonce0 Hybrid2_0 {
+            map Gnonce0 Hybrid1_0_0 {
                 Nonce: Nonce
             }
-            map Gnonce1 Hybrid3_0 {
+            map Gnonce1 Hybrid1_0_1 {
                 Nonce: Nonce
             }
         }
-        reduction Hybrid2_1 Hybrid3_1 {
+        reduction Hybrid1_1_0 Hybrid1_1_1 {
             assumption Nonces
-            map Gnonce0 Hybrid2_1 {
+            map Gnonce0 Hybrid1_1_0 {
                 Nonce: Nonce
             }
-            map Gnonce1 Hybrid3_1 {
+            map Gnonce1 Hybrid1_1_1 {
                 Nonce: Nonce
             }
         }
-        equivalence Hybrid3_0 Hybrid4_0 {
+        equivalence Hybrid1_0_1 Hybrid2_0_0 {
             invariant: [
-                ./theorem/invariant-Hybrid3-Hybrid4.smt2
+                ./theorem/invariant-Hybrid1_b_1-Hybrid2_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        equivalence Hybrid3_1 Hybrid4_1 {
+        equivalence Hybrid1_1_1 Hybrid2_1_0 {
             invariant: [
-                ./theorem/invariant-Hybrid3-Hybrid4.smt2
+                ./theorem/invariant-Hybrid1_b_1-Hybrid2_b_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Hybrid4_0 Hybrid5_0 {
+        reduction Hybrid2_0_0 Hybrid2_0_1 {
             assumption XOR
-            map Gxor0 Hybrid4_0 {
+            map Gxor0 Hybrid2_0_0 {
                 Xor: Xor
             }
-            map Gxor1 Hybrid5_0 {
+            map Gxor1 Hybrid2_0_1 {
                 Xor: Xor
             }
         }
-        reduction Hybrid4_1 Hybrid5_1 {
+        reduction Hybrid2_1_0 Hybrid2_1_1 {
             assumption XOR
-            map Gxor0 Hybrid4_1 {
+            map Gxor0 Hybrid2_1_0 {
                 Xor: Xor
             }
-            map Gxor1 Hybrid5_1 {
+            map Gxor1 Hybrid2_1_1 {
                 Xor: Xor
             }
         }
-        equivalence Hybrid5_0 Hybrid5_1 {
+        equivalence Hybrid2_0_1 Hybrid2_1_1 {
             invariant: [
-                ./theorem/invariant-Hybrid5_0-Hybrid5_1.smt2
+                ./theorem/invariant-Hybrid2_0_1-Hybrid2_1_1.smt2
             ]
             Enc: {
                 randomness: simple

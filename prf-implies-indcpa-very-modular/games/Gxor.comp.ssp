@@ -1,10 +1,10 @@
 composition Gxor {
-    const b: Bool;
+    const bxor: Bool;
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Xor = XOR {
         params {
-            b: b,
+            bxor: bxor,
             xor: xor
         }
     }

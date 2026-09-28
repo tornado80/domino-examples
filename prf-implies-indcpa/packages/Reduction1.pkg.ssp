@@ -1,7 +1,7 @@
 package Reduction1 {
     params {
         xor: fn Bits(256), Bits(256) -> Bits(256),
-        b: Bool
+        bmsg: Bool
     }
 
     import oracles {
@@ -11,7 +11,7 @@ package Reduction1 {
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         nonce <-$ Bits(256) sample-name nonce;
         pad <- invoke Eval(nonce);
-        if b {
+        if bmsg {
             m <- 0_256;
         }
         return (nonce, xor(pad, m));

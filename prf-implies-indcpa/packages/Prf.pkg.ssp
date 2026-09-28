@@ -1,6 +1,6 @@
 package PRF {
     params {
-        b: Bool,
+        bprf: Bool,
         prf: fn Bits(256), Bits(256) -> Bits(256)
     }
 
@@ -10,7 +10,7 @@ package PRF {
     }
 
     oracle Eval(m: Bits(256)) -> Bits(256) {
-        if b {
+        if bprf {
             if (T[m] == None) {
                 r <-$ Bits(256) sample-name r;
                 T[m] <- Some(r);

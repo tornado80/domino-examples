@@ -1,6 +1,6 @@
 package CPA {
     params {
-        b: Bool,
+        bcpa: Bool,
         prf: fn Bits(256), Bits(256) -> Bits(256)
     }
 
@@ -17,7 +17,7 @@ package CPA {
             k_ <-$ Bits(256) sample-name k;
             k <- Some(k_);
         }
-        if b {
+        if bcpa {
             m <- 0_256;
         }
         c <- invoke Enc(Unwrap(k), m);

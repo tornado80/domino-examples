@@ -1,19 +1,19 @@
 composition Hybrid1 {
     const bnonce: Bool;
-    const b: Bool;
+    const bmsg: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Nonce = Nonce {
         params {
-            b: bnonce
+            bnonce: bnonce
         }
     }
 
     instance Reduction2 = Reduction2 {
         params {
             xor: xor,
-            b: b
+            bmsg: bmsg
         }
     }
 

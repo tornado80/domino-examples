@@ -1,6 +1,6 @@
 package Nonce {
     params {
-        b: Bool
+        bnonce: Bool
     }
 
     state {
@@ -9,7 +9,7 @@ package Nonce {
 
     oracle Sample() -> Bits(256) {
         nonce <-$ Bits(256) sample-name nonce;
-        if b {
+        if bnonce {
             assert (T[nonce] == None);
             T[nonce] <- Some(true);
         }

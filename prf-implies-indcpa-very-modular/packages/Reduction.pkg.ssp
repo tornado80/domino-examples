@@ -1,6 +1,6 @@
 package Reduction {
     params {
-        b: Bool,
+        bmod: Bool,
         xor: fn Bits(256), Bits(256) -> Bits(256)
     }
 
@@ -14,7 +14,7 @@ package Reduction {
     oracle Enc(m: Bits(256)) -> (Bits(256), Bits(256)) {
         nonce <- invoke Sample();
         m <- invoke GetMessage(m);
-        if b {
+        if bmod {
             c <- invoke Xor(m);
             return (nonce, c);
         }

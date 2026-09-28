@@ -1,19 +1,19 @@
 composition Hybrid0 {
-    const b: Bool;
+    const bmsg: Bool;
     const bprf: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Prf = PRF {
         params {
-            b: bprf,
+            bprf: bprf,
             prf: prf
         }
     }
 
     instance Message = Message {
         params {
-            b: b,
+            bmsg: bmsg,
         }
     }
 

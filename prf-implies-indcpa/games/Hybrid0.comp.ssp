@@ -1,12 +1,12 @@
 composition Hybrid0 {
-    const b: Bool;
+    const bmsg: Bool;
     const bprf: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
     instance Prf = PRF {
         params {
-            b: bprf,
+            bprf: bprf,
             prf: prf
         }
     }
@@ -14,7 +14,7 @@ composition Hybrid0 {
     instance Reduction1 = Reduction1 {
         params {
             xor: xor,
-            b: b
+            bmsg: bmsg
         }
     }
 

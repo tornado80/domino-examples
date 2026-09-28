@@ -5,47 +5,47 @@ theorem PrfImpliesIndCpa {
     
     instance Gnonce0 = Gnonce {
         params {
-            b: false
+            bnonce: false
         }
     }
 
     instance Gnonce1 = Gnonce {
         params {
-            b: true
+            bnonce: true
         }
     }
 
     instance Gprf0 = Gprf {
         params {
-            b: false,
+            bprf: false,
             prf: prf
         }
     }
 
     instance Gprf1 = Gprf {
         params {
-            b: true,
+            bprf: true,
             prf: prf
         }
     }
 
     instance Gxor0 = Gxor {
         params {
-            b: false,
+            bxor: false,
             xor: xor
         }
     }
 
     instance Gxor1 = Gxor {
         params {
-            b: true,
+            bxor: true,
             xor: xor
         }
     }
 
     instance Gcpa = Gcpa {
         params {
-            b: b,
+            bcpa: b,
             prf: prf,
             xor: xor
         }
@@ -53,7 +53,7 @@ theorem PrfImpliesIndCpa {
 
     instance Gcpa0 = Gcpa {
         params {
-            b: false,
+            bcpa: false,
             prf: prf,
             xor: xor
         }
@@ -61,15 +61,15 @@ theorem PrfImpliesIndCpa {
 
     instance Gcpa1 = Gcpa {
         params {
-            b: true,
+            bcpa: true,
             prf: prf,
             xor: xor
         }
     }
 
-    instance Hybrid0 = Hybrid {
+    instance Hybrid_b_0_0_0_0 = Hybrid {
         params {
-            b: b,
+            bmsg: b,
             bprf: false,
             bnonce: false,
             bxor: false,
@@ -79,9 +79,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid1 = Hybrid {
+    instance Hybrid_b_1_0_0_0 = Hybrid {
         params {
-            b: b,
+            bmsg: b,
             bprf: true,
             bnonce: false,
             bxor: false,
@@ -91,9 +91,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid2 = Hybrid {
+    instance Hybrid_b_1_1_0_0 = Hybrid {
         params {
-            b: b,
+            bmsg: b,
             bprf: true,
             bnonce: true,
             bxor: false,
@@ -103,9 +103,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid3 = Hybrid {
+    instance Hybrid_b_1_1_0_1 = Hybrid {
         params {
-            b: b,
+            bmsg: b,
             bprf: true,
             bnonce: true,
             bxor: false,
@@ -115,9 +115,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid4 = Hybrid {
+    instance Hybrid_b_1_1_1_1 = Hybrid {
         params {
-            b: b,
+            bmsg: b,
             bprf: true,
             bnonce: true,
             bxor: true,
@@ -127,9 +127,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid4_0 = Hybrid {
+    instance Hybrid_0_1_1_1_1 = Hybrid {
         params {
-            b: false,
+            bmsg: false,
             bprf: true,
             bnonce: true,
             bxor: true,
@@ -139,9 +139,9 @@ theorem PrfImpliesIndCpa {
         }
     }
 
-    instance Hybrid4_1 = Hybrid {
+    instance Hybrid_1_1_1_1_1 = Hybrid {
         params {
-            b: true,
+            bmsg: true,
             bprf: true,
             bnonce: true,
             bxor: true,
@@ -158,52 +158,52 @@ theorem PrfImpliesIndCpa {
     }
 
     gamehops {
-        equivalence Gcpa Hybrid0 {
+        equivalence Gcpa Hybrid_b_0_0_0_0 {
             invariant: [
-                ./theorem/invariant-Gcpa-Hybrid0.smt2
+                ./theorem/invariant-Gcpa-Hybrid_b_0_0_0_0.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Hybrid0 Hybrid1 {
+        reduction Hybrid_b_0_0_0_0 Hybrid_b_1_0_0_0 {
             assumption PRF
-            map Gprf0 Hybrid0 {
+            map Gprf0 Hybrid_b_0_0_0_0 {
                 Prf: Prf
             }
-            map Gprf1 Hybrid1 {
+            map Gprf1 Hybrid_b_1_0_0_0 {
                 Prf: Prf
             }
         }
-        reduction Hybrid1 Hybrid2 {
+        reduction Hybrid_b_1_0_0_0 Hybrid_b_1_1_0_0 {
             assumption Nonces
-            map Gnonce0 Hybrid1 {
+            map Gnonce0 Hybrid_b_1_0_0_0 {
                 Nonce: Nonce
             }
-            map Gnonce1 Hybrid2 {
+            map Gnonce1 Hybrid_b_1_1_0_0 {
                 Nonce: Nonce
             }
         }
-        equivalence Hybrid2 Hybrid3 {
+        equivalence Hybrid_b_1_1_0_0 Hybrid_b_1_1_0_1 {
             invariant: [
-                ./theorem/invariant-Hybrid2-Hybrid3.smt2
+                ./theorem/invariant-Hybrid_b_1_1_0_0-Hybrid_b_1_1_0_1.smt2
             ]
             Enc: {
                 randomness: custom
             }
         }
-        reduction Hybrid3 Hybrid4 {
+        reduction Hybrid_b_1_1_0_1 Hybrid_b_1_1_1_1 {
             assumption XOR
-            map Gxor0 Hybrid3 {
+            map Gxor0 Hybrid_b_1_1_0_1 {
                 Xor: Xor
             }
-            map Gxor1 Hybrid4 {
+            map Gxor1 Hybrid_b_1_1_1_1 {
                 Xor: Xor
             }
         }
-        equivalence Hybrid4_0 Hybrid4_1 {
+        equivalence Hybrid_0_1_1_1_1 Hybrid_1_1_1_1_1 {
             invariant: [
-                ./theorem/invariant-Hybrid4_0-Hybrid4_1.smt2
+                ./theorem/invariant-Hybrid_0_1_1_1_1-Hybrid_1_1_1_1_1.smt2
             ]
             Enc: {
                 randomness: simple

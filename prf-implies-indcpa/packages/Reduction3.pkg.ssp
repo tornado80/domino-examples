@@ -4,7 +4,7 @@ package Reduction3 {
     }
 
     params {
-        b: Bool
+        bmsg: Bool
     }
 
     state {
@@ -15,7 +15,7 @@ package Reduction3 {
         nonce <-$ Bits(256) sample-name nonce;
         assert (T[nonce] == None);
         T[nonce] <- Some(true);
-        if b {
+        if bmsg {
             m <- 0_256;
         }
         c <- invoke Xor(m);

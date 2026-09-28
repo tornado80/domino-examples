@@ -1,9 +1,9 @@
 composition Gnonce {
-    const b: Bool;
+    const bnonce: Bool;
 
     instance Nonce = Nonce {
         params {
-            b: b
+            bnonce: bnonce
         }
         
     }
