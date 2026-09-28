@@ -1,4 +1,4 @@
-theorem PrfImpliesIndCpa {
+theorem PrfImpliesIndCpaModular {
     const b: Bool;
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
