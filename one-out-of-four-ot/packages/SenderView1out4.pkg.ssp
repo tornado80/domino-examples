@@ -1,0 +1,33 @@
+package SenderView1out4 {
+    types {
+        Msg,
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    params {
+        view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2) 
+                    -> SendIncMsg1out2
+    }
+
+    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
+        -> ((Key, Key, Key, Key, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2))
+    {
+        (s, b) <- inputs;
+        (bl, br) <- b;
+        k00 <-$ Key sample-name k00;
+        k01 <-$ Key sample-name k01;
+        k10 <-$ Key sample-name k10;
+        k11 <-$ Key sample-name k11;
+        rsend0 <-$ SendRnd1out2;
+        rrecv0 <-$ RecvRnd1out2;
+        msgs0 <- view1out2(k00, k01, bl, (rsend0, rrecv0));
+        rsend1 <-$ SendRnd1out2;
+        rrecv1 <-$ RecvRnd1out2;
+        msgs1 <- view1out2(k10, k11, br, (rsend1, rrecv1));
+        return ((k00, k01, k10, k11, rsend0, rsend1), (msgs0, msgs1));
+    }
+}

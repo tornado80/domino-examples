@@ -1,0 +1,14 @@
+package SenderSim1out4 {
+    types {
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    oracle GetView(inputs: (Key, Key, Key, Key)) 
+        -> (SendRnd1out2, SendRnd1out2, SendIncMsg1out2, SendIncMsg1out2)
+    {
+
+    }
+}
