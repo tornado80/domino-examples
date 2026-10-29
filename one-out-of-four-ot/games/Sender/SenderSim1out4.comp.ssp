@@ -5,36 +5,33 @@ composition SenderSim1out4 {
         EncRnds,
         SimRnds,
         SendIncMsg1out2,
-        SendRnd1out2,
-        RecvRnd1out2
+        SendRnd1out2
     }
 
-    const sim1out2: fn Key, Key, SimRnds -> (SendRnd1out2, SendIncMsg1out2);
+    const sim1out2: fn (Key, Key), SimRnds -> (SendRnd1out2, SendIncMsg1out2);
 
     instance SenderFunc1out4 = SenderFunc1out4 {
         types {
-            Msg: Msg,
-            Key: Key,
-            EncRnds: EncRnds,
-            SendIncMsg1out2: SendIncMsg1out2,
-            SendRnd1out2: SendRnd1out2,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
+            ReceiverInput1out4: (Bool, Bool),
+            SendRnd1out4: (Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2),
+            SendIncMsg1out4: (SendIncMsg1out2, SendIncMsg1out2),
         }
     }
 
     instance SenderSim1out4 = SenderSim1out4 {
         types {
-            Msg: Msg,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
             Key: Key,
             EncRnds: EncRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
-            RecvRnd1out2: RecvRnd1out2,
         }
     }
 
     instance SenderSim1out2 = SenderSim1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
             SimRnds: SimRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,

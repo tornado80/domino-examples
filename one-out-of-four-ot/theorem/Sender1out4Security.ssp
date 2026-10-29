@@ -8,9 +8,9 @@ theorem Sender1out4Security {
     const n_srnd: Integer;
     const n_rrnd: Integer;
 
-    const view1out2: fn Bits(n_key), Bits(n_key), Bool, (Bits(n_srnd), Bits(n_rrnd))
+    const view1out2: fn (Bits(n_key), Bits(n_key)), Bool, (Bits(n_srnd), Bits(n_rrnd))
                         -> Bits(n_inc);
-    const sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim)
+    const sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim)
                         -> (Bits(n_srnd), Bits(n_inc));
 
     /* 1-out-of-2 OT: real sender view and simulated sender view */
@@ -75,7 +75,6 @@ theorem Sender1out4Security {
             SimRnds: Bits(n_sim),
             SendIncMsg1out2: Bits(n_inc),
             SendRnd1out2: Bits(n_srnd),
-            RecvRnd1out2: Bits(n_rrnd),
         }
         params {
             sim1out2: sim1out2,

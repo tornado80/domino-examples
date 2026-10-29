@@ -1,19 +1,18 @@
 package SenderSim1out2 {
     types {
-        Key,
+        SenderInput1out2,
         SimRnds,
         SendIncMsg1out2,
         SendRnd1out2
     }
 
     params {
-        sim1out2: fn Key, Key, SimRnds -> (SendRnd1out2, SendIncMsg1out2)
+        sim1out2: fn SenderInput1out2, SimRnds -> (SendRnd1out2, SendIncMsg1out2)
     }
 
-    oracle GetSimView(inputs: (Key, Key)) -> (SendRnd1out2, SendIncMsg1out2)
+    oracle GetSimView(inputs: SenderInput1out2) -> (SendRnd1out2, SendIncMsg1out2)
     {
-        (k0, k1) <- inputs;
         rsim <-$ SimRnds sample-name rsim;
-        return sim1out2(k0, k1, rsim);
+        return sim1out2(inputs, rsim);
     }
 }

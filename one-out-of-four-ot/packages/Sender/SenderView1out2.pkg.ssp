@@ -1,23 +1,24 @@
 package SenderView1out2 {
     types {
-        Key,
+        SenderInput1out2,
+        ReceiverInput1out2,
         SendIncMsg1out2,
         SendRnd1out2,
         RecvRnd1out2
     }
 
     params {
-        view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2) 
+        view1out2: fn SenderInput1out2, ReceiverInput1out2, (SendRnd1out2, RecvRnd1out2)
                     -> SendIncMsg1out2
     }
 
-    oracle GetView(inputs: (Key, Key, Bool)) 
+    oracle GetView(inputs: (SenderInput1out2, ReceiverInput1out2))
         -> (SendRnd1out2, SendIncMsg1out2)
     {
-        (k0, k1, b) <- inputs;
+        (s, b) <- inputs;
         rsend <-$ SendRnd1out2;
         rrecv <-$ RecvRnd1out2;
-        msgs <- view1out2(k0, k1, b, (rsend, rrecv));
+        msgs <- view1out2(s, b, (rsend, rrecv));
         return (rsend, msgs);
     }
 }

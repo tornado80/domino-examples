@@ -6,12 +6,13 @@ composition SenderView1out2 {
         RecvRnd1out2
     }
 
-    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+    const view1out2: fn (Key, Key), Bool, (SendRnd1out2, RecvRnd1out2)
                         -> SendIncMsg1out2;
 
     instance SenderView1out2 = SenderView1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
             RecvRnd1out2: RecvRnd1out2,

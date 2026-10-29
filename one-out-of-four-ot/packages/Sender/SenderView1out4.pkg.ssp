@@ -1,6 +1,6 @@
 package SenderView1out4 {
     types {
-        Msg,
+        SenderInput1out4,
         Key,
         EncRnds,
         SendIncMsg1out2,
@@ -8,11 +8,11 @@ package SenderView1out4 {
     }
 
     import oracles {
-        GetView(inputs: (Key, Key, Bool)) -> (SendRnd1out2, SendIncMsg1out2),
+        GetView(inputs: ((Key, Key), Bool)) -> (SendRnd1out2, SendIncMsg1out2),
     }
 
-    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
-        -> ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+    oracle GetView(inputs: (SenderInput1out4, (Bool, Bool)))
+        -> ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2),
         (SendIncMsg1out2, SendIncMsg1out2))
     {
         (s, b) <- inputs;
@@ -22,10 +22,8 @@ package SenderView1out4 {
         k10 <-$ Key sample-name k10;
         k11 <-$ Key sample-name k11;
         renc <-$ EncRnds sample-name renc;
-        view0 <- invoke GetView((k00, k01, bl));
-        view1 <- invoke GetView((k10, k11, br));
-        (rsend0, msgs0) <- view0;
-        (rsend1, msgs1) <- view1;
+        (rsend0, msgs0) <- invoke GetView(((k00, k01), bl));
+        (rsend1, msgs1) <- invoke GetView(((k10, k11), br));
         return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
     }
 }

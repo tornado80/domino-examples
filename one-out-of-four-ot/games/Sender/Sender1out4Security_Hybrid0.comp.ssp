@@ -8,11 +8,11 @@ composition Sender1out4Security_Hybrid0 {
         SendRnd1out2
     }
 
-    const sim1out2: fn Key, Key, SimRnds -> (SendRnd1out2, SendIncMsg1out2);
+    const sim1out2: fn (Key, Key), SimRnds -> (SendRnd1out2, SendIncMsg1out2);
 
     instance SenderView1out4 = SenderView1out4 {
         types {
-            Msg: Msg,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
             Key: Key,
             EncRnds: EncRnds,
             SendIncMsg1out2: SendIncMsg1out2,
@@ -22,7 +22,8 @@ composition Sender1out4Security_Hybrid0 {
 
     instance SenderFunc1out2 = SenderFunc1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
         }
@@ -30,7 +31,7 @@ composition Sender1out4Security_Hybrid0 {
 
     instance SenderSim1out2 = SenderSim1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
             SimRnds: SimRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
