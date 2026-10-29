@@ -1,0 +1,71 @@
+composition Receiver1out4Security_Hybrid3 {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        SimRnds,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    const b: Bool;
+    const enc_inner: fn Key, Msg, EncRnd -> Ctxt;
+    const enc_outer: fn Key, Ctxt, EncRnd -> Ctxt;
+    const zeros_msg: Msg;
+    const zeros_ctxt: Ctxt;
+    const sim1out2: fn Bool, Key, SimRnds -> (RecvRnd1out2, RecvIncMsg1out2);
+
+    instance ReceiverReductionOuter = ReceiverReductionOuter {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnd: EncRnd,
+            Ctxt: Ctxt,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+        }
+    }
+
+    instance CPA = CPA {
+        types {
+            Key: Key,
+            Ptxt: Ctxt,
+            Ctxt: Ctxt,
+            EncRnd: EncRnd,
+        }
+        params {
+            b: b,
+            enc: enc_outer,
+            zeros: zeros_ctxt,
+        }
+    }
+
+    instance ReceiverSim1out2 = ReceiverSim1out2 {
+        types {
+            ReceiverInput1out2: Bool,
+            Key: Key,
+            SimRnds: SimRnds,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: ReceiverReductionOuter,
+        },
+        ReceiverReductionOuter: {
+            Enc: CPA,
+            GetSimView: ReceiverSim1out2,
+        },
+    }
+}

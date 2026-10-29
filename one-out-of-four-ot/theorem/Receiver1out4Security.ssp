@@ -62,6 +62,177 @@ theorem Receiver1out4Security {
         }
     }
 
+    /* Real-or-Zeros CPA security of the inner and the outer encryption scheme */
+    instance CPA_0_inner = CPA {
+        types {
+            Key: Bits(n_key),
+            Ptxt: Bits(n_msg),
+            Ctxt: Bits(n_ctxt),
+            EncRnd: Bits(n_enc),
+        }
+        params {
+            b: false,
+            enc: enc_inner,
+            zeros: zeros_msg,
+        }
+    }
+
+    instance CPA_1_inner = CPA {
+        types {
+            Key: Bits(n_key),
+            Ptxt: Bits(n_msg),
+            Ctxt: Bits(n_ctxt),
+            EncRnd: Bits(n_enc),
+        }
+        params {
+            b: true,
+            enc: enc_inner,
+            zeros: zeros_msg,
+        }
+    }
+
+    instance CPA_0_outer = CPA {
+        types {
+            Key: Bits(n_key),
+            Ptxt: Bits(n_ctxt),
+            Ctxt: Bits(n_ctxt),
+            EncRnd: Bits(n_enc),
+        }
+        params {
+            b: false,
+            enc: enc_outer,
+            zeros: zeros_ctxt,
+        }
+    }
+
+    instance CPA_1_outer = CPA {
+        types {
+            Key: Bits(n_key),
+            Ptxt: Bits(n_ctxt),
+            Ctxt: Bits(n_ctxt),
+            EncRnd: Bits(n_enc),
+        }
+        params {
+            b: true,
+            enc: enc_outer,
+            zeros: zeros_ctxt,
+        }
+    }
+
+    /* Hybrids of the 1-out-of-4 receiver view */
+    instance Receiver1out4Security_Hybrid0 = Receiver1out4Security_Hybrid0 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Receiver1out4Security_Hybrid1_0 = Receiver1out4Security_Hybrid1 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            b: false,
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Receiver1out4Security_Hybrid1_1 = Receiver1out4Security_Hybrid1 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            b: true,
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Receiver1out4Security_Hybrid2 = Receiver1out4Security_Hybrid2 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Receiver1out4Security_Hybrid3_0 = Receiver1out4Security_Hybrid3 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            b: false,
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            zeros_ctxt: zeros_ctxt,
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Receiver1out4Security_Hybrid3_1 = Receiver1out4Security_Hybrid3 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            b: true,
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            zeros_ctxt: zeros_ctxt,
+            sim1out2: sim1out2,
+        }
+    }
+
     instance ReceiverSim1out4 = ReceiverSim1out4 {
         types {
             Msg: Bits(n_msg),
@@ -83,10 +254,106 @@ theorem Receiver1out4Security {
 
     assumptions {
         Receiver1out2: ReceiverView1out2 ~ ReceiverSim1out2
+        CPAInner: CPA_0_inner ~ CPA_1_inner
+        CPAOuter: CPA_0_outer ~ CPA_1_outer
     }
 
     gamehops {
-        conjecture ReceiverView1out4 ReceiverSim1out4
+        reduction ReceiverView1out4 Receiver1out4Security_Hybrid0
+        {
+            assumption Receiver1out2
+
+            map ReceiverView1out2 ReceiverView1out4 {
+                ReceiverView1out2: ReceiverView1out2
+            }
+
+            map ReceiverSim1out2 Receiver1out4Security_Hybrid0 {
+                ReceiverFunc1out2: ReceiverFunc1out2
+                ReceiverSim1out2: ReceiverSim1out2
+            }
+        }
+
+        equivalence Receiver1out4Security_Hybrid0 Receiver1out4Security_Hybrid1_0 {
+            invariant: [
+                ./theorem/invariant-Receiver1out4Security_Hybrid0-Receiver1out4Security_Hybrid1_0.smt2
+            ]
+
+            GetView: {
+                lemmas {
+                    equal-aborts: []
+                    invariant: [no-abort]
+                    same-output: [no-abort]
+                }
+            }
+        }
+
+        reduction Receiver1out4Security_Hybrid1_0 Receiver1out4Security_Hybrid1_1
+        {
+            assumption CPAInner
+
+            map CPA_0_inner Receiver1out4Security_Hybrid1_0 {
+                CPA: CPA
+            }
+
+            map CPA_1_inner Receiver1out4Security_Hybrid1_1 {
+                CPA: CPA
+            }
+        }
+
+        equivalence Receiver1out4Security_Hybrid1_1 Receiver1out4Security_Hybrid2 {
+            invariant: [
+                ./theorem/invariant-Receiver1out4Security_Hybrid1_1-Receiver1out4Security_Hybrid2.smt2
+            ]
+
+            GetView: {
+                lemmas {
+                    equal-aborts: []
+                    invariant: [no-abort]
+                    same-output: [no-abort]
+                }
+            }
+        }
+
+        equivalence Receiver1out4Security_Hybrid2 Receiver1out4Security_Hybrid3_0 {
+            invariant: [
+                ./theorem/invariant-Receiver1out4Security_Hybrid2-Receiver1out4Security_Hybrid3_0.smt2
+            ]
+
+            GetView: {
+                lemmas {
+                    equal-aborts: []
+                    invariant: [no-abort]
+                    same-output: [no-abort]
+                }
+            }
+        }
+
+        reduction Receiver1out4Security_Hybrid3_0 Receiver1out4Security_Hybrid3_1
+        {
+            assumption CPAOuter
+
+            map CPA_0_outer Receiver1out4Security_Hybrid3_0 {
+                CPA: CPA
+            }
+
+            map CPA_1_outer Receiver1out4Security_Hybrid3_1 {
+                CPA: CPA
+            }
+        }
+
+        equivalence Receiver1out4Security_Hybrid3_1 ReceiverSim1out4 {
+            invariant: [
+                ./theorem/invariant-Receiver1out4Security_Hybrid3_1-ReceiverSim1out4.smt2
+            ]
+
+            GetView: {
+                lemmas {
+                    equal-aborts: []
+                    invariant: [no-abort]
+                    same-output: [no-abort]
+                }
+            }
+        }
     }
 
     propositions {

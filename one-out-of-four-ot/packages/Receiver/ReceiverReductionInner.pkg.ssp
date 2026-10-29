@@ -1,0 +1,88 @@
+package ReceiverReductionInner {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    import oracles {
+        Enc(m: (Msg, Msg)) -> (Ctxt, Ctxt),
+        GetSimView(b: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
+    }
+
+    params {
+        enc_inner: fn Key, Msg, EncRnd -> Ctxt,
+        enc_outer: fn Key, Ctxt, EncRnd -> Ctxt
+    }
+
+    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool)))
+        -> ((RecvRnd1out2, RecvRnd1out2),
+        (Table((Bool, Bool), Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
+    {
+        (s, b) <- inputs;
+        (bi, bo) <- b; /* b_inner and b_outer */
+        (s00, s01, s10, s11) <- s;
+
+        /* row bi is encrypted under the active inner key,
+        row not bi under the inactive inner key of the CPA game */
+        ma0 <- s00;
+        ma1 <- s01;
+        mx0 <- s10;
+        mx1 <- s11;
+        if bi {
+            ma0 <- s10;
+            ma1 <- s11;
+            mx0 <- s00;
+            mx1 <- s01;
+        }
+
+        /* Encryption keys */
+        kia <-$ Key sample-name kia; /* k_inner_b_active */
+        ko0 <-$ Key sample-name ko0; /* k_outer_0 */
+        ko1 <-$ Key sample-name ko1; /* k_outer_1 */
+
+        /* Encryption randomness */
+        ria0 <-$ EncRnd sample-name ria0;
+        ria1 <-$ EncRnd sample-name ria1;
+        ro1 <-$ EncRnd sample-name ro1;
+        ro2 <-$ EncRnd sample-name ro2;
+        ro3 <-$ EncRnd sample-name ro3;
+        ro4 <-$ EncRnd sample-name ro4;
+
+        /* Inner encryptions */
+        (cx0, cx1) <- invoke Enc((mx0, mx1));
+        ca0 <- enc_inner(kia, ma0, ria0);
+        ca1 <- enc_inner(kia, ma1, ria1);
+
+        c00 <- ca0;
+        c01 <- ca1;
+        c10 <- cx0;
+        c11 <- cx1;
+        if bi {
+            c00 <- cx0;
+            c01 <- cx1;
+            c10 <- ca0;
+            c11 <- ca1;
+        }
+
+        /* Outer encryptions */
+        C <- new Table((Bool, Bool), Ctxt);
+        C[(false, false)] <- Some(enc_outer(ko0, c00, ro1));
+        C[(false, true)] <- Some(enc_outer(ko1, c01, ro2));
+        C[(true, false)] <- Some(enc_outer(ko0, c10, ro3));
+        C[(true, true)] <- Some(enc_outer(ko1, c11, ro4));
+
+        koa <- ko0;
+        if bo {
+            koa <- ko1;
+        }
+
+        (rrecv0, msgs0) <- invoke GetSimView(bi, kia);
+        (rrecv1, msgs1) <- invoke GetSimView(bo, koa);
+
+        return ((rrecv0, rrecv1), (C, msgs0, msgs1));
+    }
+}

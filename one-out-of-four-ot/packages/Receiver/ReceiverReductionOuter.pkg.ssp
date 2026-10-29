@@ -1,0 +1,82 @@
+package ReceiverReductionOuter {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    import oracles {
+        Enc(m: (Ctxt, Ctxt)) -> (Ctxt, Ctxt),
+        GetSimView(b: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
+    }
+
+    params {
+        enc_inner: fn Key, Msg, EncRnd -> Ctxt,
+        enc_outer: fn Key, Ctxt, EncRnd -> Ctxt,
+        zeros_msg: Msg
+    }
+
+    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool)))
+        -> ((RecvRnd1out2, RecvRnd1out2),
+        (Table((Bool, Bool), Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
+    {
+        (s, b) <- inputs;
+        (bi, bo) <- b; /* b_inner and b_outer */
+        (s00, s01, s10, s11) <- s;
+
+        /* the messages in row bi, in column bo and not bo */
+        if bi {
+            if bo {
+                saa <- s11;
+                sax <- s10;
+            } else {
+                saa <- s10;
+                sax <- s11;
+            }
+        } else {
+            if bo {
+                saa <- s01;
+                sax <- s00;
+            } else {
+                saa <- s00;
+                sax <- s01;
+            }
+        }
+
+        /* Encryption keys */
+        kia <-$ Key sample-name kia; /* k_inner_b_active */
+        kix <-$ Key sample-name kix; /* k_inner_b_inactive */
+        koa <-$ Key sample-name koa; /* k_outer_b_active */
+
+        /* Encryption randomness */
+        ri1 <-$ EncRnd sample-name ri1;
+        ri2 <-$ EncRnd sample-name ri2;
+        ri3 <-$ EncRnd sample-name ri3;
+        ri4 <-$ EncRnd sample-name ri4;
+        ro1 <-$ EncRnd sample-name ro1;
+        ro2 <-$ EncRnd sample-name ro2;
+
+        /* Inner encryptions */
+        caa <- enc_inner(kia, saa, ri1);
+        cxa <- enc_inner(kix, zeros_msg, ri2);
+        cax <- enc_inner(kia, sax, ri3);
+        cxx <- enc_inner(kix, zeros_msg, ri4);
+
+        /* Outer encryptions: column not bo under the inactive outer key of the CPA game */
+        (dax, dxx) <- invoke Enc((cax, cxx));
+
+        C <- new Table((Bool, Bool), Ctxt);
+        C[(bi, bo)] <- Some(enc_outer(koa, caa, ro1));
+        C[(not bi, bo)] <- Some(enc_outer(koa, cxa, ro2));
+        C[(bi, not bo)] <- Some(dax);
+        C[(not bi, not bo)] <- Some(dxx);
+
+        (rrecv0, msgs0) <- invoke GetSimView(bi, kia);
+        (rrecv1, msgs1) <- invoke GetSimView(bo, koa);
+
+        return ((rrecv0, rrecv1), (C, msgs0, msgs1));
+    }
+}

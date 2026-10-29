@@ -1,0 +1,23 @@
+package CPAReal {
+    types {
+        Key,
+        Ptxt,
+        Ctxt,
+        EncRnd
+    }
+
+    params {
+        enc: fn Key, Ptxt, EncRnd -> Ctxt
+    }
+
+    /* The real mode of CPA without the consts b and zeros. Domino declares one SMT
+    datatype for the consts of a package, whatever its type parameters, so an
+    equivalence cannot contain CPA with two different Ptxt types. */
+    oracle Enc(m: (Ptxt, Ptxt)) -> (Ctxt, Ctxt) {
+        (m0, m1) <- m;
+        k <-$ Key sample-name k;
+        r0 <-$ EncRnd sample-name r0;
+        r1 <-$ EncRnd sample-name r1;
+        return (enc(k, m0, r0), enc(k, m1, r1));
+    }
+}

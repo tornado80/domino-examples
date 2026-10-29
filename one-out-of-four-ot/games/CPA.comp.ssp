@@ -1,0 +1,32 @@
+composition CPA {
+    types {
+        Key,
+        Ptxt,
+        Ctxt,
+        EncRnd
+    }
+
+    const b: Bool;
+    const enc: fn Key, Ptxt, EncRnd -> Ctxt;
+    const zeros: Ptxt;
+
+    instance CPA = CPA {
+        types {
+            Key: Key,
+            Ptxt: Ptxt,
+            Ctxt: Ctxt,
+            EncRnd: EncRnd,
+        }
+        params {
+            b: b,
+            enc: enc,
+            zeros: zeros,
+        }
+    }
+
+    compose {
+        adversary: {
+            Enc: CPA,
+        },
+    }
+}

@@ -1,0 +1,27 @@
+package CPA {
+    types {
+        Key,
+        Ptxt,
+        Ctxt,
+        EncRnd
+    }
+
+    params {
+        b: Bool, /* false: encrypt the messages, true: encrypt zeros */
+        enc: fn Key, Ptxt, EncRnd -> Ctxt,
+        zeros: Ptxt
+    }
+
+    /* Real-or-Zeros: encrypts two plaintexts under a fresh key */
+    oracle Enc(m: (Ptxt, Ptxt)) -> (Ctxt, Ctxt) {
+        (m0, m1) <- m;
+        if b {
+            m0 <- zeros;
+            m1 <- zeros;
+        }
+        k <-$ Key sample-name k;
+        r0 <-$ EncRnd sample-name r0;
+        r1 <-$ EncRnd sample-name r1;
+        return (enc(k, m0, r0), enc(k, m1, r1));
+    }
+}

@@ -1,0 +1,63 @@
+composition Receiver1out4Security_Hybrid0 {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        SimRnds,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    const enc_inner: fn Key, Msg, EncRnd -> Ctxt;
+    const enc_outer: fn Key, Ctxt, EncRnd -> Ctxt;
+    const sim1out2: fn Bool, Key, SimRnds -> (RecvRnd1out2, RecvIncMsg1out2);
+
+    instance ReceiverView1out4 = ReceiverView1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+            Ctxt: Ctxt,
+            EncRnd: EncRnd,
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+        }
+    }
+
+    instance ReceiverFunc1out2 = ReceiverFunc1out2 {
+        types {
+            Key: Key,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+    }
+
+    instance ReceiverSim1out2 = ReceiverSim1out2 {
+        types {
+            ReceiverInput1out2: Bool,
+            Key: Key,
+            SimRnds: SimRnds,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: ReceiverView1out4,
+        },
+        ReceiverView1out4: {
+            GetView: ReceiverFunc1out2,
+        },
+        ReceiverFunc1out2: {
+            GetSimView: ReceiverSim1out2,
+        },
+    }
+}
