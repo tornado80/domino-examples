@@ -4,7 +4,7 @@ composition Hybrid0 {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
-    instance Prf = PRF {
+    instance PRF = PRF {
         params {
             bprf: bprf,
             prf: prf
@@ -23,7 +23,7 @@ composition Hybrid0 {
             Enc: Reduction1
         }
         Reduction1: {
-            Eval: Prf,
+            Eval: PRF,
         }
     }
 }

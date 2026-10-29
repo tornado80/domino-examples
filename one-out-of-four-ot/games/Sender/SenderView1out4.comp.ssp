@@ -11,7 +11,7 @@ composition SenderView1out4 {
     const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
                         -> SendIncMsg1out2;
 
-    instance view4 = SenderView1out4 {
+    instance SenderView1out4 = SenderView1out4 {
         types {
             Msg: Msg,
             Key: Key,
@@ -21,7 +21,7 @@ composition SenderView1out4 {
         }
     }
 
-    instance view2 = SenderView1out2 {
+    instance SenderView1out2 = SenderView1out2 {
         types {
             Key: Key,
             SendIncMsg1out2: SendIncMsg1out2,
@@ -35,10 +35,10 @@ composition SenderView1out4 {
 
     compose {
         adversary: {
-            GetView: view4,
+            GetView: SenderView1out4,
         },
-        view4: {
-            GetView: view2,
+        SenderView1out4: {
+            GetView: SenderView1out2,
         },
     }
 }

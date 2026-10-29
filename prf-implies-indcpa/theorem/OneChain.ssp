@@ -3,47 +3,47 @@ theorem OneChain {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
     
-    instance Gnonce0 = Gnonce {
+    instance Gnonce_0 = Gnonce {
         params {
             bnonce: false
         }
     }
 
-    instance Gnonce1 = Gnonce {
+    instance Gnonce_1 = Gnonce {
         params {
             bnonce: true
         }
     }
 
-    instance Gprf0 = Gprf {
+    instance Gprf_0 = Gprf {
         params {
             bprf: false,
             prf: prf
         }
     }
 
-    instance Gprf1 = Gprf {
+    instance Gprf_1 = Gprf {
         params {
             bprf: true,
             prf: prf
         }
     }
 
-    instance Gxor0 = Gxor {
+    instance Gxor_0 = Gxor {
         params {
             bxor: false,
             xor: xor
         }
     }
 
-    instance Gxor1 = Gxor {
+    instance Gxor_1 = Gxor {
         params {
             bxor: true,
             xor: xor
         }
     }
 
-    instance Gcpa = Gcpa {
+    instance Gcpa_b = Gcpa {
         params {
             bcpa: b,
             prf: prf,
@@ -51,7 +51,7 @@ theorem OneChain {
         }
     }
 
-    instance Gcpa0 = Gcpa {
+    instance Gcpa_0 = Gcpa {
         params {
             bcpa: false,
             prf: prf,
@@ -59,7 +59,7 @@ theorem OneChain {
         }
     }
 
-    instance Gcpa1 = Gcpa {
+    instance Gcpa_1 = Gcpa {
         params {
             bcpa: true,
             prf: prf,
@@ -140,15 +140,15 @@ theorem OneChain {
     }
 
     assumptions {
-        Nonces: Gnonce0 ~ Gnonce1
-        PRF: Gprf0 ~ Gprf1 
-        XOR: Gxor0 ~ Gxor1
+        Nonces: Gnonce_0 ~ Gnonce_1
+        PRF: Gprf_0 ~ Gprf_1 
+        XOR: Gxor_0 ~ Gxor_1
     }
 
     gamehops {
-        equivalence Gcpa Hybrid0_b_0 {
+        equivalence Gcpa_b Hybrid0_b_0 {
             invariant: [
-                ./theorem/invariant-Gcpa-Hybrid0_b_0.smt2
+                ./theorem/invariant-Gcpa_b-Hybrid0_b_0.smt2
             ]
             Enc: {
                 randomness: custom
@@ -156,11 +156,11 @@ theorem OneChain {
         }
         reduction Hybrid0_b_0 Hybrid0_b_1 {
             assumption PRF
-            map Gprf0 Hybrid0_b_0 {
-                Prf: Prf
+            map Gprf_0 Hybrid0_b_0 {
+                PRF: PRF
             }
-            map Gprf1 Hybrid0_b_1 {
-                Prf: Prf
+            map Gprf_1 Hybrid0_b_1 {
+                PRF: PRF
             }
         }
         equivalence Hybrid0_b_1 Hybrid1_b_0 {
@@ -173,10 +173,10 @@ theorem OneChain {
         }
         reduction Hybrid1_b_0 Hybrid1_b_1 {
             assumption Nonces
-            map Gnonce0 Hybrid1_b_0 {
+            map Gnonce_0 Hybrid1_b_0 {
                 Nonce: Nonce
             }
-            map Gnonce1 Hybrid1_b_1 {
+            map Gnonce_1 Hybrid1_b_1 {
                 Nonce: Nonce
             }
         }
@@ -190,11 +190,11 @@ theorem OneChain {
         }
         reduction Hybrid2_b_0 Hybrid2_b_1 {
             assumption XOR
-            map Gxor0 Hybrid2_b_0 {
-                Xor: Xor
+            map Gxor_0 Hybrid2_b_0 {
+                XOR: XOR
             }
-            map Gxor1 Hybrid2_b_1 {
-                Xor: Xor
+            map Gxor_1 Hybrid2_b_1 {
+                XOR: XOR
             }
         }
         equivalence Hybrid2_0_1 Hybrid2_1_1 {
@@ -207,6 +207,6 @@ theorem OneChain {
         }
     }
     propositions {
-        Main: Gcpa0 ~ Gcpa1
+        Main: Gcpa_0 ~ Gcpa_1
     }
 }

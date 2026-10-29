@@ -14,10 +14,10 @@
         (or
             (and (= sample-id-left  (sample-id "Reduction1" "Enc" "nonce"))
                  (= sample-id-right (sample-id "Nonce" "Sample" "nonce")))
-            (and (= sample-id-left  (sample-id "Prf" "Eval" "r"))
+            (and (= sample-id-left  (sample-id "PRF" "Eval" "r"))
                  (= sample-id-right (sample-id "Reduction2" "Enc" "pad")))))
 )
 
 (define-state-relation invariant (left right)
-    (= left.Prf.T right.Reduction2.T)
+    (= left.PRF.T right.Reduction2.T)
 )

@@ -14,8 +14,8 @@
         (or
             (and (= sample-id-left  (sample-id "Nonce" "Sample" "nonce"))
                  (= sample-id-right (sample-id "Nonce" "Sample" "nonce")))
-            (and (= sample-id-left  (sample-id "Prf" "Eval" "r"))
-                 (= sample-id-right (sample-id "Xor" "Xor" "pad")))))
+            (and (= sample-id-left  (sample-id "PRF" "Eval" "r"))
+                 (= sample-id-right (sample-id "XOR" "Xor" "pad")))))
 )
 
 (define-state-relation invariant (left right)
@@ -23,5 +23,5 @@
         (= left.Nonce.T right.Nonce.T)
         ; pads only exist for nonces that were already drawn
         (forall ((x Bits_256))
-            (=> (not (is-mk-none (select left.Prf.T x)))
+            (=> (not (is-mk-none (select left.PRF.T x)))
                 (not (is-mk-none (select left.Nonce.T x)))))))

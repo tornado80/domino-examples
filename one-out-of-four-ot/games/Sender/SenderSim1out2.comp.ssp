@@ -8,7 +8,7 @@ composition SenderSim1out2 {
 
     const sim1out2: fn Key, Key, SimRnds -> (SendRnd1out2, SendIncMsg1out2);
 
-    instance func2 = SenderFunc1out2 {
+    instance SenderFunc1out2 = SenderFunc1out2 {
         types {
             Key: Key,
             SendIncMsg1out2: SendIncMsg1out2,
@@ -16,7 +16,7 @@ composition SenderSim1out2 {
         }
     }
 
-    instance sim2 = SenderSim1out2 {
+    instance SenderSim1out2 = SenderSim1out2 {
         types {
             Key: Key,
             SimRnds: SimRnds,
@@ -30,10 +30,10 @@ composition SenderSim1out2 {
 
     compose {
         adversary: {
-            GetView: func2,
+            GetView: SenderFunc1out2,
         },
-        func2: {
-            GetSimView: sim2,
+        SenderFunc1out2: {
+            GetSimView: SenderSim1out2,
         },
     }
 }

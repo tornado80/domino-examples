@@ -5,7 +5,7 @@ composition Hybrid2 {
     const prf: fn Bits(256), Bits(256) -> Bits(256);
     const xor: fn Bits(256), Bits(256) -> Bits(256);
 
-    instance Xor = XOR {
+    instance XOR = XOR {
         params {
             bxor: bxor,
             xor: xor
@@ -33,7 +33,7 @@ composition Hybrid2 {
         }
         Reduction3: {
             GetMessage: Message,
-            Xor: Xor,
+            Xor: XOR,
             Sample: Nonce
         }
     }

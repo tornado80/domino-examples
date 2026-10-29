@@ -14,7 +14,7 @@ theorem Sender1out4Security {
                         -> (Bits(n_srnd), Bits(n_inc));
 
     /* 1-out-of-2 OT: real sender view and simulated sender view */
-    instance View1out2 = SenderView1out2 {
+    instance SenderView1out2 = SenderView1out2 {
         types {
             Key: Bits(n_key),
             SendIncMsg1out2: Bits(n_inc),
@@ -26,7 +26,7 @@ theorem Sender1out4Security {
         }
     }
 
-    instance Sim1out2 = SenderSim1out2 {
+    instance SenderSim1out2 = SenderSim1out2 {
         types {
             Key: Bits(n_key),
             SimRnds: Bits(n_sim),
@@ -39,7 +39,7 @@ theorem Sender1out4Security {
     }
 
     /* 1-out-of-4 OT: real sender view, hybrid and simulated sender view */
-    instance View1out4 = SenderView1out4 {
+    instance SenderView1out4 = SenderView1out4 {
         types {
             Msg: Bits(n_msg),
             Key: Bits(n_key),
@@ -53,7 +53,7 @@ theorem Sender1out4Security {
         }
     }
 
-    instance Hybrid1out4 = SenderHybrid1out4 {
+    instance Sender1out4Security_Hybrid0 = Sender1out4Security_Hybrid0 {
         types {
             Msg: Bits(n_msg),
             Key: Bits(n_key),
@@ -67,7 +67,7 @@ theorem Sender1out4Security {
         }
     }
 
-    instance Sim1out4 = SenderSim1out4 {
+    instance SenderSim1out4 = SenderSim1out4 {
         types {
             Msg: Bits(n_msg),
             Key: Bits(n_key),
@@ -83,27 +83,27 @@ theorem Sender1out4Security {
     }
 
     assumptions {
-        Sender1out2: View1out2 ~ Sim1out2
+        Sender1out2: SenderView1out2 ~ SenderSim1out2
     }
 
     gamehops {
-        reduction View1out4 Hybrid1out4
+        reduction SenderView1out4 Sender1out4Security_Hybrid0
         {
             assumption Sender1out2
 
-            map View1out2 View1out4 {
-                view2: view2
+            map SenderView1out2 SenderView1out4 {
+                SenderView1out2: SenderView1out2
             }
 
-            map Sim1out2 Hybrid1out4 {
-                func2: func2
-                sim2: sim2
+            map SenderSim1out2 Sender1out4Security_Hybrid0 {
+                SenderFunc1out2: SenderFunc1out2
+                SenderSim1out2: SenderSim1out2
             }
         }
 
-        equivalence Hybrid1out4 Sim1out4 {
+        equivalence Sender1out4Security_Hybrid0 SenderSim1out4 {
             invariant: [
-                ./theorem/invariant-Hybrid1out4-Sim1out4.smt2
+                ./theorem/invariant-Sender1out4Security_Hybrid0-SenderSim1out4.smt2
             ]
 
             GetView: {
@@ -117,6 +117,6 @@ theorem Sender1out4Security {
     }
 
     propositions {
-        Sender1out4: View1out4 ~ Sim1out4
+        SenderPrivacy: SenderView1out4 ~ SenderSim1out4
     }
 }

@@ -13,11 +13,11 @@
         (= sample-ctr-right 0)
         (or
             (and (= sample-id-left  (sample-id "CPA" "Enc" "k"))
-                 (= sample-id-right (sample-id "Prf" "Eval" "k")))
+                 (= sample-id-right (sample-id "PRF" "Eval" "k")))
             (and (= sample-id-left  (sample-id "Construction" "Enc" "nonce"))
                  (= sample-id-right (sample-id "Reduction1" "Enc" "nonce")))))
 )
 
 (define-state-relation invariant (left right)
-    (= left.CPA.k right.Prf.k)
+    (= left.CPA.k right.PRF.k)
 )
