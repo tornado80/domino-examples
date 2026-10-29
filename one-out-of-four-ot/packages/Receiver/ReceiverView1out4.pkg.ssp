@@ -9,7 +9,7 @@ package ReceiverView1out4 {
     }
 
     import oracles {
-        GetView(inputs: (Key, Key, Bool)) -> (RecvRnd1out2, RecvIncMsg1out2),
+        GetView(inputs: ((Key, Key), Bool)) -> (RecvRnd1out2, RecvIncMsg1out2),
     }
 
     params {
@@ -51,8 +51,8 @@ package ReceiverView1out4 {
         C[(true, false)] <- Some(enc_outer(ko0, enc_inner(ki1, s10, ri3), ro3));
         C[(true, true)] <- Some(enc_outer(ko1, enc_inner(ki1, s11, ri4), ro4));
 
-        (rrecv0, msgs0) <- invoke GetView((ki0, ki1, bi));
-        (rrecv1, msgs1) <- invoke GetView((ko0, ko1, bo));
+        (rrecv0, msgs0) <- invoke GetView(((ki0, ki1), bi));
+        (rrecv1, msgs1) <- invoke GetView(((ko0, ko1), bo));
 
         return ((rrecv0, rrecv1), (C, msgs0, msgs1));
     }

@@ -1,0 +1,53 @@
+composition ReceiverView1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        RecvIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    const enc_inner: fn Key, Msg, EncRnd -> Ctxt;
+    const enc_outer: fn Key, Ctxt, EncRnd -> Ctxt;
+    const view1out2: fn (Key, Key), Bool, (SendRnd1out2, RecvRnd1out2)
+                        -> RecvIncMsg1out2;
+
+    instance ReceiverView1out4 = ReceiverView1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+            Ctxt: Ctxt,
+            EncRnd: EncRnd,
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+        }
+    }
+
+    instance ReceiverView1out2 = ReceiverView1out2 {
+        types {
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: ReceiverView1out4,
+        },
+        ReceiverView1out4: {
+            GetView: ReceiverView1out2,
+        },
+    }
+}

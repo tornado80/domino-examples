@@ -9,10 +9,11 @@ package ReceiverFunc1out2 {
         GetSimView(input: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
     }
 
-    oracle GetView(inputs: (Key, Key, Bool))
+    oracle GetView(inputs: ((Key, Key), Bool))
         -> (RecvRnd1out2, RecvIncMsg1out2)
     {
-        (k0, k1, b) <- inputs;
+        (s, b) <- inputs;
+        (k0, k1) <- s;
         output <- k0;
         if b {
             output <- k1;

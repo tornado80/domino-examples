@@ -1,0 +1,95 @@
+theorem Receiver1out4Security {
+    /* Lengths of the (abstract) sets the protocol works over. */
+    const n_msg: Integer;
+    const n_key: Integer;
+    const n_enc: Integer;
+    const n_ctxt: Integer;
+    const n_sim: Integer;
+    const n_inc: Integer;
+    const n_srnd: Integer;
+    const n_rrnd: Integer;
+
+    const enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -> Bits(n_ctxt);
+    const enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -> Bits(n_ctxt);
+    /* fixed all-zero plaintext and ciphertext the simulator encrypts */
+    const zeros_msg: Bits(n_msg);
+    const zeros_ctxt: Bits(n_ctxt);
+    const view1out2: fn (Bits(n_key), Bits(n_key)), Bool, (Bits(n_srnd), Bits(n_rrnd))
+                        -> Bits(n_inc);
+    const sim1out2: fn Bool, Bits(n_key), Bits(n_sim)
+                        -> (Bits(n_rrnd), Bits(n_inc));
+
+    /* 1-out-of-2 OT: real receiver view and simulated receiver view */
+    instance ReceiverView1out2 = ReceiverView1out2 {
+        types {
+            Key: Bits(n_key),
+            RecvIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    instance ReceiverSim1out2 = ReceiverSim1out2 {
+        types {
+            Key: Bits(n_key),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    /* 1-out-of-4 OT: real receiver view and simulated receiver view */
+    instance ReceiverView1out4 = ReceiverView1out4 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            RecvIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            view1out2: view1out2,
+        }
+    }
+
+    instance ReceiverSim1out4 = ReceiverSim1out4 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnd: Bits(n_enc),
+            Ctxt: Bits(n_ctxt),
+            SimRnds: Bits(n_sim),
+            RecvIncMsg1out2: Bits(n_inc),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            enc_inner: enc_inner,
+            enc_outer: enc_outer,
+            zeros_msg: zeros_msg,
+            zeros_ctxt: zeros_ctxt,
+            sim1out2: sim1out2,
+        }
+    }
+
+    assumptions {
+        Receiver1out2: ReceiverView1out2 ~ ReceiverSim1out2
+    }
+
+    gamehops {
+        conjecture ReceiverView1out4 ReceiverSim1out4
+    }
+
+    propositions {
+        ReceiverPrivacy: ReceiverView1out4 ~ ReceiverSim1out4
+    }
+}

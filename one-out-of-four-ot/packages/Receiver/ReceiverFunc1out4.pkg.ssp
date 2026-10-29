@@ -1,7 +1,6 @@
 package ReceiverFunc1out4 {
     types {
         Msg,
-        Key,
         RecvIncMsg1out4,
         RecvRnd1out4
     }

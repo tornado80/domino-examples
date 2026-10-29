@@ -42,8 +42,8 @@ package ReceiverSim1out4 {
         /* Double Encryptions */
         C <- new Table((Bool, Bool), Ctxt);
         C[(bi, bo)] <- Some(enc_outer(koa, enc_inner(kia, output, ri1), ro1));
-        C[(bi, not bo)] <- Some(enc_outer(koa, enc_inner(kix, zeros_msg, ri2), ro2));
-        C[(not bi, bo)] <- Some(enc_outer(kox, zeros_ctxt, ro3));
+        C[(not bi, bo)] <- Some(enc_outer(koa, enc_inner(kix, zeros_msg, ri2), ro2));
+        C[(bi, not bo)] <- Some(enc_outer(kox, zeros_ctxt, ro3));
         C[(not bi, not bo)] <- Some(enc_outer(kox, zeros_ctxt, ro4));
 
         (rrecv0, msgs0) <- invoke GetSimView(bi, kia);

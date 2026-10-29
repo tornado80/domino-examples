@@ -1,0 +1,40 @@
+composition ReceiverSim1out2 {
+    types {
+        Key,
+        SimRnds,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    const sim1out2: fn Bool, Key, SimRnds -> (RecvRnd1out2, RecvIncMsg1out2);
+
+    instance ReceiverFunc1out2 = ReceiverFunc1out2 {
+        types {
+            Key: Key,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+    }
+
+    instance ReceiverSim1out2 = ReceiverSim1out2 {
+        types {
+            ReceiverInput1out2: Bool,
+            Key: Key,
+            SimRnds: SimRnds,
+            RecvIncMsg1out2: RecvIncMsg1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: ReceiverFunc1out2,
+        },
+        ReceiverFunc1out2: {
+            GetSimView: ReceiverSim1out2,
+        },
+    }
+}
