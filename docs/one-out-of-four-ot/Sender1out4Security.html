@@ -120,8 +120,8 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 <section class="tabpane" data-tab="0">
 <nav class="path"><button class="chip" data-col="0">SenderView1out4</button><span class="via" title="SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)" data-assumption="Sender1out2">reduction</span><button class="chip" data-col="1">Sender1out4Security_Hybrid0</button><span class="via" title="Sender1out4Security_Hybrid0 == SenderSim1out4">equivalence</span><button class="chip" data-col="2">SenderSim1out4</button></nav>
 <div class="scroller"><table>
-<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/3</span> SenderView1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out4" data-inst="SenderView1out4" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out4</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/3</span> Sender1out4Security_Hybrid0</div><div class="gsub">game <code class="gamelink" data-comp="Sender1out4Security_Hybrid0" data-inst="Sender1out4Security_Hybrid0" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">Sender1out4Security_Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="Sender1out2">SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/3</span> SenderSim1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out4" data-inst="SenderSim1out4" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out4</code></div><div class="gsub">via equivalence <code>Sender1out4Security_Hybrid0 == SenderSim1out4</code></div></th></tr>
-<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out4"><svg class="diagram" width="388" height="110" viewBox="0 0 387.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="115.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="Sender1out4Security_Hybrid0"><svg class="diagram" width="563" height="110" viewBox="0 0 562.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="365.0" y1="47.5" x2="440.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="43.5" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="290.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td><td data-game="SenderSim1out4"><svg class="diagram" width="555" height="80" viewBox="0 0 555.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="365.0" y1="40.0" x2="440.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out4" data-inst="SenderFunc1out4" data-params=""><title>package SenderFunc1out4, instance SenderFunc1out4</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out4" data-inst="SenderSim1out4" data-params=""><title>package SenderSim1out4, instance SenderSim1out4</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/3</span> SenderView1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out4" data-inst="SenderView1out4" data-params="view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out4</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/3</span> Sender1out4Security_Hybrid0</div><div class="gsub">game <code class="gamelink" data-comp="Sender1out4Security_Hybrid0" data-inst="Sender1out4Security_Hybrid0" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">Sender1out4Security_Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="Sender1out2">SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/3</span> SenderSim1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out4" data-inst="SenderSim1out4" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out4</code></div><div class="gsub">via equivalence <code>Sender1out4Security_Hybrid0 == SenderSim1out4</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out4"><svg class="diagram" width="388" height="110" viewBox="0 0 387.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="115.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="Sender1out4Security_Hybrid0"><svg class="diagram" width="563" height="110" viewBox="0 0 562.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="365.0" y1="47.5" x2="440.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="43.5" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="290.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td><td data-game="SenderSim1out4"><svg class="diagram" width="555" height="80" viewBox="0 0 555.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="365.0" y1="40.0" x2="440.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out4" data-inst="SenderFunc1out4" data-params=""><title>package SenderFunc1out4, instance SenderFunc1out4</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out4" data-inst="SenderSim1out4" data-params=""><title>package SenderSim1out4, instance SenderSim1out4</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
 <tbody>
 <tr><th class="oname"><code>GetView</code></th><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
     (s, b) &lt;- inputs;
@@ -132,21 +132,17 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
     k11 &lt;-$ Bits(n_key) sample-name k11;
     renc &lt;-$ Bits(n_enc) sample-name renc;
     // inlined SenderView1out2.GetView
-        inputs_2 &lt;- (k00, k01, bl);
-        (k0, k1, b_2) &lt;- inputs_2;
-        rsend &lt;-$ Bits(n_srnd) sample-name 1;
+        inputs_2 &lt;- ((k00, k01), bl);
+        (s_2, b_2) &lt;- inputs_2;
+        rsend0 &lt;-$ Bits(n_srnd) sample-name 1;
         rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
-        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
-        view0 &lt;- (rsend, msgs);
+        msgs0 &lt;- view1out2(s_2, b_2, (rsend0, rrecv));
     // inlined SenderView1out2.GetView
-        inputs_2 &lt;- (k10, k11, br);
-        (k0, k1, b_2) &lt;- inputs_2;
-        rsend &lt;-$ Bits(n_srnd) sample-name 1;
+        inputs_2 &lt;- ((k10, k11), br);
+        (s_2, b_2) &lt;- inputs_2;
+        rsend1 &lt;-$ Bits(n_srnd) sample-name 1;
         rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
-        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
-        view1 &lt;- (rsend, msgs);
-    (rsend0, msgs0) &lt;- view0;
-    (rsend1, msgs1) &lt;- view1;
+        msgs1 &lt;- view1out2(s_2, b_2, (rsend1, rrecv));
     return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
 }
 </pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
@@ -158,21 +154,17 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
     k11 &lt;-$ Bits(n_key);
     renc &lt;-$ Bits(n_enc);
     // inlined SenderView1out2.GetView
-        inputs_2 &lt;- (k00, k01, bl);
-        (k0, k1, b_2) &lt;- inputs_2;
-        rsend &lt;-$ Bits(n_srnd);
+        inputs_2 &lt;- ((k00, k01), bl);
+        (s_2, b_2) &lt;- inputs_2;
+        rsend0 &lt;-$ Bits(n_srnd);
         rrecv &lt;-$ Bits(n_rrnd);
-        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
-        view0 &lt;- (rsend, msgs);
+        msgs0 &lt;- view1out2(s_2, b_2, (rsend0, rrecv));
     // inlined SenderView1out2.GetView
-        inputs_2 &lt;- (k10, k11, br);
-        (k0, k1, b_2) &lt;- inputs_2;
-        rsend &lt;-$ Bits(n_srnd);
+        inputs_2 &lt;- ((k10, k11), br);
+        (s_2, b_2) &lt;- inputs_2;
+        rsend1 &lt;-$ Bits(n_srnd);
         rrecv &lt;-$ Bits(n_rrnd);
-        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
-        view1 &lt;- (rsend, msgs);
-    (rsend0, msgs0) &lt;- view0;
-    (rsend1, msgs1) &lt;- view1;
+        msgs1 &lt;- view1out2(s_2, b_2, (rsend1, rrecv));
     return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
 }
 </pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
@@ -184,23 +176,19 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
     k11 &lt;-$ Bits(n_key) sample-name k11;
     renc &lt;-$ Bits(n_enc) sample-name renc;
     // inlined SenderFunc1out2.GetView
-        inputs_2 &lt;- (k00, k01, bl);
-        (k0, k1, b_2) &lt;- inputs_2;
+        inputs_2 &lt;- ((k00, k01), bl);
+        (s_2, b_2) &lt;- inputs_2;
         // inlined SenderSim1out2.GetSimView
-            inputs_3 &lt;- (k0, k1);
-            (k0_2, k1_2) &lt;- inputs_3;
             rsim &lt;-$ Bits(n_sim) sample-name rsim;
-            view0 &lt;- sim1out2(k0_2, k1_2, rsim);
+            view &lt;- sim1out2(s_2, rsim);
+        (rsend0, msgs0) &lt;- view;
     // inlined SenderFunc1out2.GetView
-        inputs_2 &lt;- (k10, k11, br);
-        (k0, k1, b_2) &lt;- inputs_2;
+        inputs_2 &lt;- ((k10, k11), br);
+        (s_2, b_2) &lt;- inputs_2;
         // inlined SenderSim1out2.GetSimView
-            inputs_3 &lt;- (k0, k1);
-            (k0_2, k1_2) &lt;- inputs_3;
             rsim &lt;-$ Bits(n_sim) sample-name rsim;
-            view1 &lt;- sim1out2(k0_2, k1_2, rsim);
-    (rsend0, msgs0) &lt;- view0;
-    (rsend1, msgs1) &lt;- view1;
+            view &lt;- sim1out2(s_2, rsim);
+        (rsend1, msgs1) &lt;- view;
     return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
 }
 </pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
@@ -212,23 +200,19 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
     k11 &lt;-$ Bits(n_key);
     renc &lt;-$ Bits(n_enc);
     // inlined SenderFunc1out2.GetView
-        inputs_2 &lt;- (k00, k01, bl);
-        (k0, k1, b_2) &lt;- inputs_2;
+        inputs_2 &lt;- ((k00, k01), bl);
+        (s_2, b_2) &lt;- inputs_2;
         // inlined SenderSim1out2.GetSimView
-            inputs_3 &lt;- (k0, k1);
-            (k0_2, k1_2) &lt;- inputs_3;
             rsim &lt;-$ Bits(n_sim);
-            view0 &lt;- sim1out2(k0_2, k1_2, rsim);
+            view &lt;- sim1out2(s_2, rsim);
+        (rsend0, msgs0) &lt;- view;
     // inlined SenderFunc1out2.GetView
-        inputs_2 &lt;- (k10, k11, br);
-        (k0, k1, b_2) &lt;- inputs_2;
+        inputs_2 &lt;- ((k10, k11), br);
+        (s_2, b_2) &lt;- inputs_2;
         // inlined SenderSim1out2.GetSimView
-            inputs_3 &lt;- (k0, k1);
-            (k0_2, k1_2) &lt;- inputs_3;
             rsim &lt;-$ Bits(n_sim);
-            view1 &lt;- sim1out2(k0_2, k1_2, rsim);
-    (rsend0, msgs0) &lt;- view0;
-    (rsend1, msgs1) &lt;- view1;
+            view &lt;- sim1out2(s_2, rsim);
+        (rsend1, msgs1) &lt;- view;
     return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
 }
 </pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
@@ -241,16 +225,12 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         renc &lt;-$ Bits(n_enc) sample-name renc;
         // inlined SenderSim1out2.GetSimView
             inputs_2 &lt;- (k00, k01);
-            (k0, k1) &lt;- inputs_2;
             rsim &lt;-$ Bits(n_sim) sample-name rsim;
-            view0 &lt;- sim1out2(k0, k1, rsim);
+            (rsend0, msgs0) &lt;- sim1out2(inputs_2, rsim);
         // inlined SenderSim1out2.GetSimView
             inputs_2 &lt;- (k10, k11);
-            (k0, k1) &lt;- inputs_2;
             rsim &lt;-$ Bits(n_sim) sample-name rsim;
-            view1 &lt;- sim1out2(k0, k1, rsim);
-        (rsend0, msgs0) &lt;- view0;
-        (rsend1, msgs1) &lt;- view1;
+            (rsend1, msgs1) &lt;- sim1out2(inputs_2, rsim);
         view &lt;- ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
     return view;
 }
@@ -264,16 +244,12 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         renc &lt;-$ Bits(n_enc);
         // inlined SenderSim1out2.GetSimView
             inputs_2 &lt;- (k00, k01);
-            (k0, k1) &lt;- inputs_2;
             rsim &lt;-$ Bits(n_sim);
-            view0 &lt;- sim1out2(k0, k1, rsim);
+            (rsend0, msgs0) &lt;- sim1out2(inputs_2, rsim);
         // inlined SenderSim1out2.GetSimView
             inputs_2 &lt;- (k10, k11);
-            (k0, k1) &lt;- inputs_2;
             rsim &lt;-$ Bits(n_sim);
-            view1 &lt;- sim1out2(k0, k1, rsim);
-        (rsend0, msgs0) &lt;- view0;
-        (rsend1, msgs1) &lt;- view1;
+            (rsend1, msgs1) &lt;- sim1out2(inputs_2, rsim);
         view &lt;- ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
     return view;
 }
@@ -283,39 +259,35 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 <section class="tabpane" data-tab="1">
 <nav class="path"><button class="chip" data-col="0">SenderView1out2</button><span class="sim" title="indistinguishable">~</span><button class="chip" data-col="1">SenderSim1out2</button></nav>
 <div class="scroller"><table>
-<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> SenderView1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out2</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> SenderSim1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out2</code></div></th></tr>
-<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out2"><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="SenderSim1out2"><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> SenderView1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out2</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> SenderSim1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out2</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out2"><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="SenderSim1out2"><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn (Bits(n_key), Bits(n_key)), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
 <tbody>
-<tr><th class="oname"><code>GetView</code></th><td><pre class="full">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
-    (k0, k1, b) &lt;- inputs;
+<tr><th class="oname"><code>GetView</code></th><td><pre class="full">GetView(inputs: ((Bits(n_key), Bits(n_key)), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (s, b) &lt;- inputs;
     rsend &lt;-$ Bits(n_srnd) sample-name 1;
     rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
-    msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+    msgs &lt;- view1out2(s, b, (rsend, rrecv));
     return (rsend, msgs);
 }
-</pre><pre class="lossy">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
-    (k0, k1, b) &lt;- inputs;
+</pre><pre class="lossy">GetView(inputs: ((Bits(n_key), Bits(n_key)), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (s, b) &lt;- inputs;
     rsend &lt;-$ Bits(n_srnd);
     rrecv &lt;-$ Bits(n_rrnd);
-    msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+    msgs &lt;- view1out2(s, b, (rsend, rrecv));
     return (rsend, msgs);
 }
-</pre></td><td><pre class="full">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
-    (k0, k1, b) &lt;- inputs;
+</pre></td><td><pre class="full">GetView(inputs: ((Bits(n_key), Bits(n_key)), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (s, b) &lt;- inputs;
     // inlined SenderSim1out2.GetSimView
-        inputs_2 &lt;- (k0, k1);
-        (k0_2, k1_2) &lt;- inputs_2;
         rsim &lt;-$ Bits(n_sim) sample-name rsim;
-        view &lt;- sim1out2(k0_2, k1_2, rsim);
+        view &lt;- sim1out2(s, rsim);
     return view;
 }
-</pre><pre class="lossy">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
-    (k0, k1, b) &lt;- inputs;
+</pre><pre class="lossy">GetView(inputs: ((Bits(n_key), Bits(n_key)), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (s, b) &lt;- inputs;
     // inlined SenderSim1out2.GetSimView
-        inputs_2 &lt;- (k0, k1);
-        (k0_2, k1_2) &lt;- inputs_2;
         rsim &lt;-$ Bits(n_sim);
-        view &lt;- sim1out2(k0_2, k1_2, rsim);
+        view &lt;- sim1out2(s, rsim);
     return view;
 }
 </pre></td></tr>
@@ -323,80 +295,77 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 </section>
 <div hidden><pre class="pkgsrc" data-pkg="SenderFunc1out2">package SenderFunc1out2 {
     types {
-        Key,
+        SenderInput1out2,
+        ReceiverInput1out2,
         SendIncMsg1out2,
         SendRnd1out2
     }
 
     import oracles {
-        GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2),
+        GetSimView(inputs: SenderInput1out2) -&gt; (SendRnd1out2, SendIncMsg1out2),
     }
 
-    oracle GetView(inputs: (Key, Key, Bool))
+    oracle GetView(inputs: (SenderInput1out2, ReceiverInput1out2))
         -&gt; (SendRnd1out2, SendIncMsg1out2)
-    {
-        (k0, k1, b) &lt;- inputs;
-        view &lt;- invoke GetSimView((k0, k1));
-        return view;
-    }
-}
-</pre><pre class="pkgsrc" data-pkg="SenderFunc1out4">package SenderFunc1out4 {
-    types {
-        Msg,
-        Key,
-        EncRnds,
-        SendIncMsg1out2,
-        SendRnd1out2
-    }
-
-    import oracles {
-        GetSimView(inputs: (Msg, Msg, Msg, Msg)) -&gt; 
-        ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
-        (SendIncMsg1out2, SendIncMsg1out2)),
-    }
-
-    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
-        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
-        (SendIncMsg1out2, SendIncMsg1out2))
     {
         (s, b) &lt;- inputs;
         view &lt;- invoke GetSimView(s);
         return view;
     }
-}</pre><pre class="pkgsrc" data-pkg="SenderSim1out2">package SenderSim1out2 {
+}
+</pre><pre class="pkgsrc" data-pkg="SenderFunc1out4">package SenderFunc1out4 {
     types {
-        Key,
+        SenderInput1out4,
+        ReceiverInput1out4,
+        SendRnd1out4,
+        SendIncMsg1out4
+    }
+
+    import oracles {
+        GetSimView(inputs: SenderInput1out4) -&gt; (SendRnd1out4, SendIncMsg1out4),
+    }
+
+    oracle GetView(inputs: (SenderInput1out4, ReceiverInput1out4))
+        -&gt; (SendRnd1out4, SendIncMsg1out4)
+    {
+        (s, b) &lt;- inputs;
+        view &lt;- invoke GetSimView(s);
+        return view;
+    }
+}
+</pre><pre class="pkgsrc" data-pkg="SenderSim1out2">package SenderSim1out2 {
+    types {
+        SenderInput1out2,
         SimRnds,
         SendIncMsg1out2,
         SendRnd1out2
     }
 
     params {
-        sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2)
+        sim1out2: fn SenderInput1out2, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2)
     }
 
-    oracle GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2)
+    oracle GetSimView(inputs: SenderInput1out2) -&gt; (SendRnd1out2, SendIncMsg1out2)
     {
-        (k0, k1) &lt;- inputs;
         rsim &lt;-$ SimRnds sample-name rsim;
-        return sim1out2(k0, k1, rsim);
+        return sim1out2(inputs, rsim);
     }
-}</pre><pre class="pkgsrc" data-pkg="SenderSim1out4">package SenderSim1out4 {
+}
+</pre><pre class="pkgsrc" data-pkg="SenderSim1out4">package SenderSim1out4 {
     types {
-        Msg,
+        SenderInput1out4,
         Key,
         EncRnds,
         SendIncMsg1out2,
-        SendRnd1out2,
-        RecvRnd1out2
+        SendRnd1out2
     }
 
     import oracles {
         GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2),
     }
 
-    oracle GetSimView(inputs: (Msg, Msg, Msg, Msg))
-        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+    oracle GetSimView(inputs: SenderInput1out4)
+        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2),
         (SendIncMsg1out2, SendIncMsg1out2))
     {
         k00 &lt;-$ Key sample-name k00;
@@ -404,37 +373,38 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         k10 &lt;-$ Key sample-name k10;
         k11 &lt;-$ Key sample-name k11;
         renc &lt;-$ EncRnds sample-name renc;
-        view0 &lt;- invoke GetSimView((k00, k01));
-        view1 &lt;- invoke GetSimView((k10, k11));
-        (rsend0, msgs0) &lt;- view0;
-        (rsend1, msgs1) &lt;- view1;
+        (rsend0, msgs0) &lt;- invoke GetSimView((k00, k01));
+        (rsend1, msgs1) &lt;- invoke GetSimView((k10, k11));
         return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
     }
-}</pre><pre class="pkgsrc" data-pkg="SenderView1out2">package SenderView1out2 {
+}
+</pre><pre class="pkgsrc" data-pkg="SenderView1out2">package SenderView1out2 {
     types {
-        Key,
+        SenderInput1out2,
+        ReceiverInput1out2,
         SendIncMsg1out2,
         SendRnd1out2,
         RecvRnd1out2
     }
 
     params {
-        view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2) 
+        view1out2: fn SenderInput1out2, ReceiverInput1out2, (SendRnd1out2, RecvRnd1out2)
                     -&gt; SendIncMsg1out2
     }
 
-    oracle GetView(inputs: (Key, Key, Bool)) 
+    oracle GetView(inputs: (SenderInput1out2, ReceiverInput1out2))
         -&gt; (SendRnd1out2, SendIncMsg1out2)
     {
-        (k0, k1, b) &lt;- inputs;
+        (s, b) &lt;- inputs;
         rsend &lt;-$ SendRnd1out2;
         rrecv &lt;-$ RecvRnd1out2;
-        msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+        msgs &lt;- view1out2(s, b, (rsend, rrecv));
         return (rsend, msgs);
     }
-}</pre><pre class="pkgsrc" data-pkg="SenderView1out4">package SenderView1out4 {
+}
+</pre><pre class="pkgsrc" data-pkg="SenderView1out4">package SenderView1out4 {
     types {
-        Msg,
+        SenderInput1out4,
         Key,
         EncRnds,
         SendIncMsg1out2,
@@ -442,11 +412,11 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
     }
 
     import oracles {
-        GetView(inputs: (Key, Key, Bool)) -&gt; (SendRnd1out2, SendIncMsg1out2),
+        GetView(inputs: ((Key, Key), Bool)) -&gt; (SendRnd1out2, SendIncMsg1out2),
     }
 
-    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
-        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+    oracle GetView(inputs: (SenderInput1out4, (Bool, Bool)))
+        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2),
         (SendIncMsg1out2, SendIncMsg1out2))
     {
         (s, b) &lt;- inputs;
@@ -456,13 +426,12 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         k10 &lt;-$ Key sample-name k10;
         k11 &lt;-$ Key sample-name k11;
         renc &lt;-$ EncRnds sample-name renc;
-        view0 &lt;- invoke GetView((k00, k01, bl));
-        view1 &lt;- invoke GetView((k10, k11, br));
-        (rsend0, msgs0) &lt;- view0;
-        (rsend1, msgs1) &lt;- view1;
+        (rsend0, msgs0) &lt;- invoke GetView(((k00, k01), bl));
+        (rsend1, msgs1) &lt;- invoke GetView(((k10, k11), br));
         return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
     }
-}</pre><pre class="gamesrc" data-comp="Sender1out4Security_Hybrid0" data-file="Sender1out4Security_Hybrid0.comp.ssp">composition Sender1out4Security_Hybrid0 {
+}
+</pre><pre class="gamesrc" data-comp="Sender1out4Security_Hybrid0" data-file="Sender1out4Security_Hybrid0.comp.ssp">composition Sender1out4Security_Hybrid0 {
     types {
         Msg,
         Key,
@@ -472,11 +441,11 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         SendRnd1out2
     }
 
-    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+    const sim1out2: fn (Key, Key), SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
 
     instance SenderView1out4 = SenderView1out4 {
         types {
-            Msg: Msg,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
             Key: Key,
             EncRnds: EncRnds,
             SendIncMsg1out2: SendIncMsg1out2,
@@ -486,7 +455,8 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 
     instance SenderFunc1out2 = SenderFunc1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
         }
@@ -494,7 +464,7 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 
     instance SenderSim1out2 = SenderSim1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
             SimRnds: SimRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
@@ -524,11 +494,12 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         SendRnd1out2
     }
 
-    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+    const sim1out2: fn (Key, Key), SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
 
     instance SenderFunc1out2 = SenderFunc1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
         }
@@ -536,7 +507,7 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 
     instance SenderSim1out2 = SenderSim1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
             SimRnds: SimRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
@@ -562,36 +533,33 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         EncRnds,
         SimRnds,
         SendIncMsg1out2,
-        SendRnd1out2,
-        RecvRnd1out2
+        SendRnd1out2
     }
 
-    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+    const sim1out2: fn (Key, Key), SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
 
     instance SenderFunc1out4 = SenderFunc1out4 {
         types {
-            Msg: Msg,
-            Key: Key,
-            EncRnds: EncRnds,
-            SendIncMsg1out2: SendIncMsg1out2,
-            SendRnd1out2: SendRnd1out2,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
+            ReceiverInput1out4: (Bool, Bool),
+            SendRnd1out4: (Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2),
+            SendIncMsg1out4: (SendIncMsg1out2, SendIncMsg1out2),
         }
     }
 
     instance SenderSim1out4 = SenderSim1out4 {
         types {
-            Msg: Msg,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
             Key: Key,
             EncRnds: EncRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
-            RecvRnd1out2: RecvRnd1out2,
         }
     }
 
     instance SenderSim1out2 = SenderSim1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
             SimRnds: SimRnds,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
@@ -621,12 +589,13 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         RecvRnd1out2
     }
 
-    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+    const view1out2: fn (Key, Key), Bool, (SendRnd1out2, RecvRnd1out2)
                         -&gt; SendIncMsg1out2;
 
     instance SenderView1out2 = SenderView1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
             RecvRnd1out2: RecvRnd1out2,
@@ -652,12 +621,12 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
         RecvRnd1out2
     }
 
-    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+    const view1out2: fn (Key, Key), Bool, (SendRnd1out2, RecvRnd1out2)
                         -&gt; SendIncMsg1out2;
 
     instance SenderView1out4 = SenderView1out4 {
         types {
-            Msg: Msg,
+            SenderInput1out4: (Msg, Msg, Msg, Msg),
             Key: Key,
             EncRnds: EncRnds,
             SendIncMsg1out2: SendIncMsg1out2,
@@ -667,7 +636,8 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 
     instance SenderView1out2 = SenderView1out2 {
         types {
-            Key: Key,
+            SenderInput1out2: (Key, Key),
+            ReceiverInput1out2: Bool,
             SendIncMsg1out2: SendIncMsg1out2,
             SendRnd1out2: SendRnd1out2,
             RecvRnd1out2: RecvRnd1out2,
