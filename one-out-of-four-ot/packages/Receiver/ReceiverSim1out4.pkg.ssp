@@ -1,0 +1,54 @@
+package ReceiverSim1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnd,
+        Ctxt,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    import oracles {
+        GetSimView(b: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
+    }
+
+    params {
+        enc_inner: fn Key, Msg, EncRnd -> Ctxt,
+        enc_outer: fn Key, Ctxt, EncRnd -> Ctxt,
+        zeros_msg: Msg,
+        zeros_ctxt: Ctxt
+    }
+
+    oracle GetSimView(input: (Bool, Bool), output: Msg) -> 
+        ((RecvRnd1out2, RecvRnd1out2), 
+        (Table((Bool, Bool), Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
+    {
+        (bi, bo) <- input;
+
+        /* Encryption keys */
+        kia <-$ Key sample-name kia; /* k_inner_b_active */
+        koa <-$ Key sample-name koa; /* k_outer_b_active */
+        kix <-$ Key sample-name kix; /* k_inner_b_inactive */
+        kox <-$ Key sample-name kox; /* k_outer_b_inactive */
+
+        /* Encryption randomness */
+        ri1 <-$ EncRnd sample-name ri1;
+        ri2 <-$ EncRnd sample-name ri2;
+        ro1 <-$ EncRnd sample-name ro1;
+        ro2 <-$ EncRnd sample-name ro2;
+        ro3 <-$ EncRnd sample-name ro3;
+        ro4 <-$ EncRnd sample-name ro4;
+
+        /* Double Encryptions */
+        C <- new Table((Bool, Bool), Ctxt);
+        C[(bi, bo)] <- Some(enc_outer(koa, enc_inner(kia, output, ri1), ro1));
+        C[(bi, not bo)] <- Some(enc_outer(koa, enc_inner(kix, zeros_msg, ri2), ro2));
+        C[(not bi, bo)] <- Some(enc_outer(kox, zeros_ctxt, ro3));
+        C[(not bi, not bo)] <- Some(enc_outer(kox, zeros_ctxt, ro4));
+
+        (rrecv0, msgs0) <- invoke GetSimView(bi, kia);
+        (rrecv1, msgs1) <- invoke GetSimView(bo, koa);
+        
+        return ((rrecv0, rrecv1), (C, msgs0, msgs1));
+    }
+}

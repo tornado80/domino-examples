@@ -1,0 +1,18 @@
+package ReceiverSim1out2 {
+    types {
+        Key,
+        SimRnds,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    params {
+        sim1out2: fn Bool, Key, SimRnds -> (RecvRnd1out2, RecvIncMsg1out2)
+    }
+
+    oracle GetSimView(b: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2)
+    {
+        rsim <-$ SimRnds sample-name rsim;
+        return sim1out2(b, output, rsim);
+    }
+}

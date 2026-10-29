@@ -19,16 +19,20 @@ package ReceiverView1out4 {
 
     oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
         -> ((RecvRnd1out2, RecvRnd1out2), 
-        ((Ctxt, Ctxt, Ctxt, Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
+        (Table((Bool, Bool), Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
     {
         (s, b) <- inputs;
-        (bi, bo) <- b;
+        (bi, bo) <- b; /* b_inner and b_outer */
         (s00, s01, s10, s11) <- s;
 
-        ki0 <-$ Key sample-name ki0;
-        ki1 <-$ Key sample-name ki1;
-        ko0 <-$ Key sample-name ko0;
-        ko1 <-$ Key sample-name ko1;
+        /* encryption keys and randomness are part of the 
+        sender's view and are not included in the receiver's view */
+
+        /* Encryption keys */
+        ki0 <-$ Key sample-name ki0; /* k_inner_0 */
+        ki1 <-$ Key sample-name ki1; /* k_inner_1 */
+        ko0 <-$ Key sample-name ko0; /* k_outer_0 */
+        ko1 <-$ Key sample-name ko1; /* k_outer_1 */
 
         /* Encryption randomness */
         ri1 <-$ EncRnd sample-name ri1;
@@ -41,14 +45,15 @@ package ReceiverView1out4 {
         ro4 <-$ EncRnd sample-name ro4;
 
         /* Double Encryptions */
-        c00 <- enc_outer(ko0, enc_inner(ki0, s00, ri1), ro1);
-        c01 <- enc_outer(ko1, enc_inner(ki0, s01, ri2), ro2);
-        c10 <- enc_outer(ko0, enc_inner(ki1, s10, ri3), ro3);
-        c11 <- enc_outer(ko1, enc_inner(ki1, s11, ri4), ro4);
+        C <- new Table((Bool, Bool), Ctxt);
+        C[(false, false)] <- Some(enc_outer(ko0, enc_inner(ki0, s00, ri1), ro1));
+        C[(false, true)] <- Some(enc_outer(ko1, enc_inner(ki0, s01, ri2), ro2));
+        C[(true, false)] <- Some(enc_outer(ko0, enc_inner(ki1, s10, ri3), ro3));
+        C[(true, true)] <- Some(enc_outer(ko1, enc_inner(ki1, s11, ri4), ro4));
 
         (rrecv0, msgs0) <- invoke GetView((ki0, ki1, bi));
         (rrecv1, msgs1) <- invoke GetView((ko0, ko1, bo));
 
-        return ((rrecv0, rrecv1), ((c00, c01, c10, c11), msgs0, msgs1));
+        return ((rrecv0, rrecv1), (C, msgs0, msgs1));
     }
 }

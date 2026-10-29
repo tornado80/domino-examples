@@ -1,0 +1,23 @@
+package ReceiverFunc1out2 {
+    types {
+        Key,
+        RecvIncMsg1out2,
+        RecvRnd1out2
+    }
+
+    import oracles {
+        GetSimView(input: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
+    }
+
+    oracle GetView(inputs: (Key, Key, Bool))
+        -> (RecvRnd1out2, RecvIncMsg1out2)
+    {
+        (k0, k1, b) <- inputs;
+        output <- k0;
+        if b {
+            output <- k1;
+        }
+        view <- invoke GetSimView(b, output);
+        return view;
+    }
+}
