@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sender1out4Security</title><style>
+:root { --bg:#ffffff; --fg:#1b1f24; --muted:#6a737d; --line:#d0d7de; --head:#f6f8fa;
+        --accent:#0969da; --accent-bg:#ddf4ff; --pkg:#fff8e1; --pkgline:#8a6d00;
+        --edge:#444c56; --proof:#b3261e; --inst:#8250df; --err:#b3261e; --assm:#cf222e;
+        --hyb:#1a7f37; --hyb-bg:#f0fbf3; --ren:#bc4c00; --code:12px; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#8b949e; --line:#30363d; --head:#161b22;
+          --accent:#4493f8; --accent-bg:#132339; --pkg:#2d2610; --pkgline:#d4a72c;
+          --edge:#adbac7; --proof:#ff7b72; --inst:#d2a8ff; --err:#ff7b72; --assm:#f85149;
+          --hyb:#3fb950; --hyb-bg:#0f2417; --ren:#f0883e; }
+}
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); margin:0; display:flex; flex-direction:column;
+       height:100vh; overflow:hidden;
+       font:14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+code, pre, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+header { flex:none; padding:10px 16px 0; }
+.titlebar { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; justify-content:space-between; }
+h1 { font-size:18px; margin:0; }
+.tools { display:flex; flex-wrap:wrap; gap:14px; align-items:center; color:var(--muted); font-size:13px; }
+.tools label { cursor:pointer; user-select:none; }
+button { font:inherit; color:var(--fg); background:var(--head); border:1px solid var(--line);
+         border-radius:6px; padding:2px 8px; cursor:pointer; }
+button:hover { border-color:var(--accent); }
+kbd { border:1px solid var(--line); border-radius:4px; padding:0 4px; font-size:11px; margin-right:2px; }
+.tabs { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; }
+.tab span { color:var(--muted); font-size:12px; }
+.tab.active { background:var(--accent-bg); border-color:var(--accent); }
+.tabgroup { align-self:center; margin-left:10px; padding-left:12px; border-left:1px solid var(--line);
+            color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+.tab.assm b { color:var(--assm); }
+[data-assumption]:not(.tab) { cursor:pointer; }
+code[data-assumption]:hover, .via[data-assumption]:hover { text-decoration:underline; }
+.sim { color:var(--muted); font-size:13px; }
+details.hops { color:var(--muted); font-size:13px; margin-bottom:4px; }
+details.hops summary { cursor:pointer; }
+details.hops ol { margin:4px 0; padding-left:28px; }
+details.hops .kind { display:inline-block; min-width:90px; }
+details.hops code { color:var(--fg); }
+section.tabpane { display:none; flex:1; min-height:0; flex-direction:column; padding:0 16px 12px; }
+section.tabpane.active { display:flex; }
+nav.path { flex:none; display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; margin:4px 0 8px; }
+.chip { font-family: ui-monospace, Menlo, monospace; font-size:12px; }
+.chip.visible { background:var(--accent-bg); border-color:var(--accent); }
+.via { color:var(--muted); font-size:11px; cursor:help; }
+.via::before { content:"→ "; } .via::after { content:" →"; }
+.spec { color:var(--proof); font-size:11px; font-weight:normal; }
+.match { color:var(--hyb); font-weight:600; cursor:help; }
+.hybgroup { display:inline-flex; flex-wrap:wrap; gap:4px 6px; align-items:center;
+            border:1px dashed var(--hyb); border-radius:8px; padding:2px 6px; }
+.hyblabel { color:var(--hyb); font-size:11px; }
+sub.at, .b-loop { color:var(--hyb); font-weight:normal; }
+sub.at { font-size:10px; margin-left:1px; }
+th.col.hyb { box-shadow:inset 0 3px 0 var(--hyb); }
+thead tr:first-child th.col.hyb { background:var(--hyb-bg); }
+.scroller { flex:1; min-height:0; overflow:auto; border:1px solid var(--line); scroll-snap-type:x proximity; }
+table { border-collapse:separate; border-spacing:0; }
+th, td { border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+         vertical-align:top; text-align:left; padding:6px 10px; }
+th.col { scroll-snap-align:start; }
+thead tr:first-child th { position:sticky; top:0; z-index:2; background:var(--head); }
+th.corner, th.oname { position:sticky; left:0; z-index:1; background:var(--head); }
+thead th.corner { z-index:3; }
+.gname { font-weight:600; font-family: ui-monospace, Menlo, monospace; white-space:nowrap; }
+.gname .idx { color:var(--muted); font-weight:normal; font-size:11px; }
+.gsub { color:var(--muted); font-weight:normal; font-size:12px; }
+tr.diagrams td { background:var(--bg); }
+pre { margin:0; font-size:var(--code); line-height:1.35; white-space:pre; }
+body.wrap pre { white-space:pre-wrap; overflow-wrap:anywhere; max-width:80ch; }
+body:not(.show-lossy) .lossy, body.show-lossy .full { display:none; }
+.error { color:var(--err); white-space:pre-wrap; max-width:60ch; }
+svg.diagram { display:block; }
+svg .pkgbox { fill:var(--pkg); stroke:var(--pkgline); stroke-width:1.2; }
+svg .pkg { fill:var(--fg); font:12px ui-monospace, Menlo, monospace; }
+svg .sup { fill:var(--muted); font-size:9px; }
+svg .edge { stroke:var(--edge); stroke-width:1.2; }
+svg .head { fill:var(--edge); }
+svg .oracle { fill:var(--muted); font:10px ui-monospace, Menlo, monospace; }
+svg .oracle .renamed { fill:var(--ren); }
+svg .inst { fill:var(--muted); font:10px ui-monospace, Menlo, monospace; }
+svg .pkgnode { cursor:pointer; }
+svg .pkgnode:hover .pkgbox { stroke-width:2.2; }
+svg .pkgnode.selected .pkgbox { stroke:var(--accent); stroke-width:2.4; }
+svg .assm rect { fill:none; stroke:var(--assm); stroke-width:1.4; stroke-dasharray:6 4; pointer-events:none; }
+svg .assm text { fill:var(--assm); font:10px ui-monospace, Menlo, monospace; }
+svg .assm:hover text { text-decoration:underline; }
+.gbits { font-weight:normal; font-size:12px; }
+.b-fixed { color:var(--muted); } svg .b-fixed { fill:var(--muted); }
+.b-inst { color:var(--inst); font-weight:600; } svg .b-inst { fill:var(--inst); }
+.b-proof { color:var(--proof); font-weight:600; } svg .b-proof { fill:var(--proof); }
+.legend b { margin-left:6px; }
+.assm-key { color:var(--assm); font-weight:600; }
+.bitscap { display:flex; flex-wrap:wrap; gap:4px 12px; margin-bottom:4px;
+           font:11px ui-monospace, Menlo, monospace; color:var(--muted); }
+#pkgpane { position:fixed; top:0; right:0; bottom:0; width:var(--pane); z-index:10;
+           display:flex; flex-direction:column; background:var(--bg);
+           border-left:1px solid var(--line); box-shadow:-8px 0 24px rgba(0,0,0,.25);
+           transform:translateX(100%); transition:transform .15s; }
+:root { --pane:min(680px, 50vw); }
+body.pp-open #pkgpane { transform:none; }
+body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
+.pp-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+           padding:10px 14px; border-bottom:1px solid var(--line); background:var(--head); }
+.pp-title { font:600 15px ui-monospace, Menlo, monospace; }
+.pp-sub { color:var(--muted); font-size:12px; }
+.pp-body { flex:1; min-height:0; overflow:auto; padding:4px 14px 16px; }
+.pp-body h3 { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:12px 0 4px; }
+.pp-body .kw { color:var(--accent); }
+.gamelink { cursor:pointer; text-decoration:underline dotted; text-underline-offset:2px; }
+.gamelink:hover, .gamelink.selected { color:var(--accent); }
+.ren-key { color:var(--ren); font-family: ui-monospace, Menlo, monospace; }
+.pp-body .cm { color:var(--muted); font-style:italic; }
+</style></head><body class="">
+<header>
+<div class="titlebar"><h1>theorem <code>Sender1out4Security</code></h1><div class="tools"><label><input type="checkbox" id="opt-lossy"> lossy</label><label><input type="checkbox" id="opt-wrap"> wrap lines</label><span class="zoom"><button id="zoom-out" title="smaller code">A−</button><button id="zoom-in" title="larger code">A+</button></span><button id="pp-toggle" title="show / hide the package pane">packages</button><span class="legend" title="colour of Boolean parameters: fixed in the game definition, set by the theorem's game instance, or a proof parameter">bits:<b class="b-fixed">fixed</b><b class="b-inst">instance</b><b class="b-proof">proof</b></span><span class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next game · click a package or a game name for its code · <span class="assm-key">- - -</span> assumption packages · <span class="ren-key">New:Old</span> renamed oracle</span></div></div>
+<nav class="tabs"><button class="tab" data-tab="0"><b>SenderPrivacy</b> <span>SenderView1out4 ~ SenderSim1out4</span></button><span class="tabgroup">assumptions</span><button class="tab assm" data-tab="1" data-assumption="Sender1out2"><b>Sender1out2</b> <span>SenderView1out2 ~ SenderSim1out2</span></button></nav>
+<details class="hops"><summary>all game hops</summary><ol start="0"><li><span class="kind">reduction</span> <code>SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)</code></li><li><span class="kind">equivalence</span> <code>Sender1out4Security_Hybrid0 == SenderSim1out4</code></li></ol></details>
+</header>
+<section class="tabpane" data-tab="0">
+<nav class="path"><button class="chip" data-col="0">SenderView1out4</button><span class="via" title="SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)" data-assumption="Sender1out2">reduction</span><button class="chip" data-col="1">Sender1out4Security_Hybrid0</button><span class="via" title="Sender1out4Security_Hybrid0 == SenderSim1out4">equivalence</span><button class="chip" data-col="2">SenderSim1out4</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/3</span> SenderView1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out4" data-inst="SenderView1out4" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out4</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/3</span> Sender1out4Security_Hybrid0</div><div class="gsub">game <code class="gamelink" data-comp="Sender1out4Security_Hybrid0" data-inst="Sender1out4Security_Hybrid0" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">Sender1out4Security_Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="Sender1out2">SenderView1out4 ~= Sender1out4Security_Hybrid0 (Sender1out2)</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/3</span> SenderSim1out4</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out4" data-inst="SenderSim1out4" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out4</code></div><div class="gsub">via equivalence <code>Sender1out4Security_Hybrid0 == SenderSim1out4</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out4"><svg class="diagram" width="388" height="110" viewBox="0 0 387.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="115.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="Sender1out4Security_Hybrid0"><svg class="diagram" width="563" height="110" viewBox="0 0 562.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="365.0" y1="47.5" x2="440.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="43.5" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Sender1out2"><title>assumption Sender1out2: SenderView1out2 ~ SenderSim1out2</title><rect x="257.5" y="15.0" width="290.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Sender1out2</text></g><g class="pkgnode" data-pkg="SenderView1out4" data-inst="SenderView1out4" data-params=""><title>package SenderView1out4, instance SenderView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out4</text></g><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td><td data-game="SenderSim1out4"><svg class="diagram" width="555" height="80" viewBox="0 0 555.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="365.0" y1="40.0" x2="440.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out4" data-inst="SenderFunc1out4" data-params=""><title>package SenderFunc1out4, instance SenderFunc1out4</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out4" data-inst="SenderSim1out4" data-params=""><title>package SenderSim1out4, instance SenderSim1out4</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out4</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="440.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>GetView</code></th><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    (bl, br) &lt;- b;
+    k00 &lt;-$ Bits(n_key) sample-name k00;
+    k01 &lt;-$ Bits(n_key) sample-name k01;
+    k10 &lt;-$ Bits(n_key) sample-name k10;
+    k11 &lt;-$ Bits(n_key) sample-name k11;
+    renc &lt;-$ Bits(n_enc) sample-name renc;
+    // inlined SenderView1out2.GetView
+        inputs_2 &lt;- (k00, k01, bl);
+        (k0, k1, b_2) &lt;- inputs_2;
+        rsend &lt;-$ Bits(n_srnd) sample-name 1;
+        rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
+        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
+        view0 &lt;- (rsend, msgs);
+    // inlined SenderView1out2.GetView
+        inputs_2 &lt;- (k10, k11, br);
+        (k0, k1, b_2) &lt;- inputs_2;
+        rsend &lt;-$ Bits(n_srnd) sample-name 1;
+        rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
+        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
+        view1 &lt;- (rsend, msgs);
+    (rsend0, msgs0) &lt;- view0;
+    (rsend1, msgs1) &lt;- view1;
+    return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+}
+</pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    (bl, br) &lt;- b;
+    k00 &lt;-$ Bits(n_key);
+    k01 &lt;-$ Bits(n_key);
+    k10 &lt;-$ Bits(n_key);
+    k11 &lt;-$ Bits(n_key);
+    renc &lt;-$ Bits(n_enc);
+    // inlined SenderView1out2.GetView
+        inputs_2 &lt;- (k00, k01, bl);
+        (k0, k1, b_2) &lt;- inputs_2;
+        rsend &lt;-$ Bits(n_srnd);
+        rrecv &lt;-$ Bits(n_rrnd);
+        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
+        view0 &lt;- (rsend, msgs);
+    // inlined SenderView1out2.GetView
+        inputs_2 &lt;- (k10, k11, br);
+        (k0, k1, b_2) &lt;- inputs_2;
+        rsend &lt;-$ Bits(n_srnd);
+        rrecv &lt;-$ Bits(n_rrnd);
+        msgs &lt;- view1out2(k0, k1, b_2, (rsend, rrecv));
+        view1 &lt;- (rsend, msgs);
+    (rsend0, msgs0) &lt;- view0;
+    (rsend1, msgs1) &lt;- view1;
+    return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+}
+</pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    (bl, br) &lt;- b;
+    k00 &lt;-$ Bits(n_key) sample-name k00;
+    k01 &lt;-$ Bits(n_key) sample-name k01;
+    k10 &lt;-$ Bits(n_key) sample-name k10;
+    k11 &lt;-$ Bits(n_key) sample-name k11;
+    renc &lt;-$ Bits(n_enc) sample-name renc;
+    // inlined SenderFunc1out2.GetView
+        inputs_2 &lt;- (k00, k01, bl);
+        (k0, k1, b_2) &lt;- inputs_2;
+        // inlined SenderSim1out2.GetSimView
+            inputs_3 &lt;- (k0, k1);
+            (k0_2, k1_2) &lt;- inputs_3;
+            rsim &lt;-$ Bits(n_sim) sample-name rsim;
+            view0 &lt;- sim1out2(k0_2, k1_2, rsim);
+    // inlined SenderFunc1out2.GetView
+        inputs_2 &lt;- (k10, k11, br);
+        (k0, k1, b_2) &lt;- inputs_2;
+        // inlined SenderSim1out2.GetSimView
+            inputs_3 &lt;- (k0, k1);
+            (k0_2, k1_2) &lt;- inputs_3;
+            rsim &lt;-$ Bits(n_sim) sample-name rsim;
+            view1 &lt;- sim1out2(k0_2, k1_2, rsim);
+    (rsend0, msgs0) &lt;- view0;
+    (rsend1, msgs1) &lt;- view1;
+    return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+}
+</pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    (bl, br) &lt;- b;
+    k00 &lt;-$ Bits(n_key);
+    k01 &lt;-$ Bits(n_key);
+    k10 &lt;-$ Bits(n_key);
+    k11 &lt;-$ Bits(n_key);
+    renc &lt;-$ Bits(n_enc);
+    // inlined SenderFunc1out2.GetView
+        inputs_2 &lt;- (k00, k01, bl);
+        (k0, k1, b_2) &lt;- inputs_2;
+        // inlined SenderSim1out2.GetSimView
+            inputs_3 &lt;- (k0, k1);
+            (k0_2, k1_2) &lt;- inputs_3;
+            rsim &lt;-$ Bits(n_sim);
+            view0 &lt;- sim1out2(k0_2, k1_2, rsim);
+    // inlined SenderFunc1out2.GetView
+        inputs_2 &lt;- (k10, k11, br);
+        (k0, k1, b_2) &lt;- inputs_2;
+        // inlined SenderSim1out2.GetSimView
+            inputs_3 &lt;- (k0, k1);
+            (k0_2, k1_2) &lt;- inputs_3;
+            rsim &lt;-$ Bits(n_sim);
+            view1 &lt;- sim1out2(k0_2, k1_2, rsim);
+    (rsend0, msgs0) &lt;- view0;
+    (rsend1, msgs1) &lt;- view1;
+    return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+}
+</pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    // inlined SenderSim1out4.GetSimView
+        k00 &lt;-$ Bits(n_key) sample-name k00;
+        k01 &lt;-$ Bits(n_key) sample-name k01;
+        k10 &lt;-$ Bits(n_key) sample-name k10;
+        k11 &lt;-$ Bits(n_key) sample-name k11;
+        renc &lt;-$ Bits(n_enc) sample-name renc;
+        // inlined SenderSim1out2.GetSimView
+            inputs_2 &lt;- (k00, k01);
+            (k0, k1) &lt;- inputs_2;
+            rsim &lt;-$ Bits(n_sim) sample-name rsim;
+            view0 &lt;- sim1out2(k0, k1, rsim);
+        // inlined SenderSim1out2.GetSimView
+            inputs_2 &lt;- (k10, k11);
+            (k0, k1) &lt;- inputs_2;
+            rsim &lt;-$ Bits(n_sim) sample-name rsim;
+            view1 &lt;- sim1out2(k0, k1, rsim);
+        (rsend0, msgs0) &lt;- view0;
+        (rsend1, msgs1) &lt;- view1;
+        view &lt;- ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+    return view;
+}
+</pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_key), Bits(n_enc), Bits(n_srnd), Bits(n_srnd)), (Bits(n_inc), Bits(n_inc))) {
+    (s, b) &lt;- inputs;
+    // inlined SenderSim1out4.GetSimView
+        k00 &lt;-$ Bits(n_key);
+        k01 &lt;-$ Bits(n_key);
+        k10 &lt;-$ Bits(n_key);
+        k11 &lt;-$ Bits(n_key);
+        renc &lt;-$ Bits(n_enc);
+        // inlined SenderSim1out2.GetSimView
+            inputs_2 &lt;- (k00, k01);
+            (k0, k1) &lt;- inputs_2;
+            rsim &lt;-$ Bits(n_sim);
+            view0 &lt;- sim1out2(k0, k1, rsim);
+        // inlined SenderSim1out2.GetSimView
+            inputs_2 &lt;- (k10, k11);
+            (k0, k1) &lt;- inputs_2;
+            rsim &lt;-$ Bits(n_sim);
+            view1 &lt;- sim1out2(k0, k1, rsim);
+        (rsend0, msgs0) &lt;- view0;
+        (rsend1, msgs1) &lt;- view1;
+        view &lt;- ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+    return view;
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<section class="tabpane" data-tab="1">
+<nav class="path"><button class="chip" data-col="0">SenderView1out2</button><span class="sim" title="indistinguishable">~</span><button class="chip" data-col="1">SenderSim1out2</button></nav>
+<div class="scroller"><table>
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/2</span> SenderView1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">SenderView1out2</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/2</span> SenderSim1out2</div><div class="gsub">game <code class="gamelink" data-comp="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2" title="show the game's source">SenderSim1out2</code></div></th></tr>
+<tr class="diagrams"><th class="corner"></th><td data-game="SenderView1out2"><svg class="diagram" width="205" height="80" viewBox="0 0 205.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderView1out2" data-inst="SenderView1out2" data-params="view1out2: fn Bits(n_key), Bits(n_key), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package SenderView1out2, instance SenderView1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderView1out2</text></g></svg></td><td data-game="SenderSim1out2"><svg class="diagram" width="380" height="80" viewBox="0 0 380.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="SenderFunc1out2" data-inst="SenderFunc1out2" data-params=""><title>package SenderFunc1out2, instance SenderFunc1out2</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderFunc1out2</text></g><g class="pkgnode" data-pkg="SenderSim1out2" data-inst="SenderSim1out2" data-params="sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim) -&gt; (Bits(n_srnd), Bits(n_inc)) = sim1out2"><title>package SenderSim1out2, instance SenderSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">SenderSim1out2</text></g></svg></td></tr></thead>
+<tbody>
+<tr><th class="oname"><code>GetView</code></th><td><pre class="full">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (k0, k1, b) &lt;- inputs;
+    rsend &lt;-$ Bits(n_srnd) sample-name 1;
+    rrecv &lt;-$ Bits(n_rrnd) sample-name 2;
+    msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+    return (rsend, msgs);
+}
+</pre><pre class="lossy">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (k0, k1, b) &lt;- inputs;
+    rsend &lt;-$ Bits(n_srnd);
+    rrecv &lt;-$ Bits(n_rrnd);
+    msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+    return (rsend, msgs);
+}
+</pre></td><td><pre class="full">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (k0, k1, b) &lt;- inputs;
+    // inlined SenderSim1out2.GetSimView
+        inputs_2 &lt;- (k0, k1);
+        (k0_2, k1_2) &lt;- inputs_2;
+        rsim &lt;-$ Bits(n_sim) sample-name rsim;
+        view &lt;- sim1out2(k0_2, k1_2, rsim);
+    return view;
+}
+</pre><pre class="lossy">GetView(inputs: (Bits(n_key), Bits(n_key), Bool)) -&gt; (Bits(n_srnd), Bits(n_inc)) {
+    (k0, k1, b) &lt;- inputs;
+    // inlined SenderSim1out2.GetSimView
+        inputs_2 &lt;- (k0, k1);
+        (k0_2, k1_2) &lt;- inputs_2;
+        rsim &lt;-$ Bits(n_sim);
+        view &lt;- sim1out2(k0_2, k1_2, rsim);
+    return view;
+}
+</pre></td></tr>
+</tbody></table></div>
+</section>
+<div hidden><pre class="pkgsrc" data-pkg="SenderFunc1out2">package SenderFunc1out2 {
+    types {
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    import oracles {
+        GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2),
+    }
+
+    oracle GetView(inputs: (Key, Key, Bool))
+        -&gt; (SendRnd1out2, SendIncMsg1out2)
+    {
+        (k0, k1, b) &lt;- inputs;
+        view &lt;- invoke GetSimView((k0, k1));
+        return view;
+    }
+}
+</pre><pre class="pkgsrc" data-pkg="SenderFunc1out4">package SenderFunc1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    import oracles {
+        GetSimView(inputs: (Msg, Msg, Msg, Msg)) -&gt; 
+        ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2)),
+    }
+
+    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
+        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2))
+    {
+        (s, b) &lt;- inputs;
+        view &lt;- invoke GetSimView(s);
+        return view;
+    }
+}</pre><pre class="pkgsrc" data-pkg="SenderSim1out2">package SenderSim1out2 {
+    types {
+        Key,
+        SimRnds,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    params {
+        sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2)
+    }
+
+    oracle GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2)
+    {
+        (k0, k1) &lt;- inputs;
+        rsim &lt;-$ SimRnds sample-name rsim;
+        return sim1out2(k0, k1, rsim);
+    }
+}</pre><pre class="pkgsrc" data-pkg="SenderSim1out4">package SenderSim1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    import oracles {
+        GetSimView(inputs: (Key, Key)) -&gt; (SendRnd1out2, SendIncMsg1out2),
+    }
+
+    oracle GetSimView(inputs: (Msg, Msg, Msg, Msg))
+        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2))
+    {
+        k00 &lt;-$ Key sample-name k00;
+        k01 &lt;-$ Key sample-name k01;
+        k10 &lt;-$ Key sample-name k10;
+        k11 &lt;-$ Key sample-name k11;
+        renc &lt;-$ EncRnds sample-name renc;
+        view0 &lt;- invoke GetSimView((k00, k01));
+        view1 &lt;- invoke GetSimView((k10, k11));
+        (rsend0, msgs0) &lt;- view0;
+        (rsend1, msgs1) &lt;- view1;
+        return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+    }
+}</pre><pre class="pkgsrc" data-pkg="SenderView1out2">package SenderView1out2 {
+    types {
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    params {
+        view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2) 
+                    -&gt; SendIncMsg1out2
+    }
+
+    oracle GetView(inputs: (Key, Key, Bool)) 
+        -&gt; (SendRnd1out2, SendIncMsg1out2)
+    {
+        (k0, k1, b) &lt;- inputs;
+        rsend &lt;-$ SendRnd1out2;
+        rrecv &lt;-$ RecvRnd1out2;
+        msgs &lt;- view1out2(k0, k1, b, (rsend, rrecv));
+        return (rsend, msgs);
+    }
+}</pre><pre class="pkgsrc" data-pkg="SenderView1out4">package SenderView1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SendIncMsg1out2,
+        SendRnd1out2,
+    }
+
+    import oracles {
+        GetView(inputs: (Key, Key, Bool)) -&gt; (SendRnd1out2, SendIncMsg1out2),
+    }
+
+    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
+        -&gt; ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2))
+    {
+        (s, b) &lt;- inputs;
+        (bl, br) &lt;- b;
+        k00 &lt;-$ Key sample-name k00;
+        k01 &lt;-$ Key sample-name k01;
+        k10 &lt;-$ Key sample-name k10;
+        k11 &lt;-$ Key sample-name k11;
+        renc &lt;-$ EncRnds sample-name renc;
+        view0 &lt;- invoke GetView((k00, k01, bl));
+        view1 &lt;- invoke GetView((k10, k11, br));
+        (rsend0, msgs0) &lt;- view0;
+        (rsend1, msgs1) &lt;- view1;
+        return ((k00, k01, k10, k11, renc, rsend0, rsend1), (msgs0, msgs1));
+    }
+}</pre><pre class="gamesrc" data-comp="Sender1out4Security_Hybrid0" data-file="Sender1out4Security_Hybrid0.comp.ssp">composition Sender1out4Security_Hybrid0 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SimRnds,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+
+    instance SenderView1out4 = SenderView1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnds: EncRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance SenderFunc1out2 = SenderFunc1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance SenderSim1out2 = SenderSim1out2 {
+        types {
+            Key: Key,
+            SimRnds: SimRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: SenderView1out4,
+        },
+        SenderView1out4: {
+            GetView: SenderFunc1out2,
+        },
+        SenderFunc1out2: {
+            GetSimView: SenderSim1out2,
+        },
+    }
+}
+</pre><pre class="gamesrc" data-comp="SenderSim1out2" data-file="SenderSim1out2.comp.ssp">composition SenderSim1out2 {
+    types {
+        Key,
+        SimRnds,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+
+    instance SenderFunc1out2 = SenderFunc1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance SenderSim1out2 = SenderSim1out2 {
+        types {
+            Key: Key,
+            SimRnds: SimRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: SenderFunc1out2,
+        },
+        SenderFunc1out2: {
+            GetSimView: SenderSim1out2,
+        },
+    }
+}
+</pre><pre class="gamesrc" data-comp="SenderSim1out4" data-file="SenderSim1out4.comp.ssp">composition SenderSim1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SimRnds,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    const sim1out2: fn Key, Key, SimRnds -&gt; (SendRnd1out2, SendIncMsg1out2);
+
+    instance SenderFunc1out4 = SenderFunc1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnds: EncRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance SenderSim1out4 = SenderSim1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnds: EncRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+    }
+
+    instance SenderSim1out2 = SenderSim1out2 {
+        types {
+            Key: Key,
+            SimRnds: SimRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: SenderFunc1out4,
+        },
+        SenderFunc1out4: {
+            GetSimView: SenderSim1out4,
+        },
+        SenderSim1out4: {
+            GetSimView: SenderSim1out2,
+        },
+    }
+}
+</pre><pre class="gamesrc" data-comp="SenderView1out2" data-file="SenderView1out2.comp.ssp">composition SenderView1out2 {
+    types {
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+                        -&gt; SendIncMsg1out2;
+
+    instance SenderView1out2 = SenderView1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: SenderView1out2,
+        },
+    }
+}
+</pre><pre class="gamesrc" data-comp="SenderView1out4" data-file="SenderView1out4.comp.ssp">composition SenderView1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+                        -&gt; SendIncMsg1out2;
+
+    instance SenderView1out4 = SenderView1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnds: EncRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance SenderView1out2 = SenderView1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: SenderView1out4,
+        },
+        SenderView1out4: {
+            GetView: SenderView1out2,
+        },
+    }
+}
+</pre></div>
+<aside id="pkgpane"><div class="pp-head"><div><div class="pp-title"></div><div class="pp-sub"></div></div><button id="pp-close" title="close (Esc)">×</button></div><div class="pp-body"><h3>instance parameters</h3><pre class="pp-params"></pre><h3 class="pp-src-head">package source</h3><pre class="pp-src"></pre></div></aside>
+<script>
+(function () {
+  const store = {
+    get(k) { try { return localStorage.getItem('domino-html-' + k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem('domino-html-' + k, v); } catch (e) {} },
+  };
+  const body = document.body;
+  const tabs = [...document.querySelectorAll('.tab')];
+  const panes = [...document.querySelectorAll('.tabpane')];
+  const pane = () => document.querySelector('.tabpane.active');
+
+  // Package side pane.
+  const ppane = document.getElementById('pkgpane');
+  const sources = {};
+  document.querySelectorAll('pre.pkgsrc').forEach(p => { sources[p.dataset.pkg] = p.textContent; });
+  const gameSources = {};
+  document.querySelectorAll('pre.gamesrc').forEach(p => {
+    gameSources[p.dataset.comp] = { file: p.dataset.file, text: p.textContent };
+  });
+  const TOKENS = /\/\*[\s\S]*?\*\/|\/\/[^\n]*|\b(?:package|composition|theorem|params|state|types|import|oracles|oracle|instance|compose|adversary|of|return|if|else|assert|abort|invoke|for|in|const|Bool|Integer|Bits|Maybe|Table|Some|None|unwrap|true|false)\b/g;
+  function highlight(text) {
+    const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let out = '', last = 0;
+    for (const m of text.matchAll(TOKENS)) {
+      const cls = m[0].startsWith('/') ? 'cm' : 'kw';
+      out += esc(text.slice(last, m.index)) + '<span class="' + cls + '">' + esc(m[0]) + '</span>';
+      last = m.index + m[0].length;
+    }
+    return out + esc(text.slice(last));
+  }
+  function setPane(open) {
+    body.classList.toggle('pp-open', open);
+    refresh();
+  }
+  function openSource(node, title, sub, srcHead, src) {
+    document.querySelectorAll('.pkgnode.selected, .gamelink.selected')
+      .forEach(n => n.classList.remove('selected'));
+    node.classList.add('selected');
+    ppane.querySelector('.pp-title').textContent = title;
+    ppane.querySelector('.pp-sub').textContent = sub;
+    ppane.querySelector('.pp-params').textContent = node.dataset.params || '(no parameters)';
+    ppane.querySelector('.pp-src-head').textContent = srcHead;
+    ppane.querySelector('.pp-src').innerHTML = highlight(src || '(source not available)');
+    ppane.querySelector('.pp-body').scrollTop = 0;
+    setPane(true);
+  }
+  function openPkg(node) {
+    const cell = node.closest('td');
+    const pkg = node.dataset.pkg;
+    openSource(node, 'package ' + pkg,
+      'instance ' + node.dataset.inst + (cell ? ' in game instance ' + cell.dataset.game : ''),
+      'package source', sources[pkg]);
+  }
+  function openGame(node) {
+    const game = gameSources[node.dataset.comp];
+    openSource(node, 'game ' + node.dataset.comp,
+      'game instance ' + node.dataset.inst + (game ? ' · ' + game.file : ''),
+      'game source', game && game.text);
+  }
+  ppane.querySelector('.pp-title').textContent = 'packages';
+  ppane.querySelector('.pp-sub').textContent = 'click a package in a diagram or a game name';
+  document.addEventListener('click', e => {
+    if (!e.target.closest) return;
+    const node = e.target.closest('.pkgnode');
+    if (node) { openPkg(node); return; }
+    const gamelink = e.target.closest('.gamelink');
+    if (gamelink) { openGame(gamelink); return; }
+    // A reduction's label or frame opens its assumption's tab.
+    const ref = e.target.closest('[data-assumption]:not(.tab)');
+    const tab = ref && tabs.find(b => b.dataset.assumption === ref.dataset.assumption);
+    if (tab) showTab(tab.dataset.tab);
+  });
+  document.getElementById('pp-close').addEventListener('click', () => setPane(false));
+  document.getElementById('pp-toggle').addEventListener('click',
+    () => setPane(!body.classList.contains('pp-open')));
+
+  function option(id, cls, key) {
+    const box = document.getElementById(id);
+    const saved = store.get(key);
+    if (saved !== null) body.classList.toggle(cls, saved === '1');
+    box.checked = body.classList.contains(cls);
+    box.addEventListener('change', () => {
+      body.classList.toggle(cls, box.checked);
+      store.set(key, box.checked ? '1' : '0');
+      refresh();
+    });
+  }
+  option('opt-lossy', 'show-lossy', 'lossy');
+  option('opt-wrap', 'wrap', 'wrap');
+
+  let code = parseInt(store.get('code'), 10) || 12;
+  function zoom(d) {
+    code = Math.min(20, Math.max(8, code + d));
+    document.documentElement.style.setProperty('--code', code + 'px');
+    store.set('code', String(code));
+    refresh();
+  }
+  zoom(0);
+  document.getElementById('zoom-in').addEventListener('click', () => zoom(1));
+  document.getElementById('zoom-out').addEventListener('click', () => zoom(-1));
+
+  function showTab(t) {
+    tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === String(t)));
+    panes.forEach(p => p.classList.toggle('active', p.dataset.tab === String(t)));
+    store.set('tab:' + document.title, String(t));
+    refresh();
+  }
+  tabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  // Geometry of the active pane: the scroller, its game columns, and the left
+  // edge of the area not covered by the sticky oracle-name column.
+  function geo(p) {
+    const sc = p.querySelector('.scroller');
+    const cols = [...p.querySelectorAll('th.col')];
+    const corner = p.querySelector('th.corner');
+    const r = sc.getBoundingClientRect();
+    return { sc, cols, left: r.left + corner.offsetWidth, right: r.right, cornerW: corner.offsetWidth };
+  }
+  function scrollToCol(p, i) {
+    const g = geo(p);
+    const c = g.cols[Math.max(0, Math.min(g.cols.length - 1, i))];
+    if (!c) return;
+    g.sc.scrollTo({ left: g.sc.scrollLeft + c.getBoundingClientRect().left - g.left, behavior: 'smooth' });
+  }
+  function refresh() {
+    const p = pane();
+    if (!p) return;
+    const g = geo(p);
+    g.sc.style.scrollPaddingLeft = g.cornerW + 'px';
+    const chips = p.querySelectorAll('.chip');
+    g.cols.forEach((c, i) => {
+      const r = c.getBoundingClientRect();
+      chips[i].classList.toggle('visible', r.right > g.left + 20 && r.left < g.right - 20);
+    });
+  }
+
+  panes.forEach(p => {
+    p.querySelectorAll('.chip').forEach(ch =>
+      ch.addEventListener('click', () => scrollToCol(p, parseInt(ch.dataset.col, 10))));
+    let queued = false;
+    p.querySelector('.scroller').addEventListener('scroll', () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; refresh(); });
+    });
+  });
+  window.addEventListener('resize', refresh);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && body.classList.contains('pp-open')) { setPane(false); return; }
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select')) return;
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const p = pane();
+    if (!p) return;
+    const g = geo(p);
+    const lefts = g.cols.map(c => c.getBoundingClientRect().left - g.left);
+    let target;
+    if (e.key === 'ArrowRight') {
+      target = lefts.findIndex(x => x > 5);
+      if (target < 0) return;
+    } else {
+      target = -1;
+      lefts.forEach((x, i) => { if (x < -5) target = i; });
+      if (target < 0) return;
+    }
+    e.preventDefault();
+    scrollToCol(p, target);
+  });
+
+  const saved = parseInt(store.get('tab:' + document.title), 10);
+  showTab(saved >= 0 && saved < tabs.length ? saved : 0);
+})();
+</script>
+</body></html>
