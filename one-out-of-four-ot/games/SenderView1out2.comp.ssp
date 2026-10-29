@@ -1,0 +1,29 @@
+composition SenderView1out2 {
+    types {
+        Key,
+        SendIncMsg1out2,
+        SendRnd1out2,
+        RecvRnd1out2
+    }
+
+    const view1out2: fn Key, Key, Bool, (SendRnd1out2, RecvRnd1out2)
+                        -> SendIncMsg1out2;
+
+    instance view2 = SenderView1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+            RecvRnd1out2: RecvRnd1out2,
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: view2,
+        },
+    }
+}

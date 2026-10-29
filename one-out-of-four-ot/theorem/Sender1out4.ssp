@@ -1,0 +1,122 @@
+theorem Sender1out4Security {
+    /* Lengths of the (abstract) sets the protocol works over. */
+    const n_msg: Integer;
+    const n_key: Integer;
+    const n_enc: Integer;
+    const n_sim: Integer;
+    const n_inc: Integer;
+    const n_srnd: Integer;
+    const n_rrnd: Integer;
+
+    const view1out2: fn Bits(n_key), Bits(n_key), Bool, (Bits(n_srnd), Bits(n_rrnd))
+                        -> Bits(n_inc);
+    const sim1out2: fn Bits(n_key), Bits(n_key), Bits(n_sim)
+                        -> (Bits(n_srnd), Bits(n_inc));
+
+    /* 1-out-of-2 OT: real sender view and simulated sender view */
+    instance View1out2 = SenderView1out2 {
+        types {
+            Key: Bits(n_key),
+            SendIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    instance Sim1out2 = SenderSim1out2 {
+        types {
+            Key: Bits(n_key),
+            SimRnds: Bits(n_sim),
+            SendIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    /* 1-out-of-4 OT: real sender view, hybrid and simulated sender view */
+    instance View1out4 = SenderView1out4 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnds: Bits(n_enc),
+            SendIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            view1out2: view1out2,
+        }
+    }
+
+    instance Hybrid1out4 = SenderHybrid1out4 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnds: Bits(n_enc),
+            SimRnds: Bits(n_sim),
+            SendIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    instance Sim1out4 = SenderSim1out4 {
+        types {
+            Msg: Bits(n_msg),
+            Key: Bits(n_key),
+            EncRnds: Bits(n_enc),
+            SimRnds: Bits(n_sim),
+            SendIncMsg1out2: Bits(n_inc),
+            SendRnd1out2: Bits(n_srnd),
+            RecvRnd1out2: Bits(n_rrnd),
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    assumptions {
+        Sender1out2: View1out2 ~ Sim1out2
+    }
+
+    gamehops {
+        reduction View1out4 Hybrid1out4
+        {
+            assumption Sender1out2
+
+            map View1out2 View1out4 {
+                view2: view2
+            }
+
+            map Sim1out2 Hybrid1out4 {
+                func2: func2
+                sim2: sim2
+            }
+        }
+
+        equivalence Hybrid1out4 Sim1out4 {
+            invariant: [
+                ./theorem/invariant-Hybrid1out4-Sim1out4.smt2
+            ]
+
+            GetView: {
+                lemmas {
+                    equal-aborts: []
+                    invariant: [no-abort]
+                    same-output: [no-abort]
+                }
+            }
+        }
+    }
+
+    propositions {
+        Sender1out4: View1out4 ~ Sim1out4
+    }
+}

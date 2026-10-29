@@ -1,0 +1,54 @@
+composition SenderHybrid1out4 {
+    types {
+        Msg,
+        Key,
+        EncRnds,
+        SimRnds,
+        SendIncMsg1out2,
+        SendRnd1out2
+    }
+
+    const sim1out2: fn Key, Key, SimRnds -> (SendRnd1out2, SendIncMsg1out2);
+
+    instance view4 = SenderView1out4 {
+        types {
+            Msg: Msg,
+            Key: Key,
+            EncRnds: EncRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance func2 = SenderFunc1out2 {
+        types {
+            Key: Key,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+    }
+
+    instance sim2 = SenderSim1out2 {
+        types {
+            Key: Key,
+            SimRnds: SimRnds,
+            SendIncMsg1out2: SendIncMsg1out2,
+            SendRnd1out2: SendRnd1out2,
+        }
+        params {
+            sim1out2: sim1out2,
+        }
+    }
+
+    compose {
+        adversary: {
+            GetView: view4,
+        },
+        view4: {
+            GetView: func2,
+        },
+        func2: {
+            GetSimView: sim2,
+        },
+    }
+}

@@ -2,26 +2,23 @@ package SenderFunc1out4 {
     types {
         Msg,
         Key,
+        EncRnds,
         SendIncMsg1out2,
         SendRnd1out2
     }
 
     import oracles {
-        GetView(Key, Key, Key, Key) -> (SendRnd1out2, SendRnd1out2, SendIncMsg1out2, SendIncMsg1out2),
+        GetSimView(inputs: (Msg, Msg, Msg, Msg)) -> 
+        ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
+        (SendIncMsg1out2, SendIncMsg1out2)),
     }
 
     oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool))) 
-        -> ( 
-        (Key, Key, Key, Key, SendRnd1out2, SendRnd1out2), 
+        -> ((Key, Key, Key, Key, EncRnds, SendRnd1out2, SendRnd1out2), 
         (SendIncMsg1out2, SendIncMsg1out2))
     {
         (s, b) <- inputs;
-        (bl, br) <- b;
-        k00 <-$ Key sample-name k00;
-        k01 <-$ Key sample-name k01;
-        k10 <-$ Key sample-name k10;
-        k11 <-$ Key sample-name k11;
-        (r0, r1, msgs0, msgs1) <- invoke GetView(k00, k01, k10, k11);
-        return ((k00, k01, k10, k11, r0, r1), (msgs0, msgs1));
+        view <- invoke GetSimView(s);
+        return view;
     }
 }
