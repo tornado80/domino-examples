@@ -1,4 +1,4 @@
-package ReceiverReductionOuter {
+package ReceiverReduction {
     types {
         Msg,
         Key,
@@ -9,14 +9,14 @@ package ReceiverReductionOuter {
     }
 
     import oracles {
-        Enc(m: (Ctxt, Ctxt)) -> (Ctxt, Ctxt),
+        EncInner(m: (Msg, Msg)) -> (Ctxt, Ctxt),
+        EncOuter(m: (Ctxt, Ctxt)) -> (Ctxt, Ctxt),
         GetSimView(b: Bool, output: Key) -> (RecvRnd1out2, RecvIncMsg1out2),
     }
 
     params {
         enc_inner: fn Key, Msg, EncRnd -> Ctxt,
-        enc_outer: fn Key, Ctxt, EncRnd -> Ctxt,
-        zeros_msg: Msg
+        enc_outer: fn Key, Ctxt, EncRnd -> Ctxt
     }
 
     oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool)))
@@ -27,46 +27,48 @@ package ReceiverReductionOuter {
         (bi, bo) <- b; /* b_inner and b_outer */
         (s00, s01, s10, s11) <- s;
 
-        /* the messages in row bi, in column bo and not bo */
+        /* row bi is encrypted under the active inner key,
+        row not bi under the inactive inner key of the inner CPA game */
+        ma0 <- s00;
+        ma1 <- s01;
+        mx0 <- s10;
+        mx1 <- s11;
         if bi {
-            if bo {
-                saa <- s11;
-                sax <- s10;
-            } else {
-                saa <- s10;
-                sax <- s11;
-            }
-        } else {
-            if bo {
-                saa <- s01;
-                sax <- s00;
-            } else {
-                saa <- s00;
-                sax <- s01;
-            }
+            ma0 <- s10;
+            ma1 <- s11;
+            mx0 <- s00;
+            mx1 <- s01;
         }
 
         /* Encryption keys */
         kia <-$ Key sample-name kia; /* k_inner_b_active */
-        kix <-$ Key sample-name kix; /* k_inner_b_inactive */
         koa <-$ Key sample-name koa; /* k_outer_b_active */
 
         /* Encryption randomness */
-        ri1 <-$ EncRnd sample-name ri1;
-        ri2 <-$ EncRnd sample-name ri2;
-        ri3 <-$ EncRnd sample-name ri3;
-        ri4 <-$ EncRnd sample-name ri4;
+        ria0 <-$ EncRnd sample-name ria0;
+        ria1 <-$ EncRnd sample-name ria1;
         ro1 <-$ EncRnd sample-name ro1;
         ro2 <-$ EncRnd sample-name ro2;
 
         /* Inner encryptions */
-        caa <- enc_inner(kia, saa, ri1);
-        cxa <- enc_inner(kix, zeros_msg, ri2);
-        cax <- enc_inner(kia, sax, ri3);
-        cxx <- enc_inner(kix, zeros_msg, ri4);
+        (cx0, cx1) <- invoke EncInner((mx0, mx1));
+        ca0 <- enc_inner(kia, ma0, ria0);
+        ca1 <- enc_inner(kia, ma1, ria1);
 
-        /* Outer encryptions: column not bo under the inactive outer key of the CPA game */
-        (dax, dxx) <- invoke Enc((cax, cxx));
+        /* the inner ciphertexts of row bi and not bi, in column bo and not bo */
+        caa <- ca0;
+        cax <- ca1;
+        cxa <- cx0;
+        cxx <- cx1;
+        if bo {
+            caa <- ca1;
+            cax <- ca0;
+            cxa <- cx1;
+            cxx <- cx0;
+        }
+
+        /* Outer encryptions: column not bo under the inactive outer key of the outer CPA game */
+        (dax, dxx) <- invoke EncOuter((cax, cxx));
 
         C <- new Table((Bool, Bool), Ctxt);
         C[(bi, bo)] <- Some(enc_outer(koa, caa, ro1));

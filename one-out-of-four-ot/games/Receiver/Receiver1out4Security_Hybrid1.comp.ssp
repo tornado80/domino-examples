@@ -9,13 +9,15 @@ composition Receiver1out4Security_Hybrid1 {
         RecvRnd1out2
     }
 
-    const b: Bool;
+    const b_inner: Bool;
+    const b_outer: Bool;
     const enc_inner: fn Key, Msg, EncRnd -> Ctxt;
     const enc_outer: fn Key, Ctxt, EncRnd -> Ctxt;
     const zeros_msg: Msg;
+    const zeros_ctxt: Ctxt;
     const sim1out2: fn Bool, Key, SimRnds -> (RecvRnd1out2, RecvIncMsg1out2);
 
-    instance ReceiverReductionInner = ReceiverReductionInner {
+    instance ReceiverReduction = ReceiverReduction {
         types {
             Msg: Msg,
             Key: Key,
@@ -30,7 +32,7 @@ composition Receiver1out4Security_Hybrid1 {
         }
     }
 
-    instance CPA = CPA {
+    instance CPA_inner = CPA {
         types {
             Key: Key,
             Ptxt: Msg,
@@ -38,9 +40,23 @@ composition Receiver1out4Security_Hybrid1 {
             EncRnd: EncRnd,
         }
         params {
-            b: b,
+            b: b_inner,
             enc: enc_inner,
             zeros: zeros_msg,
+        }
+    }
+
+    instance CPA_outer = CPA {
+        types {
+            Key: Key,
+            Ptxt: Ctxt,
+            Ctxt: Ctxt,
+            EncRnd: EncRnd,
+        }
+        params {
+            b: b_outer,
+            enc: enc_outer,
+            zeros: zeros_ctxt,
         }
     }
 
@@ -59,10 +75,11 @@ composition Receiver1out4Security_Hybrid1 {
 
     compose {
         adversary: {
-            GetView: ReceiverReductionInner,
+            GetView: ReceiverReduction,
         },
-        ReceiverReductionInner: {
-            Enc: CPA,
+        ReceiverReduction: {
+            EncInner: Enc of CPA_inner,
+            EncOuter: Enc of CPA_outer,
             GetSimView: ReceiverSim1out2,
         },
     }
