@@ -115,64 +115,62 @@ body.pp-open header, body.pp-open section.tabpane { margin-right:var(--pane); }
 <header>
 <div class="titlebar"><h1>theorem <code>Receiver1out4Security</code></h1><div class="tools"><label><input type="checkbox" id="opt-lossy"> lossy</label><label><input type="checkbox" id="opt-wrap"> wrap lines</label><span class="zoom"><button id="zoom-out" title="smaller code">A−</button><button id="zoom-in" title="larger code">A+</button></span><button id="pp-toggle" title="show / hide the package pane">packages</button><span class="legend" title="colour of Boolean parameters: fixed in the game definition, set by the theorem's game instance, or a proof parameter">bits:<b class="b-fixed">fixed</b><b class="b-inst">instance</b><b class="b-proof">proof</b></span><span class="hint"><kbd>←</kbd><kbd>→</kbd> previous / next game · click a package or a game name for its code · <span class="assm-key">- - -</span> assumption packages · <span class="ren-key">New:Old</span> renamed oracle</span></div></div>
 <nav class="tabs"><button class="tab" data-tab="0"><b>ReceiverPrivacy</b> <span>ReceiverView1out4 ~ ReceiverSim1out4</span></button><span class="tabgroup">assumptions</span><button class="tab assm" data-tab="1" data-assumption="Receiver1out2"><b>Receiver1out2</b> <span>ReceiverView1out2 ~ ReceiverSim1out2</span></button><button class="tab assm" data-tab="2" data-assumption="CPAInner"><b>CPAInner</b> <span>CPA_0_inner ~ CPA_1_inner</span></button><button class="tab assm" data-tab="3" data-assumption="CPAOuter"><b>CPAOuter</b> <span>CPA_0_outer ~ CPA_1_outer</span></button></nav>
-<details class="hops"><summary>all game hops</summary><ol start="0"><li><span class="kind">reduction</span> <code>ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0</code></li><li><span class="kind">reduction</span> <code>Receiver1out4Security_Hybrid1_0 ~= Receiver1out4Security_Hybrid1_1 (CPAInner)</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid1_1 == Receiver1out4Security_Hybrid2</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid2 == Receiver1out4Security_Hybrid3_0</code></li><li><span class="kind">reduction</span> <code>Receiver1out4Security_Hybrid3_0 ~= Receiver1out4Security_Hybrid3_1 (CPAOuter)</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid3_1 == ReceiverSim1out4</code></li></ol></details>
+<details class="hops"><summary>all game hops</summary><ol start="0"><li><span class="kind">reduction</span> <code>ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0_0</code></li><li><span class="kind">reduction</span> <code>Receiver1out4Security_Hybrid1_0_0 ~= Receiver1out4Security_Hybrid1_1_0 (CPAInner)</code></li><li><span class="kind">reduction</span> <code>Receiver1out4Security_Hybrid1_1_0 ~= Receiver1out4Security_Hybrid1_1_1 (CPAOuter)</code></li><li><span class="kind">equivalence</span> <code>Receiver1out4Security_Hybrid1_1_1 == ReceiverSim1out4</code></li></ol></details>
 </header>
 <section class="tabpane" data-tab="0">
-<nav class="path"><button class="chip" data-col="0">ReceiverView1out4</button><span class="via" title="ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)" data-assumption="Receiver1out2">reduction</span><button class="chip" data-col="1">Receiver1out4Security_Hybrid0</button><span class="via" title="Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0">equivalence</span><button class="chip" data-col="2">Receiver1out4Security_Hybrid1_0</button><span class="via" title="Receiver1out4Security_Hybrid1_0 ~= Receiver1out4Security_Hybrid1_1 (CPAInner)" data-assumption="CPAInner">reduction</span><button class="chip" data-col="3">Receiver1out4Security_Hybrid1_1</button><span class="via" title="Receiver1out4Security_Hybrid1_1 == Receiver1out4Security_Hybrid2">equivalence</span><button class="chip" data-col="4">Receiver1out4Security_Hybrid2</button><span class="via" title="Receiver1out4Security_Hybrid2 == Receiver1out4Security_Hybrid3_0">equivalence</span><button class="chip" data-col="5">Receiver1out4Security_Hybrid3_0</button><span class="via" title="Receiver1out4Security_Hybrid3_0 ~= Receiver1out4Security_Hybrid3_1 (CPAOuter)" data-assumption="CPAOuter">reduction</span><button class="chip" data-col="6">Receiver1out4Security_Hybrid3_1</button><span class="via" title="Receiver1out4Security_Hybrid3_1 == ReceiverSim1out4">equivalence</span><button class="chip" data-col="7">ReceiverSim1out4</button></nav>
+<nav class="path"><button class="chip" data-col="0">ReceiverView1out4</button><span class="via" title="ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)" data-assumption="Receiver1out2">reduction</span><button class="chip" data-col="1">Receiver1out4Security_Hybrid0</button><span class="via" title="Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0_0">equivalence</span><button class="chip" data-col="2">Receiver1out4Security_Hybrid1_0_0</button><span class="via" title="Receiver1out4Security_Hybrid1_0_0 ~= Receiver1out4Security_Hybrid1_1_0 (CPAInner)" data-assumption="CPAInner">reduction</span><button class="chip" data-col="3">Receiver1out4Security_Hybrid1_1_0</button><span class="via" title="Receiver1out4Security_Hybrid1_1_0 ~= Receiver1out4Security_Hybrid1_1_1 (CPAOuter)" data-assumption="CPAOuter">reduction</span><button class="chip" data-col="4">Receiver1out4Security_Hybrid1_1_1</button><span class="via" title="Receiver1out4Security_Hybrid1_1_1 == ReceiverSim1out4">equivalence</span><button class="chip" data-col="5">ReceiverSim1out4</button></nav>
 <div class="scroller"><table>
-<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/8</span> ReceiverView1out4</div><div class="gsub">game <code class="gamelink" data-comp="ReceiverView1out4" data-inst="ReceiverView1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+<thead><tr><th class="corner"></th><th class="col" data-col="0"><div class="gname"><span class="idx">1/6</span> ReceiverView1out4</div><div class="gsub">game <code class="gamelink" data-comp="ReceiverView1out4" data-inst="ReceiverView1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">ReceiverView1out4</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/8</span> Receiver1out4Security_Hybrid0</div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid0" data-inst="Receiver1out4Security_Hybrid0" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2" title="show the game's source">ReceiverView1out4</code></div></th><th class="col" data-col="1"><div class="gname"><span class="idx">2/6</span> Receiver1out4Security_Hybrid0</div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid0" data-inst="Receiver1out4Security_Hybrid0" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2" title="show the game's source">Receiver1out4Security_Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="Receiver1out2">ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/8</span> Receiver1out4Security_Hybrid1_0 <span class="gbits">[b -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid1" data-inst="Receiver1out4Security_Hybrid1_0" data-params="b: Boolean = false
-enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid1</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0</code></div></th><th class="col" data-col="3"><div class="gname"><span class="idx">4/8</span> Receiver1out4Security_Hybrid1_1 <span class="gbits">[b -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid1" data-inst="Receiver1out4Security_Hybrid1_1" data-params="b: Boolean = true
-enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid1</code></div><div class="gsub">via reduction <code data-assumption="CPAInner">Receiver1out4Security_Hybrid1_0 ~= Receiver1out4Security_Hybrid1_1 (CPAInner)</code></div></th><th class="col" data-col="4"><div class="gname"><span class="idx">5/8</span> Receiver1out4Security_Hybrid2</div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid2" data-inst="Receiver1out4Security_Hybrid2" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid2</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid1_1 == Receiver1out4Security_Hybrid2</code></div></th><th class="col" data-col="5"><div class="gname"><span class="idx">6/8</span> Receiver1out4Security_Hybrid3_0 <span class="gbits">[b -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid3" data-inst="Receiver1out4Security_Hybrid3_0" data-params="b: Boolean = false
+sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2" title="show the game's source">Receiver1out4Security_Hybrid0</code></div><div class="gsub">via reduction <code data-assumption="Receiver1out2">ReceiverView1out4 ~= Receiver1out4Security_Hybrid0 (Receiver1out2)</code></div></th><th class="col" data-col="2"><div class="gname"><span class="idx">3/6</span> Receiver1out4Security_Hybrid1_0_0 <span class="gbits">[b_inner -&gt; <span class="b-inst" title="instance parameter">0</span>, b_outer -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid1" data-inst="Receiver1out4Security_Hybrid1_0_0" data-params="b_inner: Boolean = false
+b_outer: Boolean = false
 enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
 sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
 zeros_ctxt: Bits(n_ctxt) = zeros_ctxt
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid3</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid2 == Receiver1out4Security_Hybrid3_0</code></div></th><th class="col" data-col="6"><div class="gname"><span class="idx">7/8</span> Receiver1out4Security_Hybrid3_1 <span class="gbits">[b -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid3" data-inst="Receiver1out4Security_Hybrid3_1" data-params="b: Boolean = true
+zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid1</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid0 == Receiver1out4Security_Hybrid1_0_0</code></div></th><th class="col" data-col="3"><div class="gname"><span class="idx">4/6</span> Receiver1out4Security_Hybrid1_1_0 <span class="gbits">[b_inner -&gt; <span class="b-inst" title="instance parameter">1</span>, b_outer -&gt; <span class="b-inst" title="instance parameter">0</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid1" data-inst="Receiver1out4Security_Hybrid1_1_0" data-params="b_inner: Boolean = true
+b_outer: Boolean = false
 enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
 sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
 zeros_ctxt: Bits(n_ctxt) = zeros_ctxt
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid3</code></div><div class="gsub">via reduction <code data-assumption="CPAOuter">Receiver1out4Security_Hybrid3_0 ~= Receiver1out4Security_Hybrid3_1 (CPAOuter)</code></div></th><th class="col" data-col="7"><div class="gname"><span class="idx">8/8</span> ReceiverSim1out4</div><div class="gsub">game <code class="gamelink" data-comp="ReceiverSim1out4" data-inst="ReceiverSim1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid1</code></div><div class="gsub">via reduction <code data-assumption="CPAInner">Receiver1out4Security_Hybrid1_0_0 ~= Receiver1out4Security_Hybrid1_1_0 (CPAInner)</code></div></th><th class="col" data-col="4"><div class="gname"><span class="idx">5/6</span> Receiver1out4Security_Hybrid1_1_1 <span class="gbits">[b_inner -&gt; <span class="b-inst" title="instance parameter">1</span>, b_outer -&gt; <span class="b-inst" title="instance parameter">1</span>]</span></div><div class="gsub">game <code class="gamelink" data-comp="Receiver1out4Security_Hybrid1" data-inst="Receiver1out4Security_Hybrid1_1_1" data-params="b_inner: Boolean = true
+b_outer: Boolean = true
+enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
 sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
 zeros_ctxt: Bits(n_ctxt) = zeros_ctxt
-zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">ReceiverSim1out4</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid3_1 == ReceiverSim1out4</code></div></th></tr>
+zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">Receiver1out4Security_Hybrid1</code></div><div class="gsub">via reduction <code data-assumption="CPAOuter">Receiver1out4Security_Hybrid1_1_0 ~= Receiver1out4Security_Hybrid1_1_1 (CPAOuter)</code></div></th><th class="col" data-col="5"><div class="gname"><span class="idx">6/6</span> ReceiverSim1out4</div><div class="gsub">game <code class="gamelink" data-comp="ReceiverSim1out4" data-inst="ReceiverSim1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
+sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2
+zeros_ctxt: Bits(n_ctxt) = zeros_ctxt
+zeros_msg: Bits(n_msg) = zeros_msg" title="show the game's source">ReceiverSim1out4</code></div><div class="gsub">via equivalence <code>Receiver1out4Security_Hybrid1_1_1 == ReceiverSim1out4</code></div></th></tr>
 <tr class="diagrams"><th class="corner"></th><td data-game="ReceiverView1out4"><svg class="diagram" width="388" height="110" viewBox="0 0 387.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Receiver1out2"><title>assumption Receiver1out2: ReceiverView1out2 ~ ReceiverSim1out2</title><rect x="257.5" y="15.0" width="115.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Receiver1out2</text></g><g class="pkgnode" data-pkg="ReceiverView1out4" data-inst="ReceiverView1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverView1out4, instance ReceiverView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverView1out4</text></g><g class="pkgnode" data-pkg="ReceiverView1out2" data-inst="ReceiverView1out2" data-params="view1out2: fn (Bits(n_key), Bits(n_key)), Boolean, (Bits(n_srnd), Bits(n_rrnd)) -&gt; Bits(n_inc) = view1out2"><title>package ReceiverView1out2, instance ReceiverView1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverView1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid0"><svg class="diagram" width="563" height="110" viewBox="0 0 562.5 110.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="47.5" x2="265.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="43.5" text-anchor="middle">GetView</text><line class="edge" x1="365.0" y1="47.5" x2="440.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="43.5" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="47.5" x2="90.0" y2="47.5" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="43.5" text-anchor="middle">GetView</text><g class="assm" data-assumption="Receiver1out2"><title>assumption Receiver1out2: ReceiverView1out2 ~ ReceiverSim1out2</title><rect x="257.5" y="15.0" width="290.0" height="65.0" rx="5"/><text x="259.5" y="83.0" dominant-baseline="hanging">Receiver1out2</text></g><g class="pkgnode" data-pkg="ReceiverView1out4" data-inst="ReceiverView1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverView1out4, instance ReceiverView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverView1out4</text></g><g class="pkgnode" data-pkg="ReceiverFunc1out2" data-inst="ReceiverFunc1out2" data-params=""><title>package ReceiverFunc1out2, instance ReceiverFunc1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverFunc1out2</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="440.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid1_0"><div class="bitscap"><span>b=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAInner"><title>assumption CPAInner: CPA_0_inner ~ CPA_1_inner</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">CPAInner</text></g><g class="pkgnode" data-pkg="ReceiverReductionInner" data-inst="ReceiverReductionInner" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverReductionInner, instance ReceiverReductionInner</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReductionInner</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="b: Boolean = false
+enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverView1out4, instance ReceiverView1out4</title><rect class="pkgbox" x="90.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverView1out4</text></g><g class="pkgnode" data-pkg="ReceiverFunc1out2" data-inst="ReceiverFunc1out2" data-params=""><title>package ReceiverFunc1out2, instance ReceiverFunc1out2</title><rect class="pkgbox" x="265.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverFunc1out2</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="440.0" y="22.5" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="47.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid1_0_0"><div class="bitscap"><span>b_inner=<span class="b-inst" title="instance parameter">0</span></span> <span>b_outer=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="252" viewBox="0 0 387.5 252.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle"><title>EncInner: Enc of CPA_inner (the package calls it Enc)</title>EncInner<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle"><title>EncOuter: Enc of CPA_outer (the package calls it Enc)</title>EncOuter<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="140.0" x2="90.0" y2="140.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="136.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAInner"><title>assumption CPAInner: CPA_0_inner ~ CPA_1_inner</title><rect x="257.5" y="157.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="225.5" dominant-baseline="hanging">CPAInner</text></g><g class="pkgnode" data-pkg="ReceiverReduction" data-inst="ReceiverReduction" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverReduction, instance ReceiverReduction</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReduction</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_inner" data-params="b: Boolean = false
 enc: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-zeros: Bits(n_msg) = zeros_msg"><title>package CPA, instance CPA
-b = false (instance parameter b)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid1_1"><div class="bitscap"><span>b=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAInner"><title>assumption CPAInner: CPA_0_inner ~ CPA_1_inner</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">CPAInner</text></g><g class="pkgnode" data-pkg="ReceiverReductionInner" data-inst="ReceiverReductionInner" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverReductionInner, instance ReceiverReductionInner</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReductionInner</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="b: Boolean = true
+zeros: Bits(n_msg) = zeros_msg"><title>package CPA, instance CPA_inner
+b = false (instance parameter b_inner)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="183.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="199.0" text-anchor="middle" dominant-baseline="middle">(CPA_inner)</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_outer" data-params="b: Boolean = false
+enc: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
+zeros: Bits(n_ctxt) = zeros_ctxt"><title>package CPA, instance CPA_outer
+b = false (instance parameter b_outer)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(CPA_outer)</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid1_1_0"><div class="bitscap"><span>b_inner=<span class="b-inst" title="instance parameter">1</span></span> <span>b_outer=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="395" height="252" viewBox="0 0 395.0 252.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle"><title>EncInner: Enc of CPA_inner (the package calls it Enc)</title>EncInner<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle"><title>EncOuter: Enc of CPA_outer (the package calls it Enc)</title>EncOuter<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="140.0" x2="90.0" y2="140.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="136.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAInner"><title>assumption CPAInner: CPA_0_inner ~ CPA_1_inner</title><rect x="257.5" y="157.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="225.5" dominant-baseline="hanging">CPAInner</text></g><g class="assm" data-assumption="CPAOuter"><title>assumption CPAOuter: CPA_0_outer ~ CPA_1_outer</title><rect x="250.0" y="75.0" width="130.0" height="80.0" rx="5"/><text x="252.0" y="158.0" dominant-baseline="hanging">CPAOuter</text></g><g class="pkgnode" data-pkg="ReceiverReduction" data-inst="ReceiverReduction" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverReduction, instance ReceiverReduction</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReduction</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_inner" data-params="b: Boolean = true
 enc: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-zeros: Bits(n_msg) = zeros_msg"><title>package CPA, instance CPA
-b = true (instance parameter b)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid2"><svg class="diagram" width="380" height="155" viewBox="0 0 380.0 155.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="ReceiverReductionOuter" data-inst="ReceiverReductionOuter" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-zeros_msg: Bits(n_msg) = zeros_msg"><title>package ReceiverReductionOuter, instance ReceiverReductionOuter</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReductionOuter</text></g><g class="pkgnode" data-pkg="CPAReal" data-inst="CPAReal" data-params="enc: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package CPAReal, instance CPAReal</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">CPAReal</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid3_0"><div class="bitscap"><span>b=<span class="b-inst" title="instance parameter">0</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAOuter"><title>assumption CPAOuter: CPA_0_outer ~ CPA_1_outer</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">CPAOuter</text></g><g class="pkgnode" data-pkg="ReceiverReductionOuter" data-inst="ReceiverReductionOuter" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-zeros_msg: Bits(n_msg) = zeros_msg"><title>package ReceiverReductionOuter, instance ReceiverReductionOuter</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReductionOuter</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="b: Boolean = false
+zeros: Bits(n_msg) = zeros_msg"><title>package CPA, instance CPA_inner
+b = true (instance parameter b_inner)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="183.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="199.0" text-anchor="middle" dominant-baseline="middle">(CPA_inner)</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_outer" data-params="b: Boolean = false
 enc: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-zeros: Bits(n_ctxt) = zeros_ctxt"><title>package CPA, instance CPA
-b = false (instance parameter b)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid3_1"><div class="bitscap"><span>b=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="178" viewBox="0 0 387.5 177.5" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle">Enc</text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="90.0" x2="90.0" y2="90.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="86.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAOuter"><title>assumption CPAOuter: CPA_0_outer ~ CPA_1_outer</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">CPAOuter</text></g><g class="pkgnode" data-pkg="ReceiverReductionOuter" data-inst="ReceiverReductionOuter" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
-enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-zeros_msg: Bits(n_msg) = zeros_msg"><title>package ReceiverReductionOuter, instance ReceiverReductionOuter</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="125.0" rx="3"/><text class="pkg" x="140.0" y="77.5" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReductionOuter</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA" data-params="b: Boolean = true
+zeros: Bits(n_ctxt) = zeros_ctxt"><title>package CPA, instance CPA_outer
+b = false (instance parameter b_outer)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">0</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(CPA_outer)</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="Receiver1out4Security_Hybrid1_1_1"><div class="bitscap"><span>b_inner=<span class="b-inst" title="instance parameter">1</span></span> <span>b_outer=<span class="b-inst" title="instance parameter">1</span></span></div><svg class="diagram" width="388" height="230" viewBox="0 0 387.5 230.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="190.0" x2="265.0" y2="190.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="186.0" text-anchor="middle"><title>EncInner: Enc of CPA_inner (the package calls it Enc)</title>EncInner<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="115.0" x2="265.0" y2="115.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="111.0" text-anchor="middle"><title>EncOuter: Enc of CPA_outer (the package calls it Enc)</title>EncOuter<tspan class="renamed">:Enc</tspan></text><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="140.0" x2="90.0" y2="140.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="136.0" text-anchor="middle">GetView</text><g class="assm" data-assumption="CPAOuter"><title>assumption CPAOuter: CPA_0_outer ~ CPA_1_outer</title><rect x="257.5" y="82.5" width="115.0" height="65.0" rx="5"/><text x="259.5" y="150.5" dominant-baseline="hanging">CPAOuter</text></g><g class="pkgnode" data-pkg="ReceiverReduction" data-inst="ReceiverReduction" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer"><title>package ReceiverReduction, instance ReceiverReduction</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="200.0" rx="3"/><text class="pkg" x="140.0" y="115.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverReduction</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_inner" data-params="b: Boolean = true
+enc: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+zeros: Bits(n_msg) = zeros_msg"><title>package CPA, instance CPA_inner
+b = true (instance parameter b_inner)</title><rect class="pkgbox" x="265.0" y="165.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="183.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="199.0" text-anchor="middle" dominant-baseline="middle">(CPA_inner)</text></g><g class="pkgnode" data-pkg="CPA" data-inst="CPA_outer" data-params="b: Boolean = true
 enc: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
-zeros: Bits(n_ctxt) = zeros_ctxt"><title>package CPA, instance CPA
-b = true (instance parameter b)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="115.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="ReceiverSim1out4"><svg class="diagram" width="555" height="80" viewBox="0 0 555.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="365.0" y1="40.0" x2="440.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="ReceiverFunc1out4" data-inst="ReceiverFunc1out4" data-params=""><title>package ReceiverFunc1out4, instance ReceiverFunc1out4</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverFunc1out4</text></g><g class="pkgnode" data-pkg="ReceiverSim1out4" data-inst="ReceiverSim1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
+zeros: Bits(n_ctxt) = zeros_ctxt"><title>package CPA, instance CPA_outer
+b = true (instance parameter b_outer)</title><rect class="pkgbox" x="265.0" y="90.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="108.0" text-anchor="middle" dominant-baseline="middle">CPA<tspan class="sup" baseline-shift="super"><tspan class="b-inst">1</tspan></tspan></text><text class="inst" x="315.0" y="124.0" text-anchor="middle" dominant-baseline="middle">(CPA_outer)</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td><td data-game="ReceiverSim1out4"><svg class="diagram" width="555" height="80" viewBox="0 0 555.0 80.0" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker></defs><line class="edge" x1="190.0" y1="40.0" x2="265.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="227.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="365.0" y1="40.0" x2="440.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="402.5" y="36.0" text-anchor="middle">GetSimView</text><line class="edge" x1="15.0" y1="40.0" x2="90.0" y2="40.0" marker-end="url(#arrowhead)"/><text class="oracle" x="52.5" y="36.0" text-anchor="middle">GetView</text><g class="pkgnode" data-pkg="ReceiverFunc1out4" data-inst="ReceiverFunc1out4" data-params=""><title>package ReceiverFunc1out4, instance ReceiverFunc1out4</title><rect class="pkgbox" x="90.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="140.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverFunc1out4</text></g><g class="pkgnode" data-pkg="ReceiverSim1out4" data-inst="ReceiverSim1out4" data-params="enc_inner: fn Bits(n_key), Bits(n_msg), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_inner
 enc_outer: fn Bits(n_key), Bits(n_ctxt), Bits(n_enc) -&gt; Bits(n_ctxt) = enc_outer
 zeros_msg: Bits(n_msg) = zeros_msg
 zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance ReceiverSim1out4</title><rect class="pkgbox" x="265.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="315.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out4</text></g><g class="pkgnode" data-pkg="ReceiverSim1out2" data-inst="ReceiverSim1out2" data-params="sim1out2: fn Boolean, Bits(n_key), Bits(n_sim) -&gt; (Bits(n_rrnd), Bits(n_inc)) = sim1out2"><title>package ReceiverSim1out2, instance ReceiverSim1out2</title><rect class="pkgbox" x="440.0" y="15.0" width="100.0" height="50.0" rx="3"/><text class="pkg" x="490.0" y="40.0" text-anchor="middle" dominant-baseline="middle" textLength="92.0" lengthAdjust="spacingAndGlyphs">ReceiverSim1out2</text></g></svg></td></tr></thead>
@@ -356,266 +354,31 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
         mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key) sample-name kia;
-    ko0 &lt;-$ Bits(n_key) sample-name ko0;
-    ko1 &lt;-$ Bits(n_key) sample-name ko1;
-    ria0 &lt;-$ Bits(n_enc) sample-name ria0;
-    ria1 &lt;-$ Bits(n_enc) sample-name ria1;
-    ro1 &lt;-$ Bits(n_enc) sample-name ro1;
-    ro2 &lt;-$ Bits(n_enc) sample-name ro2;
-    ro3 &lt;-$ Bits(n_enc) sample-name ro3;
-    ro4 &lt;-$ Bits(n_enc) sample-name ro4;
-    // inlined CPA.Enc
-        m &lt;- (mx0, mx1);
-        (m0, m1) &lt;- m;
-        k &lt;-$ Bits(n_key) sample-name k;
-        r0 &lt;-$ Bits(n_enc) sample-name r0;
-        r1 &lt;-$ Bits(n_enc) sample-name r1;
-        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
-    ca0 &lt;- enc_inner(kia, ma0, ria0);
-    ca1 &lt;- enc_inner(kia, ma1, ria1);
-    c00 &lt;- ca0;
-    c01 &lt;- ca1;
-    c10 &lt;- cx0;
-    c11 &lt;- cx1;
-    if (bi) {
-        c00 &lt;- cx0;
-        c01 &lt;- cx1;
-        c10 &lt;- ca0;
-        c11 &lt;- ca1;
-    }
-    C &lt;- EmptyTable(Table((Bool, Bool), Bits(n_ctxt)));
-    C[(false, false)] &lt;- Some(enc_outer(ko0, c00, ro1));
-    C[(false, true)] &lt;- Some(enc_outer(ko1, c01, ro2));
-    C[(true, false)] &lt;- Some(enc_outer(ko0, c10, ro3));
-    C[(true, true)] &lt;- Some(enc_outer(ko1, c11, ro4));
-    koa &lt;- ko0;
-    if (bo) {
-        koa &lt;- ko1;
-    }
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim) sample-name rsim;
-        (rrecv0, msgs0) &lt;- sim1out2(bi, kia, rsim);
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim) sample-name rsim;
-        (rrecv1, msgs1) &lt;- sim1out2(bo, koa, rsim);
-    return ((rrecv0, rrecv1), (C, msgs0, msgs1));
-}
-</pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_rrnd), Bits(n_rrnd)), (Table((Bool, Bool), Bits(n_ctxt)), Bits(n_inc), Bits(n_inc))) {
-    (s, b) &lt;- inputs;
-    (bi, bo) &lt;- b;
-    (s00, s01, s10, s11) &lt;- s;
-    ma0 &lt;- s00;
-    ma1 &lt;- s01;
-    mx0 &lt;- s10;
-    mx1 &lt;- s11;
-    if (bi) {
-        ma0 &lt;- s10;
-        ma1 &lt;- s11;
-        mx0 &lt;- s00;
-        mx1 &lt;- s01;
-    }
-    kia &lt;-$ Bits(n_key);
-    ko0 &lt;-$ Bits(n_key);
-    ko1 &lt;-$ Bits(n_key);
-    ria0 &lt;-$ Bits(n_enc);
-    ria1 &lt;-$ Bits(n_enc);
-    ro1 &lt;-$ Bits(n_enc);
-    ro2 &lt;-$ Bits(n_enc);
-    ro3 &lt;-$ Bits(n_enc);
-    ro4 &lt;-$ Bits(n_enc);
-    // inlined CPA.Enc
-        m &lt;- (mx0, mx1);
-        (m0, m1) &lt;- m;
-        k &lt;-$ Bits(n_key);
-        r0 &lt;-$ Bits(n_enc);
-        r1 &lt;-$ Bits(n_enc);
-        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
-    ca0 &lt;- enc_inner(kia, ma0, ria0);
-    ca1 &lt;- enc_inner(kia, ma1, ria1);
-    c00 &lt;- ca0;
-    c01 &lt;- ca1;
-    c10 &lt;- cx0;
-    c11 &lt;- cx1;
-    if (bi) {
-        c00 &lt;- cx0;
-        c01 &lt;- cx1;
-        c10 &lt;- ca0;
-        c11 &lt;- ca1;
-    }
-    C &lt;- EmptyTable;
-    C[(false, false)] &lt;- enc_outer(ko0, c00, ro1);
-    C[(false, true)] &lt;- enc_outer(ko1, c01, ro2);
-    C[(true, false)] &lt;- enc_outer(ko0, c10, ro3);
-    C[(true, true)] &lt;- enc_outer(ko1, c11, ro4);
-    koa &lt;- ko0;
-    if (bo) {
-        koa &lt;- ko1;
-    }
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim);
-        (rrecv0, msgs0) &lt;- sim1out2(bi, kia, rsim);
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim);
-        (rrecv1, msgs1) &lt;- sim1out2(bo, koa, rsim);
-    return ((rrecv0, rrecv1), (C, msgs0, msgs1));
-}
-</pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_rrnd), Bits(n_rrnd)), (Table((Bool, Bool), Bits(n_ctxt)), Bits(n_inc), Bits(n_inc))) {
-    (s, b) &lt;- inputs;
-    (bi, bo) &lt;- b;
-    (s00, s01, s10, s11) &lt;- s;
-    ma0 &lt;- s00;
-    ma1 &lt;- s01;
-    mx0 &lt;- s10;
-    mx1 &lt;- s11;
-    if (bi) {
-        ma0 &lt;- s10;
-        ma1 &lt;- s11;
-        mx0 &lt;- s00;
-        mx1 &lt;- s01;
-    }
-    kia &lt;-$ Bits(n_key) sample-name kia;
-    ko0 &lt;-$ Bits(n_key) sample-name ko0;
-    ko1 &lt;-$ Bits(n_key) sample-name ko1;
-    ria0 &lt;-$ Bits(n_enc) sample-name ria0;
-    ria1 &lt;-$ Bits(n_enc) sample-name ria1;
-    ro1 &lt;-$ Bits(n_enc) sample-name ro1;
-    ro2 &lt;-$ Bits(n_enc) sample-name ro2;
-    ro3 &lt;-$ Bits(n_enc) sample-name ro3;
-    ro4 &lt;-$ Bits(n_enc) sample-name ro4;
-    // inlined CPA.Enc
-        m &lt;- (mx0, mx1);
-        (m0, m1) &lt;- m;
-        m0 &lt;- zeros_msg;
-        m1 &lt;- zeros_msg;
-        k &lt;-$ Bits(n_key) sample-name k;
-        r0 &lt;-$ Bits(n_enc) sample-name r0;
-        r1 &lt;-$ Bits(n_enc) sample-name r1;
-        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
-    ca0 &lt;- enc_inner(kia, ma0, ria0);
-    ca1 &lt;- enc_inner(kia, ma1, ria1);
-    c00 &lt;- ca0;
-    c01 &lt;- ca1;
-    c10 &lt;- cx0;
-    c11 &lt;- cx1;
-    if (bi) {
-        c00 &lt;- cx0;
-        c01 &lt;- cx1;
-        c10 &lt;- ca0;
-        c11 &lt;- ca1;
-    }
-    C &lt;- EmptyTable(Table((Bool, Bool), Bits(n_ctxt)));
-    C[(false, false)] &lt;- Some(enc_outer(ko0, c00, ro1));
-    C[(false, true)] &lt;- Some(enc_outer(ko1, c01, ro2));
-    C[(true, false)] &lt;- Some(enc_outer(ko0, c10, ro3));
-    C[(true, true)] &lt;- Some(enc_outer(ko1, c11, ro4));
-    koa &lt;- ko0;
-    if (bo) {
-        koa &lt;- ko1;
-    }
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim) sample-name rsim;
-        (rrecv0, msgs0) &lt;- sim1out2(bi, kia, rsim);
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim) sample-name rsim;
-        (rrecv1, msgs1) &lt;- sim1out2(bo, koa, rsim);
-    return ((rrecv0, rrecv1), (C, msgs0, msgs1));
-}
-</pre><pre class="lossy">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_rrnd), Bits(n_rrnd)), (Table((Bool, Bool), Bits(n_ctxt)), Bits(n_inc), Bits(n_inc))) {
-    (s, b) &lt;- inputs;
-    (bi, bo) &lt;- b;
-    (s00, s01, s10, s11) &lt;- s;
-    ma0 &lt;- s00;
-    ma1 &lt;- s01;
-    mx0 &lt;- s10;
-    mx1 &lt;- s11;
-    if (bi) {
-        ma0 &lt;- s10;
-        ma1 &lt;- s11;
-        mx0 &lt;- s00;
-        mx1 &lt;- s01;
-    }
-    kia &lt;-$ Bits(n_key);
-    ko0 &lt;-$ Bits(n_key);
-    ko1 &lt;-$ Bits(n_key);
-    ria0 &lt;-$ Bits(n_enc);
-    ria1 &lt;-$ Bits(n_enc);
-    ro1 &lt;-$ Bits(n_enc);
-    ro2 &lt;-$ Bits(n_enc);
-    ro3 &lt;-$ Bits(n_enc);
-    ro4 &lt;-$ Bits(n_enc);
-    // inlined CPA.Enc
-        m &lt;- (mx0, mx1);
-        (m0, m1) &lt;- m;
-        m0 &lt;- zeros_msg;
-        m1 &lt;- zeros_msg;
-        k &lt;-$ Bits(n_key);
-        r0 &lt;-$ Bits(n_enc);
-        r1 &lt;-$ Bits(n_enc);
-        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
-    ca0 &lt;- enc_inner(kia, ma0, ria0);
-    ca1 &lt;- enc_inner(kia, ma1, ria1);
-    c00 &lt;- ca0;
-    c01 &lt;- ca1;
-    c10 &lt;- cx0;
-    c11 &lt;- cx1;
-    if (bi) {
-        c00 &lt;- cx0;
-        c01 &lt;- cx1;
-        c10 &lt;- ca0;
-        c11 &lt;- ca1;
-    }
-    C &lt;- EmptyTable;
-    C[(false, false)] &lt;- enc_outer(ko0, c00, ro1);
-    C[(false, true)] &lt;- enc_outer(ko1, c01, ro2);
-    C[(true, false)] &lt;- enc_outer(ko0, c10, ro3);
-    C[(true, true)] &lt;- enc_outer(ko1, c11, ro4);
-    koa &lt;- ko0;
-    if (bo) {
-        koa &lt;- ko1;
-    }
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim);
-        (rrecv0, msgs0) &lt;- sim1out2(bi, kia, rsim);
-    // inlined ReceiverSim1out2.GetSimView
-        rsim &lt;-$ Bits(n_sim);
-        (rrecv1, msgs1) &lt;- sim1out2(bo, koa, rsim);
-    return ((rrecv0, rrecv1), (C, msgs0, msgs1));
-}
-</pre></td><td><pre class="full">GetView(inputs: ((Bits(n_msg), Bits(n_msg), Bits(n_msg), Bits(n_msg)), (Bool, Bool))) -&gt; ((Bits(n_rrnd), Bits(n_rrnd)), (Table((Bool, Bool), Bits(n_ctxt)), Bits(n_inc), Bits(n_inc))) {
-    (s, b) &lt;- inputs;
-    (bi, bo) &lt;- b;
-    (s00, s01, s10, s11) &lt;- s;
-    if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
-    }
-    kia &lt;-$ Bits(n_key) sample-name kia;
-    kix &lt;-$ Bits(n_key) sample-name kix;
     koa &lt;-$ Bits(n_key) sample-name koa;
-    ri1 &lt;-$ Bits(n_enc) sample-name ri1;
-    ri2 &lt;-$ Bits(n_enc) sample-name ri2;
-    ri3 &lt;-$ Bits(n_enc) sample-name ri3;
-    ri4 &lt;-$ Bits(n_enc) sample-name ri4;
+    ria0 &lt;-$ Bits(n_enc) sample-name ria0;
+    ria1 &lt;-$ Bits(n_enc) sample-name ria1;
     ro1 &lt;-$ Bits(n_enc) sample-name ro1;
     ro2 &lt;-$ Bits(n_enc) sample-name ro2;
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPAReal.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        k &lt;-$ Bits(n_key) sample-name k;
+        r0 &lt;-$ Bits(n_enc) sample-name r0;
+        r1 &lt;-$ Bits(n_enc) sample-name r1;
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         k &lt;-$ Bits(n_key) sample-name k;
@@ -639,37 +402,42 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
     (s, b) &lt;- inputs;
     (bi, bo) &lt;- b;
     (s00, s01, s10, s11) &lt;- s;
+    ma0 &lt;- s00;
+    ma1 &lt;- s01;
+    mx0 &lt;- s10;
+    mx1 &lt;- s11;
     if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
+        ma0 &lt;- s10;
+        ma1 &lt;- s11;
+        mx0 &lt;- s00;
+        mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key);
-    kix &lt;-$ Bits(n_key);
     koa &lt;-$ Bits(n_key);
-    ri1 &lt;-$ Bits(n_enc);
-    ri2 &lt;-$ Bits(n_enc);
-    ri3 &lt;-$ Bits(n_enc);
-    ri4 &lt;-$ Bits(n_enc);
+    ria0 &lt;-$ Bits(n_enc);
+    ria1 &lt;-$ Bits(n_enc);
     ro1 &lt;-$ Bits(n_enc);
     ro2 &lt;-$ Bits(n_enc);
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPAReal.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        k &lt;-$ Bits(n_key);
+        r0 &lt;-$ Bits(n_enc);
+        r1 &lt;-$ Bits(n_enc);
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         k &lt;-$ Bits(n_key);
@@ -693,37 +461,44 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
     (s, b) &lt;- inputs;
     (bi, bo) &lt;- b;
     (s00, s01, s10, s11) &lt;- s;
+    ma0 &lt;- s00;
+    ma1 &lt;- s01;
+    mx0 &lt;- s10;
+    mx1 &lt;- s11;
     if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
+        ma0 &lt;- s10;
+        ma1 &lt;- s11;
+        mx0 &lt;- s00;
+        mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key) sample-name kia;
-    kix &lt;-$ Bits(n_key) sample-name kix;
     koa &lt;-$ Bits(n_key) sample-name koa;
-    ri1 &lt;-$ Bits(n_enc) sample-name ri1;
-    ri2 &lt;-$ Bits(n_enc) sample-name ri2;
-    ri3 &lt;-$ Bits(n_enc) sample-name ri3;
-    ri4 &lt;-$ Bits(n_enc) sample-name ri4;
+    ria0 &lt;-$ Bits(n_enc) sample-name ria0;
+    ria1 &lt;-$ Bits(n_enc) sample-name ria1;
     ro1 &lt;-$ Bits(n_enc) sample-name ro1;
     ro2 &lt;-$ Bits(n_enc) sample-name ro2;
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPA.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        m0 &lt;- zeros_msg;
+        m1 &lt;- zeros_msg;
+        k &lt;-$ Bits(n_key) sample-name k;
+        r0 &lt;-$ Bits(n_enc) sample-name r0;
+        r1 &lt;-$ Bits(n_enc) sample-name r1;
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         k &lt;-$ Bits(n_key) sample-name k;
@@ -747,37 +522,44 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
     (s, b) &lt;- inputs;
     (bi, bo) &lt;- b;
     (s00, s01, s10, s11) &lt;- s;
+    ma0 &lt;- s00;
+    ma1 &lt;- s01;
+    mx0 &lt;- s10;
+    mx1 &lt;- s11;
     if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
+        ma0 &lt;- s10;
+        ma1 &lt;- s11;
+        mx0 &lt;- s00;
+        mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key);
-    kix &lt;-$ Bits(n_key);
     koa &lt;-$ Bits(n_key);
-    ri1 &lt;-$ Bits(n_enc);
-    ri2 &lt;-$ Bits(n_enc);
-    ri3 &lt;-$ Bits(n_enc);
-    ri4 &lt;-$ Bits(n_enc);
+    ria0 &lt;-$ Bits(n_enc);
+    ria1 &lt;-$ Bits(n_enc);
     ro1 &lt;-$ Bits(n_enc);
     ro2 &lt;-$ Bits(n_enc);
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPA.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        m0 &lt;- zeros_msg;
+        m1 &lt;- zeros_msg;
+        k &lt;-$ Bits(n_key);
+        r0 &lt;-$ Bits(n_enc);
+        r1 &lt;-$ Bits(n_enc);
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         k &lt;-$ Bits(n_key);
@@ -801,37 +583,44 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
     (s, b) &lt;- inputs;
     (bi, bo) &lt;- b;
     (s00, s01, s10, s11) &lt;- s;
+    ma0 &lt;- s00;
+    ma1 &lt;- s01;
+    mx0 &lt;- s10;
+    mx1 &lt;- s11;
     if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
+        ma0 &lt;- s10;
+        ma1 &lt;- s11;
+        mx0 &lt;- s00;
+        mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key) sample-name kia;
-    kix &lt;-$ Bits(n_key) sample-name kix;
     koa &lt;-$ Bits(n_key) sample-name koa;
-    ri1 &lt;-$ Bits(n_enc) sample-name ri1;
-    ri2 &lt;-$ Bits(n_enc) sample-name ri2;
-    ri3 &lt;-$ Bits(n_enc) sample-name ri3;
-    ri4 &lt;-$ Bits(n_enc) sample-name ri4;
+    ria0 &lt;-$ Bits(n_enc) sample-name ria0;
+    ria1 &lt;-$ Bits(n_enc) sample-name ria1;
     ro1 &lt;-$ Bits(n_enc) sample-name ro1;
     ro2 &lt;-$ Bits(n_enc) sample-name ro2;
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPA.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        m0 &lt;- zeros_msg;
+        m1 &lt;- zeros_msg;
+        k &lt;-$ Bits(n_key) sample-name k;
+        r0 &lt;-$ Bits(n_enc) sample-name r0;
+        r1 &lt;-$ Bits(n_enc) sample-name r1;
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         m0 &lt;- zeros_ctxt;
@@ -857,37 +646,44 @@ zeros_ctxt: Bits(n_ctxt) = zeros_ctxt"><title>package ReceiverSim1out4, instance
     (s, b) &lt;- inputs;
     (bi, bo) &lt;- b;
     (s00, s01, s10, s11) &lt;- s;
+    ma0 &lt;- s00;
+    ma1 &lt;- s01;
+    mx0 &lt;- s10;
+    mx1 &lt;- s11;
     if (bi) {
-        if (bo) {
-            saa &lt;- s11;
-            sax &lt;- s10;
-        } else {
-            saa &lt;- s10;
-            sax &lt;- s11;
-        }
-    } else {
-        if (bo) {
-            saa &lt;- s01;
-            sax &lt;- s00;
-        } else {
-            saa &lt;- s00;
-            sax &lt;- s01;
-        }
+        ma0 &lt;- s10;
+        ma1 &lt;- s11;
+        mx0 &lt;- s00;
+        mx1 &lt;- s01;
     }
     kia &lt;-$ Bits(n_key);
-    kix &lt;-$ Bits(n_key);
     koa &lt;-$ Bits(n_key);
-    ri1 &lt;-$ Bits(n_enc);
-    ri2 &lt;-$ Bits(n_enc);
-    ri3 &lt;-$ Bits(n_enc);
-    ri4 &lt;-$ Bits(n_enc);
+    ria0 &lt;-$ Bits(n_enc);
+    ria1 &lt;-$ Bits(n_enc);
     ro1 &lt;-$ Bits(n_enc);
     ro2 &lt;-$ Bits(n_enc);
-    caa &lt;- enc_inner(kia, saa, ri1);
-    cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-    cax &lt;- enc_inner(kia, sax, ri3);
-    cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-    // inlined CPA.Enc
+    // inlined EncInner: Enc of CPA_inner
+        m &lt;- (mx0, mx1);
+        (m0, m1) &lt;- m;
+        m0 &lt;- zeros_msg;
+        m1 &lt;- zeros_msg;
+        k &lt;-$ Bits(n_key);
+        r0 &lt;-$ Bits(n_enc);
+        r1 &lt;-$ Bits(n_enc);
+        (cx0, cx1) &lt;- (enc(k, m0, r0), enc(k, m1, r1));
+    ca0 &lt;- enc_inner(kia, ma0, ria0);
+    ca1 &lt;- enc_inner(kia, ma1, ria1);
+    caa &lt;- ca0;
+    cax &lt;- ca1;
+    cxa &lt;- cx0;
+    cxx &lt;- cx1;
+    if (bo) {
+        caa &lt;- ca1;
+        cax &lt;- ca0;
+        cxa &lt;- cx1;
+        cxx &lt;- cx0;
+    }
+    // inlined EncOuter: Enc of CPA_outer
         m &lt;- (cax, cxx);
         (m0, m1) &lt;- m;
         m0 &lt;- zeros_ctxt;
@@ -1174,29 +970,6 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
         return (enc(k, m0, r0), enc(k, m1, r1));
     }
 }
-</pre><pre class="pkgsrc" data-pkg="CPAReal">package CPAReal {
-    types {
-        Key,
-        Ptxt,
-        Ctxt,
-        EncRnd
-    }
-
-    params {
-        enc: fn Key, Ptxt, EncRnd -&gt; Ctxt
-    }
-
-    /* The real mode of CPA without the consts b and zeros. Domino declares one SMT
-    datatype for the consts of a package, whatever its type parameters, so an
-    equivalence cannot contain CPA with two different Ptxt types. */
-    oracle Enc(m: (Ptxt, Ptxt)) -&gt; (Ctxt, Ctxt) {
-        (m0, m1) &lt;- m;
-        k &lt;-$ Key sample-name k;
-        r0 &lt;-$ EncRnd sample-name r0;
-        r1 &lt;-$ EncRnd sample-name r1;
-        return (enc(k, m0, r0), enc(k, m1, r1));
-    }
-}
 </pre><pre class="pkgsrc" data-pkg="ReceiverFunc1out2">package ReceiverFunc1out2 {
     types {
         Key,
@@ -1255,7 +1028,7 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
         return view;
     }
 }
-</pre><pre class="pkgsrc" data-pkg="ReceiverReductionInner">package ReceiverReductionInner {
+</pre><pre class="pkgsrc" data-pkg="ReceiverReduction">package ReceiverReduction {
     types {
         Msg,
         Key,
@@ -1266,7 +1039,8 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
     }
 
     import oracles {
-        Enc(m: (Msg, Msg)) -&gt; (Ctxt, Ctxt),
+        EncInner(m: (Msg, Msg)) -&gt; (Ctxt, Ctxt),
+        EncOuter(m: (Ctxt, Ctxt)) -&gt; (Ctxt, Ctxt),
         GetSimView(b: Bool, output: Key) -&gt; (RecvRnd1out2, RecvIncMsg1out2),
     }
 
@@ -1284,7 +1058,7 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
         (s00, s01, s10, s11) &lt;- s;
 
         /* row bi is encrypted under the active inner key,
-        row not bi under the inactive inner key of the CPA game */
+        row not bi under the inactive inner key of the inner CPA game */
         ma0 &lt;- s00;
         ma1 &lt;- s01;
         mx0 &lt;- s10;
@@ -1298,120 +1072,33 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
 
         /* Encryption keys */
         kia &lt;-$ Key sample-name kia; /* k_inner_b_active */
-        ko0 &lt;-$ Key sample-name ko0; /* k_outer_0 */
-        ko1 &lt;-$ Key sample-name ko1; /* k_outer_1 */
+        koa &lt;-$ Key sample-name koa; /* k_outer_b_active */
 
         /* Encryption randomness */
         ria0 &lt;-$ EncRnd sample-name ria0;
         ria1 &lt;-$ EncRnd sample-name ria1;
         ro1 &lt;-$ EncRnd sample-name ro1;
         ro2 &lt;-$ EncRnd sample-name ro2;
-        ro3 &lt;-$ EncRnd sample-name ro3;
-        ro4 &lt;-$ EncRnd sample-name ro4;
 
         /* Inner encryptions */
-        (cx0, cx1) &lt;- invoke Enc((mx0, mx1));
+        (cx0, cx1) &lt;- invoke EncInner((mx0, mx1));
         ca0 &lt;- enc_inner(kia, ma0, ria0);
         ca1 &lt;- enc_inner(kia, ma1, ria1);
 
-        c00 &lt;- ca0;
-        c01 &lt;- ca1;
-        c10 &lt;- cx0;
-        c11 &lt;- cx1;
-        if bi {
-            c00 &lt;- cx0;
-            c01 &lt;- cx1;
-            c10 &lt;- ca0;
-            c11 &lt;- ca1;
-        }
-
-        /* Outer encryptions */
-        C &lt;- new Table((Bool, Bool), Ctxt);
-        C[(false, false)] &lt;- Some(enc_outer(ko0, c00, ro1));
-        C[(false, true)] &lt;- Some(enc_outer(ko1, c01, ro2));
-        C[(true, false)] &lt;- Some(enc_outer(ko0, c10, ro3));
-        C[(true, true)] &lt;- Some(enc_outer(ko1, c11, ro4));
-
-        koa &lt;- ko0;
+        /* the inner ciphertexts of row bi and not bi, in column bo and not bo */
+        caa &lt;- ca0;
+        cax &lt;- ca1;
+        cxa &lt;- cx0;
+        cxx &lt;- cx1;
         if bo {
-            koa &lt;- ko1;
+            caa &lt;- ca1;
+            cax &lt;- ca0;
+            cxa &lt;- cx1;
+            cxx &lt;- cx0;
         }
 
-        (rrecv0, msgs0) &lt;- invoke GetSimView(bi, kia);
-        (rrecv1, msgs1) &lt;- invoke GetSimView(bo, koa);
-
-        return ((rrecv0, rrecv1), (C, msgs0, msgs1));
-    }
-}
-</pre><pre class="pkgsrc" data-pkg="ReceiverReductionOuter">package ReceiverReductionOuter {
-    types {
-        Msg,
-        Key,
-        EncRnd,
-        Ctxt,
-        RecvIncMsg1out2,
-        RecvRnd1out2
-    }
-
-    import oracles {
-        Enc(m: (Ctxt, Ctxt)) -&gt; (Ctxt, Ctxt),
-        GetSimView(b: Bool, output: Key) -&gt; (RecvRnd1out2, RecvIncMsg1out2),
-    }
-
-    params {
-        enc_inner: fn Key, Msg, EncRnd -&gt; Ctxt,
-        enc_outer: fn Key, Ctxt, EncRnd -&gt; Ctxt,
-        zeros_msg: Msg
-    }
-
-    oracle GetView(inputs: ((Msg, Msg, Msg, Msg), (Bool, Bool)))
-        -&gt; ((RecvRnd1out2, RecvRnd1out2),
-        (Table((Bool, Bool), Ctxt), RecvIncMsg1out2, RecvIncMsg1out2))
-    {
-        (s, b) &lt;- inputs;
-        (bi, bo) &lt;- b; /* b_inner and b_outer */
-        (s00, s01, s10, s11) &lt;- s;
-
-        /* the messages in row bi, in column bo and not bo */
-        if bi {
-            if bo {
-                saa &lt;- s11;
-                sax &lt;- s10;
-            } else {
-                saa &lt;- s10;
-                sax &lt;- s11;
-            }
-        } else {
-            if bo {
-                saa &lt;- s01;
-                sax &lt;- s00;
-            } else {
-                saa &lt;- s00;
-                sax &lt;- s01;
-            }
-        }
-
-        /* Encryption keys */
-        kia &lt;-$ Key sample-name kia; /* k_inner_b_active */
-        kix &lt;-$ Key sample-name kix; /* k_inner_b_inactive */
-        koa &lt;-$ Key sample-name koa; /* k_outer_b_active */
-
-        /* Encryption randomness */
-        ri1 &lt;-$ EncRnd sample-name ri1;
-        ri2 &lt;-$ EncRnd sample-name ri2;
-        ri3 &lt;-$ EncRnd sample-name ri3;
-        ri4 &lt;-$ EncRnd sample-name ri4;
-        ro1 &lt;-$ EncRnd sample-name ro1;
-        ro2 &lt;-$ EncRnd sample-name ro2;
-
-        /* Inner encryptions */
-        caa &lt;- enc_inner(kia, saa, ri1);
-        cxa &lt;- enc_inner(kix, zeros_msg, ri2);
-        cax &lt;- enc_inner(kia, sax, ri3);
-        cxx &lt;- enc_inner(kix, zeros_msg, ri4);
-
-        /* Outer encryptions: column not bo under the inactive outer key of the CPA game */
-        (dax, dxx) &lt;- invoke Enc((cax, cxx));
+        /* Outer encryptions: column not bo under the inactive outer key of the outer CPA game */
+        (dax, dxx) &lt;- invoke EncOuter((cax, cxx));
 
         C &lt;- new Table((Bool, Bool), Ctxt);
         C[(bi, bo)] &lt;- Some(enc_outer(koa, caa, ro1));
@@ -1685,13 +1372,15 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
         RecvRnd1out2
     }
 
-    const b: Bool;
+    const b_inner: Bool;
+    const b_outer: Bool;
     const enc_inner: fn Key, Msg, EncRnd -&gt; Ctxt;
     const enc_outer: fn Key, Ctxt, EncRnd -&gt; Ctxt;
     const zeros_msg: Msg;
+    const zeros_ctxt: Ctxt;
     const sim1out2: fn Bool, Key, SimRnds -&gt; (RecvRnd1out2, RecvIncMsg1out2);
 
-    instance ReceiverReductionInner = ReceiverReductionInner {
+    instance ReceiverReduction = ReceiverReduction {
         types {
             Msg: Msg,
             Key: Key,
@@ -1706,7 +1395,7 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
         }
     }
 
-    instance CPA = CPA {
+    instance CPA_inner = CPA {
         types {
             Key: Key,
             Ptxt: Msg,
@@ -1714,68 +1403,13 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
             EncRnd: EncRnd,
         }
         params {
-            b: b,
+            b: b_inner,
             enc: enc_inner,
             zeros: zeros_msg,
         }
     }
 
-    instance ReceiverSim1out2 = ReceiverSim1out2 {
-        types {
-            ReceiverInput1out2: Bool,
-            Key: Key,
-            SimRnds: SimRnds,
-            RecvIncMsg1out2: RecvIncMsg1out2,
-            RecvRnd1out2: RecvRnd1out2,
-        }
-        params {
-            sim1out2: sim1out2,
-        }
-    }
-
-    compose {
-        adversary: {
-            GetView: ReceiverReductionInner,
-        },
-        ReceiverReductionInner: {
-            Enc: CPA,
-            GetSimView: ReceiverSim1out2,
-        },
-    }
-}
-</pre><pre class="gamesrc" data-comp="Receiver1out4Security_Hybrid2" data-file="Receiver1out4Security_Hybrid2.comp.ssp">composition Receiver1out4Security_Hybrid2 {
-    types {
-        Msg,
-        Key,
-        EncRnd,
-        Ctxt,
-        SimRnds,
-        RecvIncMsg1out2,
-        RecvRnd1out2
-    }
-
-    const enc_inner: fn Key, Msg, EncRnd -&gt; Ctxt;
-    const enc_outer: fn Key, Ctxt, EncRnd -&gt; Ctxt;
-    const zeros_msg: Msg;
-    const sim1out2: fn Bool, Key, SimRnds -&gt; (RecvRnd1out2, RecvIncMsg1out2);
-
-    instance ReceiverReductionOuter = ReceiverReductionOuter {
-        types {
-            Msg: Msg,
-            Key: Key,
-            EncRnd: EncRnd,
-            Ctxt: Ctxt,
-            RecvIncMsg1out2: RecvIncMsg1out2,
-            RecvRnd1out2: RecvRnd1out2,
-        }
-        params {
-            enc_inner: enc_inner,
-            enc_outer: enc_outer,
-            zeros_msg: zeros_msg,
-        }
-    }
-
-    instance CPAReal = CPAReal {
+    instance CPA_outer = CPA {
         types {
             Key: Key,
             Ptxt: Ctxt,
@@ -1783,76 +1417,7 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
             EncRnd: EncRnd,
         }
         params {
-            enc: enc_outer,
-        }
-    }
-
-    instance ReceiverSim1out2 = ReceiverSim1out2 {
-        types {
-            ReceiverInput1out2: Bool,
-            Key: Key,
-            SimRnds: SimRnds,
-            RecvIncMsg1out2: RecvIncMsg1out2,
-            RecvRnd1out2: RecvRnd1out2,
-        }
-        params {
-            sim1out2: sim1out2,
-        }
-    }
-
-    compose {
-        adversary: {
-            GetView: ReceiverReductionOuter,
-        },
-        ReceiverReductionOuter: {
-            Enc: CPAReal,
-            GetSimView: ReceiverSim1out2,
-        },
-    }
-}
-</pre><pre class="gamesrc" data-comp="Receiver1out4Security_Hybrid3" data-file="Receiver1out4Security_Hybrid3.comp.ssp">composition Receiver1out4Security_Hybrid3 {
-    types {
-        Msg,
-        Key,
-        EncRnd,
-        Ctxt,
-        SimRnds,
-        RecvIncMsg1out2,
-        RecvRnd1out2
-    }
-
-    const b: Bool;
-    const enc_inner: fn Key, Msg, EncRnd -&gt; Ctxt;
-    const enc_outer: fn Key, Ctxt, EncRnd -&gt; Ctxt;
-    const zeros_msg: Msg;
-    const zeros_ctxt: Ctxt;
-    const sim1out2: fn Bool, Key, SimRnds -&gt; (RecvRnd1out2, RecvIncMsg1out2);
-
-    instance ReceiverReductionOuter = ReceiverReductionOuter {
-        types {
-            Msg: Msg,
-            Key: Key,
-            EncRnd: EncRnd,
-            Ctxt: Ctxt,
-            RecvIncMsg1out2: RecvIncMsg1out2,
-            RecvRnd1out2: RecvRnd1out2,
-        }
-        params {
-            enc_inner: enc_inner,
-            enc_outer: enc_outer,
-            zeros_msg: zeros_msg,
-        }
-    }
-
-    instance CPA = CPA {
-        types {
-            Key: Key,
-            Ptxt: Ctxt,
-            Ctxt: Ctxt,
-            EncRnd: EncRnd,
-        }
-        params {
-            b: b,
+            b: b_outer,
             enc: enc_outer,
             zeros: zeros_ctxt,
         }
@@ -1873,10 +1438,11 @@ b = true (instance parameter b)</title><rect class="pkgbox" x="90.0" y="15.0" wi
 
     compose {
         adversary: {
-            GetView: ReceiverReductionOuter,
+            GetView: ReceiverReduction,
         },
-        ReceiverReductionOuter: {
-            Enc: CPA,
+        ReceiverReduction: {
+            EncInner: Enc of CPA_inner,
+            EncOuter: Enc of CPA_outer,
             GetSimView: ReceiverSim1out2,
         },
     }
