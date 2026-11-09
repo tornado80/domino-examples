@@ -1,0 +1,95 @@
+composition KX1 {
+    /*
+     * Game KX_I^b for Protocol I.
+     *
+     *   adversary --> Model1 --> Prot1 --> KEM
+     *
+     * b = false: Test returns the real session key.
+     * b = true : Test returns a random key.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Nonce,
+        Key,
+        KgenRand,
+        EncRand,
+    }
+
+    const b:          Bool;
+    const prf:        fn Shk, Nonce -> Key;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model1 = Model1 {
+        types {
+            Pk:    Pk,
+            Sk:    Sk,
+            Msg1:  Ctxt,
+            Msg2:  Nonce,
+            Key:   Key,
+            Other: Shk,
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot1 = Prot1 {
+        types {
+            Pk:    Pk,
+            Sk:    Sk,
+            Ctxt:  Ctxt,
+            Shk:   Shk,
+            Nonce: Nonce,
+            Key:   Key,
+        }
+        params {
+            prf: prf,
+        }
+    }
+
+    instance KEM = KEM {
+        types {
+            Pk:       Pk,
+            Sk:       Sk,
+            Ctxt:     Ctxt,
+            Shk:      Shk,
+            KgenRand: KgenRand,
+            EncRand:  EncRand,
+        }
+        params {
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model1,
+            Corrupt:    Model1,
+            NewSession: Model1,
+            Send1:      Model1,
+            Send2:      Model1,
+            Send3:      Model1,
+            Reveal:     Model1,
+            Test:       Model1,
+        },
+        Model1: {
+            Kgen: Prot1,
+            Run1: Prot1,
+            Run2: Prot1,
+            Run3: Prot1,
+        },
+        Prot1: {
+            KEM_Gen:    KEM,
+            KEM_Encaps: KEM,
+            KEM_Decaps: KEM,
+        },
+    }
+}

@@ -1,0 +1,181 @@
+package Model3 {
+    /*
+     * Security model KX_III (10-lecture-model-3.tex): key indistinguishability
+     * with forward secrecy for two-sided authenticated, public-key based
+     * 3-message protocols.
+     *
+     * The model is generic in the protocol: it only knows the message types,
+     * the session-key type and an opaque type for protocol-specific state.
+     *
+     * Session state:
+     *   (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted)
+     *
+     * role = false: initiator, role = true: responder.
+     * The secret key of the intended peer is None.
+     * accepted = None: running, Some(true): accepted, Some(false): rejected.
+     *
+     * The lecture's initial state lists one bottom too few for three
+     * messages. Here msg3 has its own slot, as the syntax definition requires.
+     *
+     * Compared to Model 2, Fresh depends on the peer's public key and Test is
+     * available for both roles. Partnering still uses (msg1, msg2) only, see
+     * the appendix of the lecture notes.
+     */
+
+    params {
+        b: Bool,
+    }
+
+    types {
+        Pk,
+        Sk,
+        Msg1,
+        Msg2,
+        Msg3,
+        Key,
+        Other,
+    }
+
+    state {
+        ctr_:  Integer,
+        SK:    Table(Pk, Sk),
+        C:     Table(Pk, ()),
+        Fresh: Table(Integer, ()),
+        TR:    Table((Msg1, Msg2), ()),
+        State: Table(Integer, (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+    }
+
+    import oracles {
+        Kgen() -> (Pk, Sk),
+        Run1(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)))
+            -> (Msg1, (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run2(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m1: Msg1)
+            -> (Msg2, (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run3(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m2: Msg2)
+            -> (Maybe(Msg3), (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run4(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m3: Msg3)
+            -> (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Pk {
+        (pk, sk) <- parse invoke Kgen();
+        SK[pk] <- Some(sk);
+        return pk;
+    }
+
+    oracle Corrupt(pk: Pk) -> Sk {
+        C[pk] <- Some(());
+        return Unwrap(SK[pk]);
+    }
+
+    oracle NewSession(pk_I: Pk, pk_R: Pk, role: Bool) -> Integer {
+        sk_I <- SK[pk_I];
+        assert not (sk_I == None);
+        sk_R <- SK[pk_R];
+        assert not (sk_R == None);
+        ctr_ <- (ctr_ + 1);
+        if (role == false) {
+            sk_R <- None as Sk;
+        }
+        if (role == true) {
+            sk_I <- None as Sk;
+        }
+        State[ctr_] <- Some((role, pk_I, sk_I, pk_R, sk_R, None as Msg1, None as Msg2, None as Msg3, None as Key, None as Other, None as Bool));
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> Msg1 {
+        st <- Unwrap(State[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (role == false) {
+            pk_peer <- pk_R;
+        } else {
+            pk_peer <- pk_I;
+        }
+        if (accepted == Some(true)) {
+            if (C[pk_peer] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: Msg1) -> Msg2 {
+        st <- Unwrap(State[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (role == false) {
+            pk_peer <- pk_R;
+        } else {
+            pk_peer <- pk_I;
+        }
+        if (accepted == Some(true)) {
+            if (C[pk_peer] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m2;
+    }
+
+    /* Returns None when the initiator rejects: no third message is produced. */
+    oracle Send3(ctr: Integer, m2: Msg2) -> Maybe(Msg3) {
+        st <- Unwrap(State[ctr]);
+        (m3, st_) <- parse invoke Run3(st, m2);
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (role == false) {
+            pk_peer <- pk_R;
+        } else {
+            pk_peer <- pk_I;
+        }
+        if (accepted == Some(true)) {
+            if (C[pk_peer] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m3;
+    }
+
+    oracle Send4(ctr: Integer, m3: Msg3) {
+        st <- Unwrap(State[ctr]);
+        st_ <- invoke Run4(st, m3);
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (role == false) {
+            pk_peer <- pk_R;
+        } else {
+            pk_peer <- pk_I;
+        }
+        if (accepted == Some(true)) {
+            if (C[pk_peer] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Key {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        return Unwrap(k);
+    }
+
+    oracle Test(ctr: Integer) -> Key {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (Fresh[ctr] == Some(()));      /* restriction TC^fs */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+
+        if b {
+            k_ <-$ Key sample-name test;
+        } else {
+            k_ <- Unwrap(k);
+        }
+        return k_;
+    }
+}

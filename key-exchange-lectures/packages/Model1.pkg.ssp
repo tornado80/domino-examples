@@ -1,0 +1,121 @@
+package Model1 {
+    /*
+     * Security model KX_I (lecture notes, Section "Security model I in
+     * pseudocode"): key indistinguishability without forward secrecy for
+     * one-sided authenticated, public-key based 2-message protocols.
+     *
+     * The model is generic in the protocol: it only knows the message types,
+     * the session-key type and an opaque type for protocol-specific state.
+     *
+     * Session state:
+     *   (role, pk, sk, msg1, msg2, k, other, accepted)
+     *
+     * role = false: initiator, role = true: responder.
+     * sk is None for initiators.
+     * accepted = None: running, Some(true): accepted, Some(false): rejected.
+     *
+     * Restrictions:
+     *   TR1, TR2  via table TR, indexed by (msg1, msg2), the partnering data.
+     *   TC        Test asserts C[pk] is unset, Corrupt asserts T[pk] is unset.
+     */
+
+    params {
+        b: Bool,
+    }
+
+    types {
+        Pk,
+        Sk,
+        Msg1,
+        Msg2,
+        Key,
+        Other,
+    }
+
+    state {
+        ctr_:  Integer,
+        SK:    Table(Pk, Sk),
+        C:     Table(Pk, ()),
+        T:     Table(Pk, ()),
+        TR:    Table((Msg1, Msg2), ()),
+        State: Table(Integer, (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool))),
+    }
+
+    import oracles {
+        Kgen() -> (Pk, Sk),
+        Run1(st: (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool)))
+            -> (Msg1, (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run2(st: (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool)), m1: Msg1)
+            -> (Msg2, (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run3(st: (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool)), m2: Msg2)
+            -> (Bool, Pk, Maybe(Sk), Maybe(Msg1), Maybe(Msg2), Maybe(Key), Maybe(Other), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Pk {
+        (pk, sk) <- parse invoke Kgen();
+        SK[pk] <- Some(sk);
+        return pk;
+    }
+
+    oracle Corrupt(pk: Pk) -> Sk {
+        assert (T[pk] == None);     /* restriction TC */
+        C[pk] <- Some(());
+        return Unwrap(SK[pk]);
+    }
+
+    oracle NewSession(pk: Pk, role: Bool) -> Integer {
+        sk <- SK[pk];
+        assert not (sk == None);
+        ctr_ <- (ctr_ + 1);
+        if (role == false) {
+            sk <- None as Sk;
+        }
+        State[ctr_] <- Some((role, pk, sk, None as Msg1, None as Msg2, None as Key, None as Other, None as Bool));
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> Msg1 {
+        st <- Unwrap(State[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        State[ctr] <- Some(st_);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: Msg1) -> Msg2 {
+        st <- Unwrap(State[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        State[ctr] <- Some(st_);
+        return m2;
+    }
+
+    oracle Send3(ctr: Integer, m2: Msg2) {
+        st <- Unwrap(State[ctr]);
+        st_ <- invoke Run3(st, m2);
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Key {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        return Unwrap(k);
+    }
+
+    oracle Test(ctr: Integer) -> Key {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (role == false);                 /* only initiators get guarantees */
+        assert (C[pk] == None);                 /* restriction TC */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        T[pk] <- Some(());
+
+        if b {
+            k_ <-$ Key sample-name test;
+        } else {
+            k_ <- Unwrap(k);
+        }
+        return k_;
+    }
+}

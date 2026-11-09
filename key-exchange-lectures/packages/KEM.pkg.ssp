@@ -1,0 +1,43 @@
+package KEM {
+    /*
+     * KEM scheme package.
+     *
+     * Wraps the (deterministic) algorithms of a KEM and samples their
+     * randomness, so that callers (the Prot package) stay randomness-free.
+     *
+     *   (pk, sk)  <- kem_kgen(r)        r <-$ KgenRand
+     *   (c, shk)  <- kem_encaps(r, pk)  r <-$ EncRand
+     *   shk       <- kem_decaps(sk, c)
+     */
+
+    types {
+        Pk,         /* KEM public key               */
+        Sk,         /* KEM secret key               */
+        Ctxt,       /* KEM ciphertext               */
+        Shk,        /* encapsulated shared key      */
+        KgenRand,   /* randomness of key generation */
+        EncRand,    /* randomness of encapsulation  */
+    }
+
+    params {
+        kem_kgen:   fn KgenRand -> (Pk, Sk),
+        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
+        kem_decaps: fn Sk, Ctxt -> Shk,
+    }
+
+    oracle KEM_Gen() -> (Pk, Sk) {
+        r <-$ KgenRand sample-name kem_kgen;
+        (pk, sk) <- parse kem_kgen(r);
+        return (pk, sk);
+    }
+
+    oracle KEM_Encaps(pk: Pk) -> (Ctxt, Shk) {
+        r <-$ EncRand sample-name kem_encaps;
+        (c, shk) <- parse kem_encaps(r, pk);
+        return (c, shk);
+    }
+
+    oracle KEM_Decaps(sk: Sk, c: Ctxt) -> Shk {
+        return kem_decaps(sk, c);
+    }
+}

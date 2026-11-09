@@ -1,0 +1,96 @@
+composition KX3 {
+    /*
+     * Game KX_III^b for Protocol III.
+     *
+     *   adversary --> Model3 --> Prot3 --> KEM
+     *
+     * b = false: Test returns the real session key.
+     * b = true : Test returns a random key.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b:          Bool;
+    const mac:        fn Shk, (Pk, Ctxt, Ctxt, Ctxt, Maybe(Tag)) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model3 = Model3 {
+        types {
+            Pk:    Pk,
+            Sk:    Sk,
+            Msg1:  (Pk, Ctxt),
+            Msg2:  (Ctxt, Ctxt, Tag),
+            Msg3:  Tag,
+            Key:   Shk,
+            Other: (Maybe(Sk), Shk, Maybe(Shk)),
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot3 = Prot3 {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Shk:  Shk,
+            Tag:  Tag,
+        }
+        params {
+            mac: mac,
+        }
+    }
+
+    instance KEM = KEM {
+        types {
+            Pk:       Pk,
+            Sk:       Sk,
+            Ctxt:     Ctxt,
+            Shk:      Shk,
+            KgenRand: KgenRand,
+            EncRand:  EncRand,
+        }
+        params {
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model3,
+            Corrupt:    Model3,
+            NewSession: Model3,
+            Send1:      Model3,
+            Send2:      Model3,
+            Send3:      Model3,
+            Send4:      Model3,
+            Reveal:     Model3,
+            Test:       Model3,
+        },
+        Model3: {
+            Kgen: Prot3,
+            Run1: Prot3,
+            Run2: Prot3,
+            Run3: Prot3,
+            Run4: Prot3,
+        },
+        Prot3: {
+            KEM_Gen:    KEM,
+            KEM_Encaps: KEM,
+            KEM_Decaps: KEM,
+        },
+    }
+}

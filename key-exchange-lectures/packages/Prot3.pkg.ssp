@@ -1,0 +1,139 @@
+package Prot3 {
+    /*
+     * Key exchange protocol III (10-lecture.tex, Fig. protocolIII):
+     * two-sided public-key authentication with forward secrecy.
+     *
+     *   Initiator (pk_I, sk_I, pk_R)                 Responder (pk_I, pk_R, sk_R)
+     *   (pk_fs, sk_fs) <-$ kgen
+     *   (c_R, shk_R) <-$ encaps(pk_R)  -- pk_fs,c_R -> shk_R <- decaps(sk_R, c_R)
+     *                                                 (c_fs, shk_fs) <-$ encaps(pk_fs)
+     *                                                 (c_I, shk_I) <-$ encaps(pk_I)
+     *   verify(shk_R, tr, t_R)    <- c_fs,c_I,t_R --  t_R <- mac(shk_R, tr)
+     *   shk_I <- decaps(sk_I, c_I)
+     *   t_I <- mac(shk_I, (tr, t_R))     -- t_I ->    verify(shk_I, (tr, t_R), t_I)
+     *   shk_fs <- decaps(sk_fs, c_fs)
+     *   k <- shk_fs; delete sk_fs                     k <- shk_fs
+     *
+     * where tr = (pk_fs, c_R, c_fs, c_I). There is a single MAC whose message
+     * ends in a Maybe(Tag): None for t_R and Some(t_R) for t_I.
+     *
+     * MAC verification is canonical: verify(k, m, t) is mac(k, m) == t.
+     *
+     * Session state (see Model3.pkg.ssp), with Msg1 = (Pk, Ctxt),
+     * Msg2 = (Ctxt, Ctxt, Tag), Msg3 = Tag, Key = Shk and
+     * Other = (Maybe(Sk), Shk, Maybe(Shk)):
+     *   (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted)
+     *
+     * other is (sk_fs, shk_R, None) for the initiator and
+     * (None, shk_I, shk_fs) for the responder. sk_fs is set to None when the
+     * initiator finishes, modelling the deletion of the ephemeral key.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+    }
+
+    params {
+        mac: fn Shk, (Pk, Ctxt, Ctxt, Ctxt, Maybe(Tag)) -> Tag,
+    }
+
+    import oracles {
+        KEM_Gen() -> (Pk, Sk),
+        KEM_Encaps(pk: Pk) -> (Ctxt, Shk),
+        KEM_Decaps(sk: Sk, c: Ctxt) -> Shk,
+    }
+
+    /* Long-term key generation, part of the protocol syntax. */
+    oracle Kgen() -> (Pk, Sk) {
+        (pk, sk) <- parse invoke KEM_Gen();
+        return (pk, sk);
+    }
+
+    /* Initiator: ephemeral key pair and encapsulation to the responder. */
+    oracle Run1(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)))
+        -> ((Pk, Ctxt), (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)))
+    {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, sk_fs) <- parse invoke KEM_Gen();
+        (c_R, shk_R) <- parse invoke KEM_Encaps(pk_R);
+        m1 <- (pk_fs, c_R);
+
+        return (m1, (role, pk_I, sk_I, pk_R, sk_R, Some(m1), msg2, msg3, k,
+                     Some((Some(sk_fs), shk_R, None as Shk)), accepted));
+    }
+
+    /* Responder: decapsulate, encapsulate to pk_fs and pk_I, authenticate. */
+    oracle Run2(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)), m1: (Pk, Ctxt))
+        -> ((Ctxt, Ctxt, Tag), (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)))
+    {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, c_R) <- parse m1;
+        shk_R <- invoke KEM_Decaps(Unwrap(sk_R), c_R);
+        (c_fs, shk_fs) <- parse invoke KEM_Encaps(pk_fs);
+        (c_I, shk_I) <- parse invoke KEM_Encaps(pk_I);
+        t_R <- mac(shk_R, (pk_fs, c_R, c_fs, c_I, None as Tag));
+        m2 <- (c_fs, c_I, t_R);
+
+        return (m2, (role, pk_I, sk_I, pk_R, sk_R, Some(m1), Some(m2), msg3, k,
+                     Some((None as Sk, shk_I, Some(shk_fs))), accepted));
+    }
+
+    /* Initiator: verify t_R, compute t_I, delete sk_fs and accept. */
+    oracle Run3(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)), m2: (Ctxt, Ctxt, Tag))
+        -> (Maybe(Tag), (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)))
+    {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        (pk_fs, c_R) <- parse Unwrap(msg1);
+        (sk_fs, shk_R, unused) <- parse Unwrap(other);
+        (c_fs, c_I, t_R) <- parse m2;
+
+        if (mac(shk_R, (pk_fs, c_R, c_fs, c_I, None as Tag)) == t_R) {
+            shk_I <- invoke KEM_Decaps(Unwrap(sk_I), c_I);
+            t_I <- mac(shk_I, (pk_fs, c_R, c_fs, c_I, Some(t_R)));
+            shk_fs <- invoke KEM_Decaps(Unwrap(sk_fs), c_fs);
+            return (Some(t_I), (role, pk_I, sk_I, pk_R, sk_R, msg1, Some(m2), Some(t_I), Some(shk_fs),
+                                Some((None as Sk, shk_R, unused)), Some(true)));
+        }
+
+        return (None as Tag, (role, pk_I, sk_I, pk_R, sk_R, msg1, Some(m2), msg3, k,
+                              Some((None as Sk, shk_R, unused)), Some(false)));
+    }
+
+    /* Responder: verify t_I and accept. */
+    oracle Run4(st: (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool)), t_I: Tag)
+        -> (Bool, Pk, Maybe(Sk), Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Ctxt, Tag)), Maybe(Tag), Maybe(Shk), Maybe((Maybe(Sk), Shk, Maybe(Shk))), Maybe(Bool))
+    {
+        (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert not (msg2 == None);
+        assert (msg3 == None);
+
+        (pk_fs, c_R) <- parse Unwrap(msg1);
+        (c_fs, c_I, t_R) <- parse Unwrap(msg2);
+        (sk_fs, shk_I, shk_fs) <- parse Unwrap(other);
+
+        if (mac(shk_I, (pk_fs, c_R, c_fs, c_I, Some(t_R))) == t_I) {
+            return (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, Some(t_I), shk_fs, other, Some(true));
+        }
+
+        return (role, pk_I, sk_I, pk_R, sk_R, msg1, msg2, Some(t_I), k, other, Some(false));
+    }
+}

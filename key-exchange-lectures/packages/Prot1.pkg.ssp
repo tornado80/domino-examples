@@ -1,0 +1,90 @@
+package Prot1 {
+    /*
+     * Key exchange protocol I (10-lecture.tex, Fig. protocolI):
+     * one-sided authentication, no forward secrecy.
+     *
+     *   Initiator (pk)                         Responder (pk, sk)
+     *   (c, shk) <-$ encaps(pk)    --- c --->  shk <- decaps(sk, c)
+     *   k <- prf(shk, nc)          <-- nc ---  nc <-$ Nonce
+     *                                          k <- prf(shk, nc)
+     *   accept k                               accept k
+     *
+     * Session state (see Model1.pkg.ssp), with Msg1 = Ctxt, Msg2 = Nonce and
+     * Other = Shk:
+     *   (role, pk, sk, msg1, msg2, k, other, accepted)
+     *
+     * role = false: initiator, role = true: responder.
+     * accepted = None: running, Some(true): accepted, Some(false): rejected.
+     * other holds the initiator's shk between Run1 and Run3.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Nonce,
+        Key,
+    }
+
+    params {
+        prf: fn Shk, Nonce -> Key,
+    }
+
+    import oracles {
+        KEM_Gen() -> (Pk, Sk),
+        KEM_Encaps(pk: Pk) -> (Ctxt, Shk),
+        KEM_Decaps(sk: Sk, c: Ctxt) -> Shk,
+    }
+
+    /* Long-term key generation, part of the protocol syntax. */
+    oracle Kgen() -> (Pk, Sk) {
+        (pk, sk) <- parse invoke KEM_Gen();
+        return (pk, sk);
+    }
+
+    /* Initiator: encapsulate to the responder's public key. */
+    oracle Run1(st: (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool)))
+        -> (Ctxt, (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool)))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (c, shk) <- parse invoke KEM_Encaps(pk);
+
+        return (c, (role, pk, sk, Some(c), msg2, k, Some(shk), accepted));
+    }
+
+    /* Responder: decapsulate, pick the nonce, derive the key and accept. */
+    oracle Run2(st: (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool)), c: Ctxt)
+        -> (Nonce, (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool)))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        shk <- invoke KEM_Decaps(Unwrap(sk), c);
+        nc <-$ Nonce sample-name nc;
+        k_ <- prf(shk, nc);
+
+        return (nc, (role, pk, sk, Some(c), Some(nc), Some(k_), other, Some(true)));
+    }
+
+    /* Initiator: derive the key from the received nonce and accept. */
+    oracle Run3(st: (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool)), nc: Nonce)
+        -> (Bool, Pk, Maybe(Sk), Maybe(Ctxt), Maybe(Nonce), Maybe(Key), Maybe(Shk), Maybe(Bool))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        k_ <- prf(Unwrap(other), nc);
+
+        return (role, pk, sk, msg1, Some(nc), Some(k_), other, Some(true));
+    }
+}

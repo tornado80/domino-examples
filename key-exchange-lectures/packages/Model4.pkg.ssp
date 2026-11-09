@@ -1,0 +1,156 @@
+package Model4 {
+    /*
+     * Security model KX_IV (10-lecture.tex, "Security model IV in
+     * pseudocode"): key indistinguishability with forward secrecy for
+     * symmetric-key based 3-message protocols.
+     *
+     * The model is generic in the protocol: it only knows the pre-shared-key
+     * type, the message types, the session-key type and an opaque type for
+     * protocol-specific state.
+     *
+     * Session state:
+     *   (role, psk, msg1, msg2, msg3, k, other, accepted)
+     *
+     * role = false: initiator, role = true: responder.
+     * accepted = None: running, Some(true): accepted, Some(false): rejected.
+     *
+     * Symmetric keys have no natural handle, so they are identified by the
+     * administrative counter kid. KID[ctr] records the kid of session ctr.
+     * Reveal and Test are unchanged from Model 3.
+     */
+
+    params {
+        b: Bool,
+    }
+
+    types {
+        Psk,
+        Msg1,
+        Msg2,
+        Msg3,
+        Key,
+        Other,
+    }
+
+    state {
+        ctr_:  Integer,
+        kid_:  Integer,
+        PSK:   Table(Integer, Psk),
+        C:     Table(Integer, ()),
+        KID:   Table(Integer, Integer),
+        Fresh: Table(Integer, ()),
+        TR:    Table((Msg1, Msg2), ()),
+        State: Table(Integer, (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+    }
+
+    import oracles {
+        Run1(st: (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)))
+            -> (Msg1, (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run2(st: (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m1: Msg1)
+            -> (Msg2, (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run3(st: (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m2: Msg2)
+            -> (Maybe(Msg3), (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool))),
+        Run4(st: (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)), m3: Msg3)
+            -> (Bool, Psk, Maybe(Msg1), Maybe(Msg2), Maybe(Msg3), Maybe(Key), Maybe(Other), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Integer {
+        kid_ <- (kid_ + 1);
+        psk <-$ Psk sample-name psk;
+        PSK[kid_] <- Some(psk);
+        return kid_;
+    }
+
+    oracle Corrupt(kid: Integer) -> Psk {
+        C[kid] <- Some(());
+        return Unwrap(PSK[kid]);
+    }
+
+    oracle NewSession(kid: Integer, role: Bool) -> Integer {
+        psk <- PSK[kid];
+        assert not (psk == None);
+        ctr_ <- (ctr_ + 1);
+        State[ctr_] <- Some((role, Unwrap(psk), None as Msg1, None as Msg2, None as Msg3, None as Key, None as Other, None as Bool));
+        KID[ctr_] <- Some(kid);
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> Msg1 {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: Msg1) -> Msg2 {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m2;
+    }
+
+    /* Returns None when the initiator rejects: no third message is produced. */
+    oracle Send3(ctr: Integer, m2: Msg2) -> Maybe(Msg3) {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m3, st_) <- parse invoke Run3(st, m2);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m3;
+    }
+
+    oracle Send4(ctr: Integer, m3: Msg3) {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        st_ <- invoke Run4(st, m3);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Key {
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        return Unwrap(k);
+    }
+
+    oracle Test(ctr: Integer) -> Key {
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (Fresh[ctr] == Some(()));      /* restriction TC^fs */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+
+        if b {
+            k_ <-$ Key sample-name test;
+        } else {
+            k_ <- Unwrap(k);
+        }
+        return k_;
+    }
+}

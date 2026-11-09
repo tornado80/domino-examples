@@ -1,0 +1,72 @@
+theorem Model1Security {
+    /*
+     * Key indistinguishability of Protocol I in model KX_I
+     * (no forward secrecy, one-sided authentication).
+     *
+     * Packages and games are generic in all types. The theorem instantiates
+     * them with bitstrings, because abstract theorem-level types are not in
+     * scope for the theorem's const declarations on this Domino branch.
+     */
+
+    const lpk:    Integer;
+    const lsk:    Integer;
+    const lct:    Integer;
+    const lshk:   Integer;
+    const lnonce: Integer;
+    const lkey:   Integer;
+    const lkgr:   Integer;
+    const lencr:  Integer;
+
+    const prf:        fn Bits(lshk), Bits(lnonce) -> Bits(lkey);
+    const kem_kgen:   fn Bits(lkgr) -> (Bits(lpk), Bits(lsk));
+    const kem_encaps: fn Bits(lencr), Bits(lpk) -> (Bits(lct), Bits(lshk));
+    const kem_decaps: fn Bits(lsk), Bits(lct) -> Bits(lshk);
+
+    instance KX1_0 = KX1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b:          false,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KX1_1 = KX1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b:          true,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    gamehops {
+        conjecture KX1_0 KX1_1
+    }
+
+    propositions {
+        KX1Secure: KX1_0 ~ KX1_1
+    }
+}
