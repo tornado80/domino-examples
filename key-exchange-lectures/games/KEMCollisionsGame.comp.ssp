@@ -33,7 +33,6 @@ composition KEMCollisionsGame {
     compose {
         adversary: {
             Coll_Gen: KEMCollisions,
-            Coll_Mark: KEMCollisions,
             Coll_Encaps: KEMCollisions,
         },
     }

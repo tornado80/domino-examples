@@ -18,34 +18,37 @@ package KEMReductionIndCca {
     }
 
     state {
-        h_ctr: Integer,
-        Hon:   Table(Pk, Integer),
-        Seen:  Table(Pk, ()),
-        HC:    Table((Pk, Ctxt), ()),
-        Key:   Table(Integer, Shk),
-        Valid: Table(Integer, ()),
+        hk_ctr: Integer,
+        h_ctr:  Integer,
+        PK:     Table(Integer, Pk),
+        Hon:    Table(Pk, ()),
+        Seen:   Table(Pk, ()),
+        HC:     Table((Pk, Ctxt), ()),
+        Key:    Table(Integer, Shk),
+        Valid:  Table(Integer, ()),
     }
 
     import oracles {
-        Ind_Gen() -> (Integer, Pk),
-        Ind_Encaps(hk: Integer) -> (Ctxt, Shk),
-        Ind_Decaps(hk: Integer, c: Ctxt) -> Shk,
+        Ind_Gen() -> Pk,
+        Ind_Encaps(pk: Pk) -> (Ctxt, Shk),
+        Ind_Decaps(pk: Pk, c: Ctxt) -> Shk,
     }
 
     oracle KEM_Gen() -> (Pk, Integer) {
-        (hk, pk) <- parse invoke Ind_Gen();
+        pk <- invoke Ind_Gen();
         assert (Hon[pk] == None);
         assert (Seen[pk] == None);
-        Hon[pk] <- Some(hk);
-        return (pk, hk);
+        hk_ctr <- (hk_ctr + 1);
+        PK[hk_ctr] <- Some(pk);
+        Hon[pk] <- Some(());
+        return (pk, hk_ctr);
     }
 
     oracle KEM_Encaps(pk: Pk) -> (Ctxt, Integer) {
         h_ctr <- (h_ctr + 1);
         Valid[h_ctr] <- Some(());
-        e <- Hon[pk];
-        if not (e == None) {
-            (c, shk) <- parse invoke Ind_Encaps(Unwrap(e));
+        if not (Hon[pk] == None) {
+            (c, shk) <- parse invoke Ind_Encaps(pk);
             assert (HC[(pk, c)] == None);
             HC[(pk, c)] <- Some(());
         } else {
@@ -58,9 +61,10 @@ package KEMReductionIndCca {
     }
 
     oracle KEM_Decaps(hk: Integer, c: Ctxt) -> Integer {
+        pk <- Unwrap(PK[hk]);
         h_ctr <- (h_ctr + 1);
         Valid[h_ctr] <- Some(());
-        shk <- invoke Ind_Decaps(hk, c);
+        shk <- invoke Ind_Decaps(pk, c);
         Key[h_ctr] <- Some(shk);
         return h_ctr;
     }

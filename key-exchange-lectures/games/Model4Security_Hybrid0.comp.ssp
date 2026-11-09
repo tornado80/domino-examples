@@ -64,10 +64,8 @@ composition Model4Security_Hybrid0 {
             Sk: Sk,
             Ctxt: Ctxt,
             Shk: Shk,
-            EncRand: EncRand,
         }
         params {
-            kem_encaps: kem_encaps,
             kem_decaps: kem_decaps,
         }
     }
@@ -118,7 +116,6 @@ composition Model4Security_Hybrid0 {
         },
         KEMReductionCollisions: {
             Coll_Gen: KEMCollisions,
-            Coll_Mark: KEMCollisions,
             Coll_Encaps: KEMCollisions,
         },
     }

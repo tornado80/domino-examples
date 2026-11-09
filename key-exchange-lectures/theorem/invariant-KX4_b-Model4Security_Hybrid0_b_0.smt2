@@ -33,12 +33,6 @@
          (or (and (= sample-id-left (sample-id "KEM" "KEM_Gen" "kem_kgen"))
                   (= sample-id-right (sample-id "KEMCollisions" "Coll_Gen" "kem_kgen"))))))
 
-;; Send2 has one encapsulation sample on the left and two on the right, one
-;; per branch of KEMReductionCollisions.KEM_Encaps. The branch taken depends on
-;; whether the public key is honest, so the mapping reads the old state.
-(define-state-relation send2-pk-honest (l r)
-    ((_ is mk-some) (select r.KEMReductionCollisions.Hon <arg-Model4Security_Hybrid0-Send2-m1>)))
-
 (define-fun randomness-mapping-Send2
     ((sample-id-left SampleId) (sample-id-right SampleId)
      (sample-ctr-left Int) (sample-ctr-right Int))
@@ -46,9 +40,7 @@
     (and (= sample-ctr-left 0)
          (= sample-ctr-right 0)
          (= sample-id-left (sample-id "KEM" "KEM_Encaps" "kem_encaps"))
-         (ite (send2-pk-honest <<game-state-KX4_b-old>> <<game-state-Model4Security_Hybrid0_b_0-old>>)
-              (= sample-id-right (sample-id "KEMCollisions" "Coll_Encaps" "kem_encaps"))
-              (= sample-id-right (sample-id "KEMReductionCollisions" "KEM_Encaps" "kem_encaps")))))
+         (= sample-id-right (sample-id "KEMCollisions" "Coll_Encaps" "kem_encaps"))))
 
 (define-fun randomness-mapping-Send3
     ((sample-id-left SampleId) (sample-id-right SampleId)
@@ -116,11 +108,6 @@
              (=> ((_ is mk-some) (select r.KEMReductionCollisions.SK hk))
                  ((_ is mk-some) (select r.KEMReductionCollisions.PK hk))))))
 
-;; KEMCollisions gives Coll_Encaps an honest public key exactly when the
-;; reduction thinks it is honest.
-(define-state-relation hon-tables-equal (l r)
-    (= r.KEMCollisions.Hon r.KEMReductionCollisions.Hon))
-
 ;; Sessions, field by field.
 (define-state-relation sessions-related (l r)
     (forall ((ctr Int))
@@ -171,5 +158,4 @@
          (kid-bound l r)
          (handle-bound l r)
          (keypair-bound l r)
-         (hon-tables-equal l r)
          (sessions-related l r)))

@@ -86,33 +86,33 @@
          (= l.MACMultiKey r.MACMultiKey)))
 
 (define-state-relation kem-tables-equal (l r)
-    (and (= l.KEMIndCca.ctr r.KEMReductionLazy.hk_ctr)
+    (and (= l.KEMReductionIndCca.hk_ctr r.KEMReductionLazy.hk_ctr)
          (= l.KEMReductionIndCca.h_ctr r.KEMReductionLazy.h_ctr)
-         (= l.KEMIndCca.PK r.KEMReductionLazy.PK)
-         (= l.KEMIndCca.SK r.KEMReductionLazy.SK)
-         (= l.KEMReductionIndCca.Valid r.KEMReductionLazy.Valid)
-         (= l.KEMReductionIndCca.Seen r.KEMReductionLazy.Seen)))
+         (= l.KEMReductionIndCca.PK r.KEMReductionLazy.PK)
+         (= l.KEMReductionIndCca.Hon r.KEMReductionLazy.Hon)
+         (= l.KEMReductionIndCca.Seen r.KEMReductionLazy.Seen)
+         (= l.KEMReductionIndCca.Valid r.KEMReductionLazy.Valid)))
 
-;; PK and SK have the same domain, nothing is stored beyond the counter.
+;; Left SK is indexed by public key and right SK by handle. They agree because
+;; every allocated handle holds an honest public key, and the Gen aborts stop
+;; an honest public key from being generated again.
 (define-state-relation keypair-shape (l r)
     (forall ((hk Int))
-        (and (= ((_ is mk-none) (select l.KEMIndCca.PK hk))
-                ((_ is mk-none) (select l.KEMIndCca.SK hk)))
-             (=> (> hk l.KEMIndCca.ctr)
-                 ((_ is mk-none) (select l.KEMIndCca.PK hk))))))
-
-;; Honest public keys. The Gen aborts make the public key unique per handle.
-(define-state-relation hon-agree (l r)
-    (and (forall ((pk Bits_lpk))
-             (let ((e (select l.KEMReductionIndCca.Hon pk)))
-                 (and (= ((_ is mk-some) e)
-                         ((_ is mk-some) (select r.KEMReductionLazy.Hon pk)))
-                      (=> ((_ is mk-some) e)
-                          (= (select l.KEMIndCca.PK (maybe-get e)) (mk-some pk))))))
-         (forall ((hk Int))
-             (let ((p (select l.KEMIndCca.PK hk)))
+        (let ((p (select r.KEMReductionLazy.PK hk)))
+            (and (= ((_ is mk-none) p)
+                    ((_ is mk-none) (select r.KEMReductionLazy.SK hk)))
+                 (=> (> hk r.KEMReductionLazy.hk_ctr)
+                     ((_ is mk-none) p))
                  (=> ((_ is mk-some) p)
-                     (= (select l.KEMReductionIndCca.Hon (maybe-get p)) (mk-some hk)))))))
+                     (and ((_ is mk-some) (select r.KEMReductionLazy.Hon (maybe-get p)))
+                          (= (select l.KEMIndCca.SK (maybe-get p))
+                             (select r.KEMReductionLazy.SK hk))))))))
+
+;; Ind_Encaps requires a generated public key.
+(define-state-relation hon-has-sk (l r)
+    (forall ((pk Bits_lpk))
+        (=> ((_ is mk-some) (select r.KEMReductionLazy.Hon pk))
+            ((_ is mk-some) (select l.KEMIndCca.SK pk)))))
 
 ;; Handles beyond the counter are unused on both sides.
 (define-state-relation handle-bound (l r)
@@ -136,24 +136,20 @@
     (forall ((pk Bits_lpk) (c Bits_lct))
         (let ((e (select r.KEMReductionLazy.HC (mk-tuple2 pk c))))
             (=> ((_ is mk-some) e)
-                (let ((h (maybe-get e))
-                      (hk (select l.KEMReductionIndCca.Hon pk)))
+                (let ((h (maybe-get e)))
                     (and (<= h r.KEMReductionLazy.h_ctr)
                          ((_ is mk-some) (select r.KeyLazy.Reg h))
                          ((_ is mk-none) (select r.KEMReductionLazy.Key h))
                          ((_ is mk-none) (select r.KEMReductionLazy.Alias h))
                          ((_ is mk-some) (select r.KeyLazy.Key h))
-                         ((_ is mk-some) hk)
-                         (= (select l.KEMIndCca.T (mk-tuple2 (maybe-get hk) c))
+                         (= (select l.KEMIndCca.T (mk-tuple2 pk c))
                             (select r.KeyLazy.Key h))))))))
 
 ;; A T entry always comes from an honest encapsulation.
 (define-state-relation t-from-hc (l r)
-    (forall ((hk Int) (c Bits_lct))
-        (=> ((_ is mk-some) (select l.KEMIndCca.T (mk-tuple2 hk c)))
-            (let ((p (select l.KEMIndCca.PK hk)))
-                (and ((_ is mk-some) p)
-                     ((_ is mk-some) (select r.KEMReductionLazy.HC (mk-tuple2 (maybe-get p) c))))))))
+    (forall ((pk Bits_lpk) (c Bits_lct))
+        (=> ((_ is mk-some) (select l.KEMIndCca.T (mk-tuple2 pk c)))
+            ((_ is mk-some) (select r.KEMReductionLazy.HC (mk-tuple2 pk c))))))
 
 ;; Shared keys, handle by handle.
 (define-state-relation key-rel (l r)
@@ -176,7 +172,7 @@
     (and (upper-packages-equal l r)
          (kem-tables-equal l r)
          (keypair-shape l r)
-         (hon-agree l r)
+         (hon-has-sk l r)
          (handle-bound l r)
          (hc-domain l r)
          (hc-values l r)

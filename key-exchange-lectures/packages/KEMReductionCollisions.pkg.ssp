@@ -9,11 +9,9 @@ package KEMReductionCollisions {
         Sk,
         Ctxt,
         Shk,
-        EncRand,
     }
 
     params {
-        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
         kem_decaps: fn Sk, Ctxt -> Shk,
     }
 
@@ -22,14 +20,12 @@ package KEMReductionCollisions {
         h_ctr:  Integer,
         PK:     Table(Integer, Pk),
         SK:     Table(Integer, Sk),
-        Hon:    Table(Pk, ()),
         Key:    Table(Integer, Shk),
         Valid:  Table(Integer, ()),
     }
 
     import oracles {
         Coll_Gen() -> (Pk, Sk),
-        Coll_Mark(pk: Pk),
         Coll_Encaps(pk: Pk) -> (Ctxt, Shk),
     }
 
@@ -38,20 +34,13 @@ package KEMReductionCollisions {
         hk_ctr <- (hk_ctr + 1);
         PK[hk_ctr] <- Some(pk);
         SK[hk_ctr] <- Some(sk);
-        Hon[pk] <- Some(());
         return (pk, hk_ctr);
     }
 
     oracle KEM_Encaps(pk: Pk) -> (Ctxt, Integer) {
-        invoke Coll_Mark(pk);
         h_ctr <- (h_ctr + 1);
         Valid[h_ctr] <- Some(());
-        if not (Hon[pk] == None) {
-            (c, shk) <- parse invoke Coll_Encaps(pk);
-        } else {
-            r <-$ EncRand sample-name kem_encaps;
-            (c, shk) <- parse kem_encaps(r, pk);
-        }
+        (c, shk) <- parse invoke Coll_Encaps(pk);
         Key[h_ctr] <- Some(shk);
         return (c, h_ctr);
     }

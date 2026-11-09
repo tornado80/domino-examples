@@ -26,9 +26,9 @@ theorem Model4Security {
      *                  real/ideal form. Before corruption, the two games differ
      *                  only on a forgery for that key. Proved from the
      *                  single-key game in theorem MACMultiKeySecurity.
-     *   KEMIndCca      The lecture's Gpind-cca with one extra key index.
-     *                  Implied by the single-key game, with a loss of a factor
-     *                  of the number of keys.
+     *   KEMIndCca      The lecture's Gpind-cca for many public keys. Implied by
+     *                  the single-key game, with a loss of a factor of the
+     *                  number of keys, plus the probability of a repeated pk.
      *   KEMLazy        Perfect: sampling a key at registration or at first use
      *                  is the same distribution. Domino cannot prove this
      *                  itself, because the sample moves across oracles.

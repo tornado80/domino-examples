@@ -1,8 +1,8 @@
 package KEMIndCca {
     /*
-     * Assumption KEMIndCca: the lecture's game Gpind-cca, indexed by a key
-     * handle hk. With b_ind, encapsulation returns a random key and
-     * decapsulation of that ciphertext returns the same random key.
+     * Assumption KEMIndCca: the lecture's game Gpind-cca for many public keys.
+     * With b_ind, encapsulation returns a random key and decapsulation of that
+     * ciphertext returns the same random key.
      */
 
     types {
@@ -22,37 +22,33 @@ package KEMIndCca {
     }
 
     state {
-        ctr: Integer,
-        PK:  Table(Integer, Pk),
-        SK:  Table(Integer, Sk),
-        T:   Table((Integer, Ctxt), Shk),
+        SK: Table(Pk, Sk),
+        T:  Table((Pk, Ctxt), Shk),
     }
 
-    oracle Ind_Gen() -> (Integer, Pk) {
+    oracle Ind_Gen() -> Pk {
         r <-$ KgenRand sample-name kem_kgen;
         (pk, sk) <- parse kem_kgen(r);
-        ctr <- (ctr + 1);
-        PK[ctr] <- Some(pk);
-        SK[ctr] <- Some(sk);
-        return (ctr, pk);
+        SK[pk] <- Some(sk);
+        return pk;
     }
 
-    oracle Ind_Encaps(hk: Integer) -> (Ctxt, Shk) {
-        pk <- Unwrap(PK[hk]);
+    oracle Ind_Encaps(pk: Pk) -> (Ctxt, Shk) {
+        assert not (SK[pk] == None);
         r <-$ EncRand sample-name kem_encaps;
         (c, shk) <- parse kem_encaps(r, pk);
         if b_ind {
             k <-$ Shk sample-name ideal_key;
-            T[(hk, c)] <- Some(k);
+            T[(pk, c)] <- Some(k);
             return (c, k);
         }
         return (c, shk);
     }
 
-    oracle Ind_Decaps(hk: Integer, c: Ctxt) -> Shk {
-        sk <- Unwrap(SK[hk]);
-        if (b_ind and not (T[(hk, c)] == None)) {
-            return Unwrap(T[(hk, c)]);
+    oracle Ind_Decaps(pk: Pk, c: Ctxt) -> Shk {
+        sk <- Unwrap(SK[pk]);
+        if (b_ind and not (T[(pk, c)] == None)) {
+            return Unwrap(T[(pk, c)]);
         }
         return kem_decaps(sk, c);
     }
