@@ -1,10 +1,10 @@
-composition Model4Security_Hybrid {
+composition Model4Security_Hybrid2 {
     /*
-     * The hybrid games of Model4Security.
-     *
-     *   adversary --> Model4Modular --> Prot4Modular --> MACMultiKey, KEMHandles
-     *
-     * b is the Test bit, the other booleans switch the assumption packages.
+     Hybrids of Model4Security around the assumption KEMLazy.
+
+       Model4Modular --> Prot4Modular --> KEMReductionLazy --> KeyLazy
+
+     b is the Test bit. The MAC is ideal.
      */
 
     types {
@@ -18,12 +18,8 @@ composition Model4Security_Hybrid {
         EncRand,
     }
 
-    const b:          Bool;
-    const b_correct:  Bool;
-    const b_coll:     Bool;
-    const b_mac:      Bool;
-    const b_ind:      Bool;
-    const b_lazy:     Bool;
+    const b: Bool;
+    const b_lazy: Bool;
     const mac:        fn Psk, (Pk, Ctxt, Maybe(Tag)) -> Tag;
     const kem_kgen:   fn KgenRand -> (Pk, Sk);
     const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
@@ -57,28 +53,33 @@ composition Model4Security_Hybrid {
             Tag: Tag,
         }
         params {
-            b_mac: b_mac,
+            b_mac: true,
             mac:   mac,
         }
     }
 
-    instance KEMHandles = KEMHandles {
+    instance KEMReductionLazy = KEMReductionLazy {
         types {
-            Pk:       Pk,
-            Sk:       Sk,
-            Ctxt:     Ctxt,
-            Shk:      Shk,
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
             KgenRand: KgenRand,
-            EncRand:  EncRand,
+            EncRand: EncRand,
         }
         params {
-            b_correct:  b_correct,
-            b_coll:     b_coll,
-            b_ind:      b_ind,
-            b_lazy:     b_lazy,
-            kem_kgen:   kem_kgen,
+            kem_kgen: kem_kgen,
             kem_encaps: kem_encaps,
             kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KeyLazy = KeyLazy {
+        types {
+            Shk: Shk,
+        }
+        params {
+            b_lazy: b_lazy,
         }
     }
 
@@ -97,7 +98,7 @@ composition Model4Security_Hybrid {
         Model4Modular: {
             MAC_Gen:     MACMultiKey,
             MAC_Corrupt: MACMultiKey,
-            KEM_Get:     KEMHandles,
+            KEM_Get:     KEMReductionLazy,
             Run1:        Prot4Modular,
             Run2:        Prot4Modular,
             Run3:        Prot4Modular,
@@ -106,9 +107,13 @@ composition Model4Security_Hybrid {
         Prot4Modular: {
             MAC_Mac:    MACMultiKey,
             MAC_Verify: MACMultiKey,
-            KEM_Gen:    KEMHandles,
-            KEM_Encaps: KEMHandles,
-            KEM_Decaps: KEMHandles,
+            KEM_Gen:    KEMReductionLazy,
+            KEM_Encaps: KEMReductionLazy,
+            KEM_Decaps: KEMReductionLazy,
+        },
+        KEMReductionLazy: {
+            Lazy_Init: KeyLazy,
+            Lazy_Get: KeyLazy,
         },
     }
 }

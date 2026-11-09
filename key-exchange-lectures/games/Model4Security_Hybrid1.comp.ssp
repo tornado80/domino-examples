@@ -1,0 +1,125 @@
+composition Model4Security_Hybrid1 {
+    /*
+     Hybrids of Model4Security around the assumptions MAC and KEMIndCca.
+
+       Model4Modular --> Prot4Modular --> KEMReductionIndCca --> KEMIndCca
+
+     b is the Test bit.
+     */
+
+    types {
+        Psk,
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b: Bool;
+    const b_mac: Bool;
+    const b_ind: Bool;
+    const mac:        fn Psk, (Pk, Ctxt, Maybe(Tag)) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model4Modular = Model4Modular {
+        types {
+            Psk:  Psk,
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+            Shk:  Shk,
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot4Modular = Prot4Modular {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+        }
+    }
+
+    instance MACMultiKey = MACMultiKey {
+        types {
+            Psk: Psk,
+            Msg: (Pk, Ctxt, Maybe(Tag)),
+            Tag: Tag,
+        }
+        params {
+            b_mac: b_mac,
+            mac:   mac,
+        }
+    }
+
+    instance KEMReductionIndCca = KEMReductionIndCca {
+        types {
+            Pk: Pk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            EncRand: EncRand,
+        }
+        params {
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    instance KEMIndCca = KEMIndCca {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_ind: b_ind,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model4Modular,
+            Corrupt:    Model4Modular,
+            NewSession: Model4Modular,
+            Send1:      Model4Modular,
+            Send2:      Model4Modular,
+            Send3:      Model4Modular,
+            Send4:      Model4Modular,
+            Reveal:     Model4Modular,
+            Test:       Model4Modular,
+        },
+        Model4Modular: {
+            MAC_Gen:     MACMultiKey,
+            MAC_Corrupt: MACMultiKey,
+            KEM_Get:     KEMReductionIndCca,
+            Run1:        Prot4Modular,
+            Run2:        Prot4Modular,
+            Run3:        Prot4Modular,
+            Run4:        Prot4Modular,
+        },
+        Prot4Modular: {
+            MAC_Mac:    MACMultiKey,
+            MAC_Verify: MACMultiKey,
+            KEM_Gen:    KEMReductionIndCca,
+            KEM_Encaps: KEMReductionIndCca,
+            KEM_Decaps: KEMReductionIndCca,
+        },
+        KEMReductionIndCca: {
+            Ind_Gen: KEMIndCca,
+            Ind_Encaps: KEMIndCca,
+            Ind_Decaps: KEMIndCca,
+        },
+    }
+}

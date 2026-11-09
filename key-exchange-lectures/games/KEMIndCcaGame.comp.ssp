@@ -1,0 +1,42 @@
+composition KEMIndCcaGame {
+    /* Assumption game for KEMIndCca. */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        KgenRand,
+        EncRand,
+    }
+
+    const b_ind:      Bool;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance KEMIndCca = KEMIndCca {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_ind: b_ind,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            Ind_Gen: KEMIndCca,
+            Ind_Encaps: KEMIndCca,
+            Ind_Decaps: KEMIndCca,
+        },
+    }
+}

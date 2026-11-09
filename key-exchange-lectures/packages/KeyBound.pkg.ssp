@@ -1,0 +1,27 @@
+package KeyBound {
+    /*
+     * Caps the number of keys at q = n_ideal - n_real by forwarding MAC_Gen
+     * and aborting once the cap is reached. n_real and n_ideal are the
+     * endpoints of the hybrid; see MACMultiKeySecurity.
+     */
+
+    params {
+        n_real:  Integer,
+        n_ideal: Integer,
+    }
+
+    state {
+        count: Integer,
+    }
+
+    import oracles {
+        MAC_Gen_Inner() -> Integer,
+    }
+
+    oracle MAC_Gen() -> Integer {
+        assert ((n_real + (count + 1)) <= n_ideal);
+        count <- (count + 1);
+        kid <- invoke MAC_Gen_Inner();
+        return kid;
+    }
+}

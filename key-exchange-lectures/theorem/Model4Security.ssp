@@ -1,29 +1,37 @@
 theorem Model4Security {
     /*
-     * Key indistinguishability of Protocol IV in model KX_IV (forward secrecy, two-sided pre-shared-key authentication).
+     * Key indistinguishability of Protocol IV in model KX_IV (forward secrecy,
+     * two-sided pre-shared-key authentication).
      *
      * Packages and games are generic in all types. The theorem instantiates
      * them with bitstrings, because abstract theorem-level types are not in
      * scope for the theorem's const declarations on this Domino branch.
      *
-     * Hybrid booleans, in order: b, b_correct, b_coll, b_mac, b_ind, b_lazy.
-     * Hops 0 to 5 are proved for the symbolic Test bit b; the last hop
+     * Hops 0 to 6 are proved for the symbolic Test bit b. The last hop
      * switches b in the fully idealised game.
+     *
+     * Each assumption has its own small package and game. The reduction
+     * packages KEMReductionCollisions, KEMReductionIndCca and KEMReductionLazy
+     * are not assumptions: the equivalences around them are proved.
+     *
+     * No correctness assumption is needed: in the lecture's IND-CCA game, the
+     * ideal decapsulation returns T[c] for honest ciphertexts.
      *
      * Assumptions:
      *
-     *   KEMCorrectness  Perfect correctness of the KEM: decapsulating an
-     *                   honest ciphertext yields the encapsulated key.
-     *   KEMCollisions   Statistical: public keys and ciphertexts have high
-     *                   min-entropy, so the collision aborts rarely fire.
-     *   KEMIndCca       Multi-key, multi-challenge IND-CCA of the KEM. Implied
-     *                   by the lecture's single-key game, with a loss of a
-     *                   factor of the number of keys.
-     *   KEMLazy         Perfect: sampling the random shared key at
-     *                   encapsulation or at first use is the same distribution.
-     *   MAC             Multi-key EUF-CMA with adaptive corruption, in
-     *                   real/ideal form. Before corruption, the two games
-     *                   differ only on a forgery for that key.
+     *   KEMCollisions  Statistical, from the min-entropy of public keys and
+     *                  ciphertexts. Returning sk changes nothing, because the
+     *                  samples are independent.
+     *   MAC            Multi-key EUF-CMA with adaptive corruption, in
+     *                  real/ideal form. Before corruption, the two games differ
+     *                  only on a forgery for that key. Proved from the
+     *                  single-key game in theorem MACMultiKeySecurity.
+     *   KEMIndCca      The lecture's Gpind-cca with one extra key index.
+     *                  Implied by the single-key game, with a loss of a factor
+     *                  of the number of keys.
+     *   KEMLazy        Perfect: sampling a key at registration or at first use
+     *                  is the same distribution. Domino cannot prove this
+     *                  itself, because the sample moves across oracles.
      */
 
     const b:     Bool;
@@ -53,7 +61,7 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b:          false,
+            b: false,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -73,7 +81,7 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b:          true,
+            b: true,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -93,7 +101,7 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b:          b,
+            b: b,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -101,7 +109,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_b_0_0_0_0_0 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid0_b_0 = Model4Security_Hybrid0 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -114,11 +122,7 @@ theorem Model4Security {
         }
         params {
             b: b,
-            b_correct: false,
             b_coll: false,
-            b_mac: false,
-            b_ind: false,
-            b_lazy: false,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -126,7 +130,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_b_1_0_0_0_0 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid0_b_1 = Model4Security_Hybrid0 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -139,36 +143,7 @@ theorem Model4Security {
         }
         params {
             b: b,
-            b_correct: true,
-            b_coll: false,
-            b_mac: false,
-            b_ind: false,
-            b_lazy: false,
-            mac:        mac,
-            kem_kgen:   kem_kgen,
-            kem_encaps: kem_encaps,
-            kem_decaps: kem_decaps,
-        }
-    }
-
-    instance Model4Security_Hybrid_b_1_1_0_0_0 = Model4Security_Hybrid {
-        types {
-            Psk:      Bits(lpsk),
-            Pk:       Bits(lpk),
-            Sk:       Bits(lsk),
-            Ctxt:     Bits(lct),
-            Shk:      Bits(lshk),
-            Tag:      Bits(ltag),
-            KgenRand: Bits(lkgr),
-            EncRand:  Bits(lencr),
-        }
-        params {
-            b: b,
-            b_correct: true,
             b_coll: true,
-            b_mac: false,
-            b_ind: false,
-            b_lazy: false,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -176,7 +151,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_b_1_1_1_0_0 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid1_b_0_0 = Model4Security_Hybrid1 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -189,11 +164,30 @@ theorem Model4Security {
         }
         params {
             b: b,
-            b_correct: true,
-            b_coll: true,
+            b_mac: false,
+            b_ind: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid1_b_1_0 = Model4Security_Hybrid1 {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
             b_mac: true,
             b_ind: false,
-            b_lazy: false,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -201,7 +195,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_b_1_1_1_1_0 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid1_b_1_1 = Model4Security_Hybrid1 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -214,11 +208,8 @@ theorem Model4Security {
         }
         params {
             b: b,
-            b_correct: true,
-            b_coll: true,
             b_mac: true,
             b_ind: true,
-            b_lazy: false,
             mac:        mac,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -226,7 +217,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_b_1_1_1_1_1 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid2_b_0 = Model4Security_Hybrid2 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -239,10 +230,27 @@ theorem Model4Security {
         }
         params {
             b: b,
-            b_correct: true,
-            b_coll: true,
-            b_mac: true,
-            b_ind: true,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid2_b_1 = Model4Security_Hybrid2 {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
             b_lazy: true,
             mac:        mac,
             kem_kgen:   kem_kgen,
@@ -251,7 +259,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_0_1_1_1_1_1 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid2_0_1 = Model4Security_Hybrid2 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -264,10 +272,6 @@ theorem Model4Security {
         }
         params {
             b: false,
-            b_correct: true,
-            b_coll: true,
-            b_mac: true,
-            b_ind: true,
             b_lazy: true,
             mac:        mac,
             kem_kgen:   kem_kgen,
@@ -276,7 +280,7 @@ theorem Model4Security {
         }
     }
 
-    instance Model4Security_Hybrid_1_1_1_1_1_1 = Model4Security_Hybrid {
+    instance Model4Security_Hybrid2_1_1 = Model4Security_Hybrid2 {
         types {
             Psk:      Bits(lpsk),
             Pk:       Bits(lpk),
@@ -289,10 +293,6 @@ theorem Model4Security {
         }
         params {
             b: true,
-            b_correct: true,
-            b_coll: true,
-            b_mac: true,
-            b_ind: true,
             b_lazy: true,
             mac:        mac,
             kem_kgen:   kem_kgen,
@@ -301,7 +301,7 @@ theorem Model4Security {
         }
     }
 
-    instance KEMHandlesGame_0_0_0_0 = KEMHandlesGame {
+    instance KEMCollisionsGame_0 = KEMCollisionsGame {
         types {
             Pk:       Bits(lpk),
             Sk:       Bits(lsk),
@@ -311,17 +311,13 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b_correct: false,
             b_coll: false,
-            b_ind: false,
-            b_lazy: false,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
-            kem_decaps: kem_decaps,
         }
     }
 
-    instance KEMHandlesGame_1_0_0_0 = KEMHandlesGame {
+    instance KEMCollisionsGame_1 = KEMCollisionsGame {
         types {
             Pk:       Bits(lpk),
             Sk:       Bits(lsk),
@@ -331,37 +327,13 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b_correct: true,
-            b_coll: false,
-            b_ind: false,
-            b_lazy: false,
-            kem_kgen:   kem_kgen,
-            kem_encaps: kem_encaps,
-            kem_decaps: kem_decaps,
-        }
-    }
-
-    instance KEMHandlesGame_1_1_0_0 = KEMHandlesGame {
-        types {
-            Pk:       Bits(lpk),
-            Sk:       Bits(lsk),
-            Ctxt:     Bits(lct),
-            Shk:      Bits(lshk),
-            KgenRand: Bits(lkgr),
-            EncRand:  Bits(lencr),
-        }
-        params {
-            b_correct: true,
             b_coll: true,
-            b_ind: false,
-            b_lazy: false,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
-            kem_decaps: kem_decaps,
         }
     }
 
-    instance KEMHandlesGame_1_1_1_0 = KEMHandlesGame {
+    instance KEMIndCcaGame_0 = KEMIndCcaGame {
         types {
             Pk:       Bits(lpk),
             Sk:       Bits(lsk),
@@ -371,33 +343,45 @@ theorem Model4Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b_correct: true,
-            b_coll: true,
+            b_ind: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMIndCcaGame_1 = KEMIndCcaGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
             b_ind: true,
-            b_lazy: false,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
             kem_decaps: kem_decaps,
         }
     }
 
-    instance KEMHandlesGame_1_1_1_1 = KEMHandlesGame {
+    instance KeyLazyGame_0 = KeyLazyGame {
         types {
-            Pk:       Bits(lpk),
-            Sk:       Bits(lsk),
-            Ctxt:     Bits(lct),
-            Shk:      Bits(lshk),
-            KgenRand: Bits(lkgr),
-            EncRand:  Bits(lencr),
+            Shk: Bits(lshk),
         }
         params {
-            b_correct: true,
-            b_coll: true,
-            b_ind: true,
+            b_lazy: false,
+        }
+    }
+
+    instance KeyLazyGame_1 = KeyLazyGame {
+        types {
+            Shk: Bits(lshk),
+        }
+        params {
             b_lazy: true,
-            kem_kgen:   kem_kgen,
-            kem_encaps: kem_encaps,
-            kem_decaps: kem_decaps,
         }
     }
 
@@ -426,17 +410,16 @@ theorem Model4Security {
     }
 
     assumptions {
-        KEMCorrectness: KEMHandlesGame_0_0_0_0 ~ KEMHandlesGame_1_0_0_0
-        KEMCollisions:  KEMHandlesGame_1_0_0_0 ~ KEMHandlesGame_1_1_0_0
-        KEMIndCca:      KEMHandlesGame_1_1_0_0 ~ KEMHandlesGame_1_1_1_0
-        KEMLazy:        KEMHandlesGame_1_1_1_0 ~ KEMHandlesGame_1_1_1_1
-        MAC:            MACMultiKeyGame_0 ~ MACMultiKeyGame_1
+        KEMCollisions: KEMCollisionsGame_0 ~ KEMCollisionsGame_1
+        MAC:           MACMultiKeyGame_0   ~ MACMultiKeyGame_1
+        KEMIndCca:     KEMIndCcaGame_0     ~ KEMIndCcaGame_1
+        KEMLazy:       KeyLazyGame_0       ~ KeyLazyGame_1
     }
 
     gamehops {
-        equivalence KX4_b Model4Security_Hybrid_b_0_0_0_0_0 {
+        equivalence KX4_b Model4Security_Hybrid0_b_0 {
             invariant: [
-                ./theorem/invariant-KX4_b-Model4Security_Hybrid_b_0_0_0_0_0.smt2
+                ./theorem/invariant-KX4_b-Model4Security_Hybrid0_b_0.smt2
             ]
             NewKey: {
                 randomness: custom
@@ -467,59 +450,115 @@ theorem Model4Security {
             }
         }
 
-        reduction Model4Security_Hybrid_b_0_0_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
-            assumption KEMCorrectness
-            map KEMHandlesGame_0_0_0_0 Model4Security_Hybrid_b_0_0_0_0_0 {
-                KEMHandles: KEMHandles
-            }
-            map KEMHandlesGame_1_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
-                KEMHandles: KEMHandles
-            }
-        }
-
-        reduction Model4Security_Hybrid_b_1_0_0_0_0 Model4Security_Hybrid_b_1_1_0_0_0 {
+        reduction Model4Security_Hybrid0_b_0 Model4Security_Hybrid0_b_1 {
             assumption KEMCollisions
-            map KEMHandlesGame_1_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
-                KEMHandles: KEMHandles
+            map KEMCollisionsGame_0 Model4Security_Hybrid0_b_0 {
+                KEMCollisions: KEMCollisions
             }
-            map KEMHandlesGame_1_1_0_0 Model4Security_Hybrid_b_1_1_0_0_0 {
-                KEMHandles: KEMHandles
-            }
-        }
-
-        reduction Model4Security_Hybrid_b_1_1_0_0_0 Model4Security_Hybrid_b_1_1_1_0_0 {
-            assumption MAC
-            map MACMultiKeyGame_0 Model4Security_Hybrid_b_1_1_0_0_0 {
-                MACMultiKey: MACMultiKey
-            }
-            map MACMultiKeyGame_1 Model4Security_Hybrid_b_1_1_1_0_0 {
-                MACMultiKey: MACMultiKey
+            map KEMCollisionsGame_1 Model4Security_Hybrid0_b_1 {
+                KEMCollisions: KEMCollisions
             }
         }
 
-        reduction Model4Security_Hybrid_b_1_1_1_0_0 Model4Security_Hybrid_b_1_1_1_1_0 {
-            assumption KEMIndCca
-            map KEMHandlesGame_1_1_0_0 Model4Security_Hybrid_b_1_1_1_0_0 {
-                KEMHandles: KEMHandles
-            }
-            map KEMHandlesGame_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_0 {
-                KEMHandles: KEMHandles
-            }
-        }
-
-        reduction Model4Security_Hybrid_b_1_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_1 {
-            assumption KEMLazy
-            map KEMHandlesGame_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_0 {
-                KEMHandles: KEMHandles
-            }
-            map KEMHandlesGame_1_1_1_1 Model4Security_Hybrid_b_1_1_1_1_1 {
-                KEMHandles: KEMHandles
-            }
-        }
-
-        equivalence Model4Security_Hybrid_0_1_1_1_1_1 Model4Security_Hybrid_1_1_1_1_1_1 {
+        equivalence Model4Security_Hybrid0_b_1 Model4Security_Hybrid1_b_0_0 {
             invariant: [
-                ./theorem/invariant-Model4Security_Hybrid_0_1_1_1_1_1-Model4Security_Hybrid_1_1_1_1_1_1.smt2
+                ./theorem/invariant-Model4Security_Hybrid0_b_1-Model4Security_Hybrid1_b_0_0.smt2
+            ]
+            NewKey: {
+                randomness: custom
+            }
+            Corrupt: {
+                randomness: custom
+            }
+            NewSession: {
+                randomness: custom
+            }
+            Send1: {
+                randomness: custom
+            }
+            Send2: {
+                randomness: custom
+            }
+            Send3: {
+                randomness: custom
+            }
+            Send4: {
+                randomness: custom
+            }
+            Reveal: {
+                randomness: custom
+            }
+            Test: {
+                randomness: custom
+            }
+        }
+
+        reduction Model4Security_Hybrid1_b_0_0 Model4Security_Hybrid1_b_1_0 {
+            assumption MAC
+            map MACMultiKeyGame_0 Model4Security_Hybrid1_b_0_0 {
+                MACMultiKey: MACMultiKey
+            }
+            map MACMultiKeyGame_1 Model4Security_Hybrid1_b_1_0 {
+                MACMultiKey: MACMultiKey
+            }
+        }
+
+        reduction Model4Security_Hybrid1_b_1_0 Model4Security_Hybrid1_b_1_1 {
+            assumption KEMIndCca
+            map KEMIndCcaGame_0 Model4Security_Hybrid1_b_1_0 {
+                KEMIndCca: KEMIndCca
+            }
+            map KEMIndCcaGame_1 Model4Security_Hybrid1_b_1_1 {
+                KEMIndCca: KEMIndCca
+            }
+        }
+
+        equivalence Model4Security_Hybrid1_b_1_1 Model4Security_Hybrid2_b_0 {
+            invariant: [
+                ./theorem/invariant-Model4Security_Hybrid1_b_1_1-Model4Security_Hybrid2_b_0.smt2
+            ]
+            NewKey: {
+                randomness: custom
+            }
+            Corrupt: {
+                randomness: custom
+            }
+            NewSession: {
+                randomness: custom
+            }
+            Send1: {
+                randomness: custom
+            }
+            Send2: {
+                randomness: custom
+            }
+            Send3: {
+                randomness: custom
+            }
+            Send4: {
+                randomness: custom
+            }
+            Reveal: {
+                randomness: custom
+            }
+            Test: {
+                randomness: custom
+            }
+        }
+
+        reduction Model4Security_Hybrid2_b_0 Model4Security_Hybrid2_b_1 {
+            assumption KEMLazy
+            map KeyLazyGame_0 Model4Security_Hybrid2_b_0 {
+                KeyLazy: KeyLazy
+            }
+            map KeyLazyGame_1 Model4Security_Hybrid2_b_1 {
+                KeyLazy: KeyLazy
+            }
+        }
+
+        equivalence Model4Security_Hybrid2_0_1 Model4Security_Hybrid2_1_1 {
+            invariant: [
+                ./theorem/invariant-Model4Security_Hybrid2_0_1-Model4Security_Hybrid2_1_1.smt2
             ]
             NewKey: {
                 randomness: custom
@@ -531,6 +570,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -554,7 +594,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Corrupt: {
@@ -567,6 +607,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -590,7 +631,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             NewSession: {
@@ -603,6 +644,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -626,7 +668,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Send1: {
@@ -639,6 +681,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -662,7 +705,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Send2: {
@@ -675,6 +718,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -698,7 +742,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Send3: {
@@ -712,6 +756,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -735,7 +780,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Send4: {
@@ -748,6 +793,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -771,7 +817,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Reveal: {
@@ -784,6 +830,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -807,7 +854,7 @@ theorem Model4Security {
                     key-unset: [no-abort]
                     equal-aborts: []
                     same-output: [no-abort]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
             Test: {
@@ -824,6 +871,7 @@ theorem Model4Security {
                     bound-kem: [no-abort]
                     bound-alias: [no-abort]
                     bound-hc: [no-abort]
+                    hc-reg: [no-abort]
                     bound-pk: [no-abort]
                     bound-sess: [no-abort]
                     psk-self: [no-abort]
@@ -847,11 +895,10 @@ theorem Model4Security {
                     key-unset: [no-abort, test-unset]
                     equal-aborts: []
                     same-output: [no-abort, test-unset]
-                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, hc-reg, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
                 }
             }
         }
-
     }
 
     propositions {

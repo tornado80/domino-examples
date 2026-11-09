@@ -1,0 +1,56 @@
+package MACSingleKey {
+    /*
+     * Single-key MAC with corruption, in real/ideal form.
+     *
+     * b_mac = false: Verify recomputes the tag.
+     * b_mac = true : while the key is uncorrupted, Verify only accepts tags
+     *                that Single_Mac returned for that message.
+     *
+     * The two games differ only on a Verify that accepts an untagged message
+     * before Corrupt, that is, on a forgery. On paper this follows from plain
+     * EUF-CMA with verification queries: a reduction forwards Mac and Verify
+     * and stops at Corrupt, because the forgery event cannot happen later.
+     */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    params {
+        b_mac: Bool,
+        mac:   fn Psk, Msg -> Tag,
+    }
+
+    state {
+        k: Maybe(Psk),
+        C: Maybe(()),
+        T: Table(Msg, Tag),
+    }
+
+    oracle Single_Gen() {
+        assert (k == None);
+        key <-$ Psk sample-name psk;
+        k <- Some(key);
+    }
+
+    oracle Single_Corrupt() -> Psk {
+        C <- Some(());
+        return Unwrap(k);
+    }
+
+    oracle Single_Mac(m: Msg) -> Tag {
+        t <- mac(Unwrap(k), m);
+        T[m] <- Some(t);
+        return t;
+    }
+
+    oracle Single_Verify(m: Msg, t: Tag) -> Bool {
+        key <- Unwrap(k);
+        if (b_mac and (C == None)) {
+            return (T[m] == Some(t));
+        }
+        return (mac(key, m) == t);
+    }
+}

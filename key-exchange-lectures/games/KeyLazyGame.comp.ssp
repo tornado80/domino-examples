@@ -1,0 +1,25 @@
+composition KeyLazyGame {
+    /* Assumption game for KEMLazy. */
+
+    types {
+        Shk,
+    }
+
+    const b_lazy: Bool;
+
+    instance KeyLazy = KeyLazy {
+        types {
+            Shk: Shk,
+        }
+        params {
+            b_lazy: b_lazy,
+        }
+    }
+
+    compose {
+        adversary: {
+            Lazy_Init: KeyLazy,
+            Lazy_Get: KeyLazy,
+        },
+    }
+}

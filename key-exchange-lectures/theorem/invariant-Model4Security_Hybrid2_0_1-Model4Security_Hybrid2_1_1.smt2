@@ -1,9 +1,10 @@
-; Hop 6 of Model4Security: Test switches from the real handle key to a fresh key.
+; Hop 7 of Model4Security: Test switches from the handle key to a fresh key.
 ;
 ; Left (b = false) reads KEM_Get(h) in Test; right (b = true) samples without
-; touching KEMHandles.Key. All state other than KEMHandles.Key is equal on both
-; sides. Key differs only at a tested honest handle, after Test on a Fresh
-; session whose transcript is thereafter marked in TR.
+; touching KeyLazy.Key. All state other than KeyLazy.Key is equal on both
+; sides. KeyLazy.Key differs only at a tested honest handle, after Test on a
+; Fresh session whose transcript is thereafter marked in TR.
+; KEMReductionLazy.Key only holds keys of non-honest handles.
 
 (define-sort Sess ()
     (Tuple8 Bool Int (Maybe Bits_lpk) (Maybe (Tuple2 Bits_lct Bits_ltag)) (Maybe Bits_ltag)
@@ -30,7 +31,7 @@
     (mk-tuple3 pk c (mk-some t)))
 
 ; ------------------------------------------------------------------------
-; Equality of everything except KEMHandles.Key.
+; Equality of everything except KeyLazy.Key.
 
 (define-state-relation eq-model (l r)
     (and (= l.Model4Modular.ctr_ r.Model4Modular.ctr_)
@@ -50,15 +51,17 @@
          (= l.MACMultiKey.T r.MACMultiKey.T)))
 
 (define-state-relation eq-kem (l r)
-    (and (= l.KEMHandles.hk_ctr r.KEMHandles.hk_ctr)
-         (= l.KEMHandles.h_ctr r.KEMHandles.h_ctr)
-         (= l.KEMHandles.PK r.KEMHandles.PK)
-         (= l.KEMHandles.SK r.KEMHandles.SK)
-         (= l.KEMHandles.Hon r.KEMHandles.Hon)
-         (= l.KEMHandles.Seen r.KEMHandles.Seen)
-         (= l.KEMHandles.HC r.KEMHandles.HC)
-         (= l.KEMHandles.Alias r.KEMHandles.Alias)
-         (= l.KEMHandles.Valid r.KEMHandles.Valid)))
+    (and (= l.KEMReductionLazy.hk_ctr r.KEMReductionLazy.hk_ctr)
+         (= l.KEMReductionLazy.h_ctr r.KEMReductionLazy.h_ctr)
+         (= l.KEMReductionLazy.PK r.KEMReductionLazy.PK)
+         (= l.KEMReductionLazy.SK r.KEMReductionLazy.SK)
+         (= l.KEMReductionLazy.Hon r.KEMReductionLazy.Hon)
+         (= l.KEMReductionLazy.Seen r.KEMReductionLazy.Seen)
+         (= l.KEMReductionLazy.HC r.KEMReductionLazy.HC)
+         (= l.KEMReductionLazy.Alias r.KEMReductionLazy.Alias)
+         (= l.KEMReductionLazy.Valid r.KEMReductionLazy.Valid)
+         (= l.KEMReductionLazy.Key r.KEMReductionLazy.Key)
+         (= l.KeyLazy.Reg r.KeyLazy.Reg)))
 
 (define-state-relation corr-eq (l r)
     (= l.Model4Modular.C l.MACMultiKey.C))
@@ -68,27 +71,36 @@
 
 (define-state-relation bound-kem (l r)
     (forall ((x Int))
-        (=> (> x l.KEMHandles.h_ctr)
-            (and (= (select l.KEMHandles.Key x) (as mk-none (Maybe Bits_lshk)))
-                 (= (select r.KEMHandles.Key x) (as mk-none (Maybe Bits_lshk)))
-                 (= (select l.KEMHandles.Alias x) (as mk-none (Maybe Int)))
-                 (= (select l.KEMHandles.Valid x) (as mk-none (Maybe Tuple0)))))))
+        (=> (> x l.KEMReductionLazy.h_ctr)
+            (and (= (select l.KEMReductionLazy.Key x) (as mk-none (Maybe Bits_lshk)))
+                 (= (select l.KeyLazy.Key x) (as mk-none (Maybe Bits_lshk)))
+                 (= (select r.KeyLazy.Key x) (as mk-none (Maybe Bits_lshk)))
+                 (= (select l.KEMReductionLazy.Alias x) (as mk-none (Maybe Int)))
+                 (= (select l.KEMReductionLazy.Valid x) (as mk-none (Maybe Tuple0)))))))
 
 (define-state-relation bound-alias (l r)
     (forall ((x Int))
-        (=> ((_ is mk-some) (select l.KEMHandles.Alias x))
-            (and (<= (maybe-get (select l.KEMHandles.Alias x)) l.KEMHandles.h_ctr)
-                 ((_ is mk-some) (select l.KEMHandles.Valid x))))))
+        (=> ((_ is mk-some) (select l.KEMReductionLazy.Alias x))
+            (and (<= (maybe-get (select l.KEMReductionLazy.Alias x)) l.KEMReductionLazy.h_ctr)
+                 ((_ is mk-some) (select l.KEMReductionLazy.Valid x))))))
 
 (define-state-relation bound-hc (l r)
     (forall ((pk Bits_lpk) (c Bits_lct))
-        (=> ((_ is mk-some) (select l.KEMHandles.HC (mk-tuple2 pk c)))
-            (<= (maybe-get (select l.KEMHandles.HC (mk-tuple2 pk c))) l.KEMHandles.h_ctr))))
+        (=> ((_ is mk-some) (select l.KEMReductionLazy.HC (mk-tuple2 pk c)))
+            (<= (maybe-get (select l.KEMReductionLazy.HC (mk-tuple2 pk c))) l.KEMReductionLazy.h_ctr))))
+
+; Honest handles are registered in KeyLazy and have no key in the reduction.
+(define-state-relation hc-reg (l r)
+    (forall ((pk Bits_lpk) (c Bits_lct))
+        (let ((e (select l.KEMReductionLazy.HC (mk-tuple2 pk c))))
+            (=> ((_ is mk-some) e)
+                (and ((_ is mk-some) (select l.KeyLazy.Reg (maybe-get e)))
+                     (= (select l.KEMReductionLazy.Key (maybe-get e)) (as mk-none (Maybe Bits_lshk))))))))
 
 (define-state-relation bound-pk (l r)
     (forall ((y Int))
-        (=> (> y l.KEMHandles.hk_ctr)
-            (= (select l.KEMHandles.PK y) (as mk-none (Maybe Bits_lpk))))))
+        (=> (> y l.KEMReductionLazy.hk_ctr)
+            (= (select l.KEMReductionLazy.PK y) (as mk-none (Maybe Bits_lpk))))))
 
 (define-state-relation bound-sess (l r)
     (forall ((i Int))
@@ -127,16 +139,15 @@
                              ((_ is mk-some) (el8-7 s))
                              ((_ is mk-none) (el2-1 (maybe-get (el8-7 s))))
                              ((_ is mk-some) (el2-2 (maybe-get (el8-7 s))))
-                             (<= x l.KEMHandles.h_ctr)
-                             ((_ is mk-some) (select l.KEMHandles.Valid x))
-                             (= (select l.KEMHandles.Alias x) (as mk-none (Maybe Int)))
-                             ((_ is mk-some) (select l.KEMHandles.Seen (s-pk s)))
-                             (=> ((_ is mk-some) (select l.KEMHandles.Hon (s-pk s)))
-                                 (and (= (select l.KEMHandles.HC (mk-tuple2 (s-pk s) (s-c s))) (mk-some x))
+                             (<= x l.KEMReductionLazy.h_ctr)
+                             ((_ is mk-some) (select l.KEMReductionLazy.Valid x))
+                             (= (select l.KEMReductionLazy.Alias x) (as mk-none (Maybe Int)))
+                             ((_ is mk-some) (select l.KEMReductionLazy.Seen (s-pk s)))
+                             (=> ((_ is mk-some) (select l.KEMReductionLazy.Hon (s-pk s)))
+                                 (and (= (select l.KEMReductionLazy.HC (mk-tuple2 (s-pk s) (s-c s))) (mk-some x))
                                       (= (select l.Model4Modular.RespOf (mk-tuple2 (s-pk s) (s-c s))) (mk-some i))))
-                             (=> ((_ is mk-none) (select l.KEMHandles.Hon (s-pk s)))
-                                 (and ((_ is mk-some) (select l.KEMHandles.Key x))
-                                      (= (select l.KEMHandles.Key x) (select r.KEMHandles.Key x)))))))))))
+                             (=> ((_ is mk-none) (select l.KEMReductionLazy.Hon (s-pk s)))
+                                 ((_ is mk-some) (select l.KEMReductionLazy.Key x))))))))))
 
 (define-state-relation resp-k (l r)
     (forall ((i Int))
@@ -155,13 +166,13 @@
                      (not (s-role (maybe-get m)))
                      (s-has-m1 (maybe-get m)))
                 (let ((s (maybe-get m)))
-                    (and ((_ is mk-some) (select l.KEMHandles.Hon (s-pk s)))
+                    (and ((_ is mk-some) (select l.KEMReductionLazy.Hon (s-pk s)))
                          (= (select l.Model4Modular.InitOf (s-pk s)) (mk-some i))
                          (=> (not (s-has-m2 s))
                              (and ((_ is mk-some) (el8-7 s))
                                   ((_ is mk-some) (el2-1 (maybe-get (el8-7 s))))
-                                  (<= (s-hk s) l.KEMHandles.hk_ctr)
-                                  (= (select l.KEMHandles.PK (s-hk s)) (mk-some (s-pk s)))))))))))
+                                  (<= (s-hk s) l.KEMReductionLazy.hk_ctr)
+                                  (= (select l.KEMReductionLazy.PK (s-hk s)) (mk-some (s-pk s)))))))))))
 
 (define-state-relation init-m2-m1 (l r)
     (forall ((i Int))
@@ -182,24 +193,23 @@
                         (and (s-has-m1 s)
                              (s-has-m2 s)
                              ((_ is mk-some) (el8-6 s))
-                             (<= h l.KEMHandles.h_ctr)
-                             ((_ is mk-some) (select l.KEMHandles.Valid h))
-                             (or (and ((_ is mk-some) (select l.KEMHandles.Alias h))
-                                      (= (select l.KEMHandles.HC (mk-tuple2 (s-pk s) (s-c s)))
-                                         (select l.KEMHandles.Alias h)))
-                                 (and (= (select l.KEMHandles.Alias h) (as mk-none (Maybe Int)))
-                                      ((_ is mk-some) (select l.KEMHandles.Key h))
-                                      (= (select l.KEMHandles.Key h) (select r.KEMHandles.Key h)))))))))))
+                             (<= h l.KEMReductionLazy.h_ctr)
+                             ((_ is mk-some) (select l.KEMReductionLazy.Valid h))
+                             (or (and ((_ is mk-some) (select l.KEMReductionLazy.Alias h))
+                                      (= (select l.KEMReductionLazy.HC (mk-tuple2 (s-pk s) (s-c s)))
+                                         (select l.KEMReductionLazy.Alias h)))
+                                 (and (= (select l.KEMReductionLazy.Alias h) (as mk-none (Maybe Int)))
+                                      ((_ is mk-some) (select l.KEMReductionLazy.Key h)))))))))))
 
 ; ------------------------------------------------------------------------
 ; Provenance of HC entries and of the tags in the ideal MAC table.
 
 (define-state-relation hc-prov (l r)
     (forall ((pk Bits_lpk) (c Bits_lct))
-        (let ((e (select l.KEMHandles.HC (mk-tuple2 pk c))))
+        (let ((e (select l.KEMReductionLazy.HC (mk-tuple2 pk c))))
             (=> ((_ is mk-some) e)
                 (let ((rho (select l.Model4Modular.RespOf (mk-tuple2 pk c))))
-                    (and ((_ is mk-some) (select l.KEMHandles.Hon pk))
+                    (and ((_ is mk-some) (select l.KEMReductionLazy.Hon pk))
                          ((_ is mk-some) rho)
                          ((_ is mk-some) (select l.Model4Modular.State (maybe-get rho)))
                          (let ((s (maybe-get (select l.Model4Modular.State (maybe-get rho)))))
@@ -226,13 +236,13 @@
 (define-state-relation t-none-seen (l r)
     (forall ((kid Int) (pk Bits_lpk) (c Bits_lct))
         (=> ((_ is mk-some) (select l.MACMultiKey.T (mk-tuple2 kid (msg-none pk c))))
-            ((_ is mk-some) (select l.KEMHandles.Seen pk)))))
+            ((_ is mk-some) (select l.KEMReductionLazy.Seen pk)))))
 
 (define-state-relation t-none-prov (l r)
     (forall ((kid Int) (pk Bits_lpk) (c Bits_lct))
         (let ((e (select l.MACMultiKey.T (mk-tuple2 kid (msg-none pk c)))))
             (=> (and ((_ is mk-some) e)
-                     ((_ is mk-some) (select l.KEMHandles.Hon pk)))
+                     ((_ is mk-some) (select l.KEMReductionLazy.Hon pk)))
                 (let ((rho (select l.Model4Modular.RespOf (mk-tuple2 pk c))))
                     (and ((_ is mk-some) rho)
                          ((_ is mk-some) (select l.Model4Modular.State (maybe-get rho)))
@@ -248,14 +258,14 @@
 (define-state-relation t-none-hc (l r)
     (forall ((kid Int) (pk Bits_lpk) (c Bits_lct))
         (=> (and ((_ is mk-some) (select l.MACMultiKey.T (mk-tuple2 kid (msg-none pk c))))
-                 ((_ is mk-some) (select l.KEMHandles.Hon pk)))
-            ((_ is mk-some) (select l.KEMHandles.HC (mk-tuple2 pk c))))))
+                 ((_ is mk-some) (select l.KEMReductionLazy.Hon pk)))
+            ((_ is mk-some) (select l.KEMReductionLazy.HC (mk-tuple2 pk c))))))
 
 (define-state-relation t-some-prov (l r)
     (forall ((kid Int) (pk Bits_lpk) (c Bits_lct) (t Bits_ltag))
         (=> ((_ is mk-some) (select l.MACMultiKey.T (mk-tuple2 kid (msg-some pk c t))))
             (let ((iof (select l.Model4Modular.InitOf pk)))
-                (and ((_ is mk-some) (select l.KEMHandles.Hon pk))
+                (and ((_ is mk-some) (select l.KEMReductionLazy.Hon pk))
                      ((_ is mk-some) iof)
                      ((_ is mk-some) (select l.Model4Modular.State (maybe-get iof)))
                      (let ((s (maybe-get (select l.Model4Modular.State (maybe-get iof)))))
@@ -285,9 +295,9 @@
                  ((_ is mk-some) (select l.Model4Modular.State i))
                  (not (s-role (maybe-get (select l.Model4Modular.State i)))))
             (let ((s (maybe-get (select l.Model4Modular.State i))))
-                (and ((_ is mk-some) (select l.KEMHandles.Alias (s-k s)))
-                     (= (select l.KEMHandles.HC (mk-tuple2 (s-pk s) (s-c s)))
-                        (select l.KEMHandles.Alias (s-k s))))))))
+                (and ((_ is mk-some) (select l.KEMReductionLazy.Alias (s-k s)))
+                     (= (select l.KEMReductionLazy.HC (mk-tuple2 (s-pk s) (s-c s)))
+                        (select l.KEMReductionLazy.Alias (s-k s))))))))
 
 (define-state-relation fresh-resp-t (l r)
     (forall ((i Int))
@@ -309,12 +319,12 @@
             (=> (and ((_ is mk-some) m)
                      (s-role (maybe-get m))
                      (s-has-m2 (maybe-get m))
-                     ((_ is mk-some) (select l.KEMHandles.Hon (s-pk (maybe-get m)))))
+                     ((_ is mk-some) (select l.KEMReductionLazy.Hon (s-pk (maybe-get m)))))
                 (let ((s (maybe-get m)))
                     (let ((x (s-h s)) (iof (select l.Model4Modular.InitOf (s-pk s))))
-                        (or (= (select l.KEMHandles.Key x) (select r.KEMHandles.Key x))
-                            (and (= (select r.KEMHandles.Key x) (as mk-none (Maybe Bits_lshk)))
-                                 ((_ is mk-some) (select l.KEMHandles.Key x))
+                        (or (= (select l.KeyLazy.Key x) (select r.KeyLazy.Key x))
+                            (and (= (select r.KeyLazy.Key x) (as mk-none (Maybe Bits_lshk)))
+                                 ((_ is mk-some) (select l.KeyLazy.Key x))
                                  ((_ is mk-some) (select l.Model4Modular.TR (s-tr s)))
                                  ((_ is mk-some) iof)
                                  ((_ is mk-some) (select l.Model4Modular.State (maybe-get iof)))
@@ -329,8 +339,8 @@
             (=> (and ((_ is mk-some) m)
                      (s-role (maybe-get m))
                      (s-has-m2 (maybe-get m))
-                     ((_ is mk-some) (select l.KEMHandles.Hon (s-pk (maybe-get m))))
-                     ((_ is mk-some) (select l.KEMHandles.Key (s-h (maybe-get m)))))
+                     ((_ is mk-some) (select l.KEMReductionLazy.Hon (s-pk (maybe-get m))))
+                     ((_ is mk-some) (select l.KeyLazy.Key (s-h (maybe-get m)))))
                 (let ((s (maybe-get m)))
                     (let ((iof (select l.Model4Modular.InitOf (s-pk s))))
                         (or ((_ is mk-some) (select l.Model4Modular.TR (s-tr s)))
@@ -349,10 +359,10 @@
         (=> (and ((_ is mk-some) (select L.Model4Modular.State ctr))
                  (not (s-role st))
                  (s-has-m1 st)
-                 ((_ is mk-some) (select L.KEMHandles.Hon (s-pk st)))
+                 ((_ is mk-some) (select L.KEMReductionLazy.Hon (s-pk st)))
                  ((_ is mk-some) (select L.MACMultiKey.T
                                      (mk-tuple2 (s-kid st) (msg-none (s-pk st) (el2-1 m2))))))
-            ((_ is mk-some) (select L.KEMHandles.HC (mk-tuple2 (s-pk st) (el2-1 m2)))))))
+            ((_ is mk-some) (select L.KEMReductionLazy.HC (mk-tuple2 (s-pk st) (el2-1 m2)))))))
 
 (define-fun test-guard ((m (Maybe Sess)) (fr (Maybe Tuple0)) (tr (Maybe Tuple0))) Bool
     (and ((_ is mk-some) m)
@@ -371,7 +381,7 @@
                       (iof (select L.Model4Modular.InitOf (s-pk st))))
                     (and (s-has-m2 st)
                          ((_ is mk-some) (select L.MACMultiKey.T tag))
-                         ((_ is mk-some) (select L.KEMHandles.Hon (s-pk st)))
+                         ((_ is mk-some) (select L.KEMReductionLazy.Hon (s-pk st)))
                          ((_ is mk-some) iof)
                          ((_ is mk-some) (select L.Model4Modular.State (maybe-get iof)))
                          (let ((si (maybe-get (select L.Model4Modular.State (maybe-get iof)))))
@@ -388,7 +398,7 @@
                     (and (s-has-m1 st)
                          (s-has-m2 st)
                          ((_ is mk-some) (select L.MACMultiKey.T (mk-tuple2 (s-kid st) (msg-none (s-pk st) (s-c st)))))
-                         ((_ is mk-some) (select L.KEMHandles.Hon (s-pk st)))
+                         ((_ is mk-some) (select L.KEMReductionLazy.Hon (s-pk st)))
                          (= (select L.Model4Modular.InitOf (s-pk st)) (mk-some ctr))
                          ((_ is mk-some) rho)
                          ((_ is mk-some) (select L.Model4Modular.State (maybe-get rho)))
@@ -399,8 +409,8 @@
                                   (= (s-pk sr) (s-pk st))
                                   (= (s-c sr) (s-c st))
                                   (= (s-t sr) (s-t st))
-                                  ((_ is mk-some) (select L.KEMHandles.Alias (s-k st)))
-                                  (= (select L.KEMHandles.Alias (s-k st)) (mk-some (s-h sr)))))))))))
+                                  ((_ is mk-some) (select L.KEMReductionLazy.Alias (s-k st)))
+                                  (= (select L.KEMReductionLazy.Alias (s-k st)) (mk-some (s-h sr)))))))))))
 
 ; The canonical handle of a Fresh, untested session has no key on either side.
 (define-lemma test-unset Test (L R RL RR (ctr Int))
@@ -408,13 +418,15 @@
         (let ((st (maybe-get m)))
             (=> (test-guard m (select L.Model4Modular.Fresh ctr) (select L.Model4Modular.TR (s-tr st)))
                 (let ((k (s-k st)))
-                    (let ((canon (ite ((_ is mk-some) (select L.KEMHandles.Alias k))
-                                      (maybe-get (select L.KEMHandles.Alias k))
+                    (let ((canon (ite ((_ is mk-some) (select L.KEMReductionLazy.Alias k))
+                                      (maybe-get (select L.KEMReductionLazy.Alias k))
                                       k)))
                         (and ((_ is mk-some) (el8-6 st))
-                             ((_ is mk-some) (select L.KEMHandles.Valid k))
-                             (= (select L.KEMHandles.Key canon) (as mk-none (Maybe Bits_lshk)))
-                             (= (select R.KEMHandles.Key canon) (as mk-none (Maybe Bits_lshk))))))))))
+                             ((_ is mk-some) (select L.KEMReductionLazy.Valid k))
+                             ((_ is mk-some) (select L.KeyLazy.Reg canon))
+                             (= (select L.KEMReductionLazy.Key canon) (as mk-none (Maybe Bits_lshk)))
+                             (= (select L.KeyLazy.Key canon) (as mk-none (Maybe Bits_lshk)))
+                             (= (select R.KeyLazy.Key canon) (as mk-none (Maybe Bits_lshk))))))))))
 
 ; The session owning the canonical handle: the session itself for a
 ; responder, its partner for an initiator.
@@ -429,8 +441,8 @@
             (=> (test-guard m (select L.Model4Modular.Fresh ctr) (select L.Model4Modular.TR (s-tr st)))
                 (let ((rho (select L.Model4Modular.RespOf (mk-tuple2 (s-pk st) (s-c st))))
                       (k (s-k st)))
-                    (let ((canon (ite ((_ is mk-some) (select L.KEMHandles.Alias k))
-                                      (maybe-get (select L.KEMHandles.Alias k))
+                    (let ((canon (ite ((_ is mk-some) (select L.KEMReductionLazy.Alias k))
+                                      (maybe-get (select L.KEMReductionLazy.Alias k))
                                       k))
                           (o (canon-owner st ctr rho)))
                         (and ((_ is mk-some) (select L.Model4Modular.State o))
@@ -448,7 +460,7 @@
 
 (define-state-relation invariant (l r)
     (and (eq-model l r) (eq-mac l r) (eq-kem l r) (corr-eq l r)
-         (bound-kem l r) (bound-alias l r) (bound-hc l r) (bound-pk l r) (bound-sess l r)
+         (bound-kem l r) (bound-alias l r) (bound-hc l r) (hc-reg l r) (bound-pk l r) (bound-sess l r)
          (psk-self l r) (sess-kid l r) (fresh-accepted l r)
          (resp-shape l r) (resp-k l r) (init-shape l r) (init-m2-m1 l r) (init-accepted l r)
          (hc-prov l r) (resp-unique l r)
@@ -484,16 +496,16 @@
      (sample-ctr-left Int) (sample-ctr-right Int))
     Bool
     (and (= sample-ctr-left 0) (= sample-ctr-right 0)
-         (= sample-id-left (sample-id "KEMHandles" "KEM_Gen" "kem_kgen"))
-         (= sample-id-right (sample-id "KEMHandles" "KEM_Gen" "kem_kgen"))))
+         (= sample-id-left (sample-id "KEMReductionLazy" "KEM_Gen" "kem_kgen"))
+         (= sample-id-right (sample-id "KEMReductionLazy" "KEM_Gen" "kem_kgen"))))
 
 (define-fun randomness-mapping-Send2
     ((sample-id-left SampleId) (sample-id-right SampleId)
      (sample-ctr-left Int) (sample-ctr-right Int))
     Bool
     (and (= sample-ctr-left 0) (= sample-ctr-right 0)
-         (= sample-id-left (sample-id "KEMHandles" "KEM_Encaps" "kem_encaps"))
-         (= sample-id-right (sample-id "KEMHandles" "KEM_Encaps" "kem_encaps"))))
+         (= sample-id-left (sample-id "KEMReductionLazy" "KEM_Encaps" "kem_encaps"))
+         (= sample-id-right (sample-id "KEMReductionLazy" "KEM_Encaps" "kem_encaps"))))
 
 (define-fun randomness-mapping-Send3
     ((sample-id-left SampleId) (sample-id-right SampleId)
@@ -512,13 +524,13 @@
      (sample-ctr-left Int) (sample-ctr-right Int))
     Bool
     (and (= sample-ctr-left 0) (= sample-ctr-right 0)
-         (= sample-id-left (sample-id "KEMHandles" "KEM_Get" "lazy_key"))
-         (= sample-id-right (sample-id "KEMHandles" "KEM_Get" "lazy_key"))))
+         (= sample-id-left (sample-id "KeyLazy" "Lazy_Get" "lazy_key"))
+         (= sample-id-right (sample-id "KeyLazy" "Lazy_Get" "lazy_key"))))
 
 (define-fun randomness-mapping-Test
     ((sample-id-left SampleId) (sample-id-right SampleId)
      (sample-ctr-left Int) (sample-ctr-right Int))
     Bool
     (and (= sample-ctr-left 0) (= sample-ctr-right 0)
-         (= sample-id-left (sample-id "KEMHandles" "KEM_Get" "lazy_key"))
+         (= sample-id-left (sample-id "KeyLazy" "Lazy_Get" "lazy_key"))
          (= sample-id-right (sample-id "Model4Modular" "Test" "test"))))

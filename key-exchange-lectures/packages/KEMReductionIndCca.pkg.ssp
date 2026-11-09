@@ -1,0 +1,72 @@
+package KEMReductionIndCca {
+    /*
+     * Reduction to KEMIndCca. Encapsulation to an honest public key goes
+     * through the assumption, to any other public key it runs locally. The
+     * collision aborts established by KEMCollisions stay here.
+     * Not an assumption: the equivalences around it are proved.
+     */
+
+    types {
+        Pk,
+        Ctxt,
+        Shk,
+        EncRand,
+    }
+
+    params {
+        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
+    }
+
+    state {
+        h_ctr: Integer,
+        Hon:   Table(Pk, Integer),
+        Seen:  Table(Pk, ()),
+        HC:    Table((Pk, Ctxt), ()),
+        Key:   Table(Integer, Shk),
+        Valid: Table(Integer, ()),
+    }
+
+    import oracles {
+        Ind_Gen() -> (Integer, Pk),
+        Ind_Encaps(hk: Integer) -> (Ctxt, Shk),
+        Ind_Decaps(hk: Integer, c: Ctxt) -> Shk,
+    }
+
+    oracle KEM_Gen() -> (Pk, Integer) {
+        (hk, pk) <- parse invoke Ind_Gen();
+        assert (Hon[pk] == None);
+        assert (Seen[pk] == None);
+        Hon[pk] <- Some(hk);
+        return (pk, hk);
+    }
+
+    oracle KEM_Encaps(pk: Pk) -> (Ctxt, Integer) {
+        h_ctr <- (h_ctr + 1);
+        Valid[h_ctr] <- Some(());
+        e <- Hon[pk];
+        if not (e == None) {
+            (c, shk) <- parse invoke Ind_Encaps(Unwrap(e));
+            assert (HC[(pk, c)] == None);
+            HC[(pk, c)] <- Some(());
+        } else {
+            r <-$ EncRand sample-name kem_encaps;
+            (c, shk) <- parse kem_encaps(r, pk);
+        }
+        Seen[pk] <- Some(());
+        Key[h_ctr] <- Some(shk);
+        return (c, h_ctr);
+    }
+
+    oracle KEM_Decaps(hk: Integer, c: Ctxt) -> Integer {
+        h_ctr <- (h_ctr + 1);
+        Valid[h_ctr] <- Some(());
+        shk <- invoke Ind_Decaps(hk, c);
+        Key[h_ctr] <- Some(shk);
+        return h_ctr;
+    }
+
+    oracle KEM_Get(h: Integer) -> Shk {
+        assert not (Valid[h] == None);
+        return Unwrap(Key[h]);
+    }
+}

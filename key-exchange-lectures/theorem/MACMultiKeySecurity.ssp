@@ -1,0 +1,197 @@
+theorem MACMultiKeySecurity {
+    /*
+     * Multi-key MAC with adaptive corruption follows from single-key MAC with
+     * corruption, by a hybrid over the key index.
+     *
+     * The number of keys is q = n_ideal - n_real. Domino's hybrid hop links
+     * instances only when the loop index is a theorem constant, so the
+     * endpoints are the constants n_real and n_ideal rather than 0 and q, and
+     * key kid sits at hybrid position n_real + kid. The theorem holds for all
+     * values of the two constants, in particular n_real = 0 and n_ideal = q.
+     *
+     * The cost of the hybrid is a factor q = n_ideal - n_real on the
+     * MACSingleKey advantage. The single-key game with corruption follows on
+     * paper from plain EUF-CMA with verification queries, see MACSingleKey.
+     */
+
+    const lpsk: Integer;
+    const lpk:  Integer;
+    const lct:  Integer;
+    const ltag: Integer;
+
+    const n_real:  Integer;
+    const n_ideal: Integer;
+
+    const mac: fn Bits(lpsk), (Bits(lpk), Bits(lct), Maybe(Bits(ltag))) -> Bits(ltag);
+
+    instance MACMultiKeyBounded_0 = MACMultiKeyBoundedGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: false,
+            n_real: n_real,
+            n_ideal: n_ideal,
+            mac: mac,
+        }
+    }
+
+    instance MACMultiKeyBounded_1 = MACMultiKeyBoundedGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: true,
+            n_real: n_real,
+            n_ideal: n_ideal,
+            mac: mac,
+        }
+    }
+
+    instance MACSingleKeyGame_0 = MACSingleKeyGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: false,
+            mac: mac,
+        }
+    }
+
+    instance MACSingleKeyGame_1 = MACSingleKeyGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: true,
+            mac: mac,
+        }
+    }
+
+    instance MACMultiKeySecurity_Hybrid_0 = MACMultiKeySecurity_Hybrid {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            i: n_real,
+            b: false,
+            n_real: n_real,
+            n_ideal: n_ideal,
+            mac: mac,
+        }
+    }
+
+    instance MACMultiKeySecurity_Hybrid_1 = MACMultiKeySecurity_Hybrid {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            i: n_ideal,
+            b: true,
+            n_real: n_real,
+            n_ideal: n_ideal,
+            mac: mac,
+        }
+    }
+
+    hybrid instance MACMultiKeySecurity_Hybrid_i i b = MACMultiKeySecurity_Hybrid {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            i: i,
+            b: b,
+            n_real: n_real,
+            n_ideal: n_ideal,
+            mac: mac,
+        }
+    }
+
+    assumptions {
+        MACSingleKey: MACSingleKeyGame_0 ~ MACSingleKeyGame_1
+    }
+
+    gamehops {
+        equivalence MACMultiKeyBounded_0 MACMultiKeySecurity_Hybrid_0 {
+            invariant: [
+                ./theorem/invariant-MACMultiKeyBounded_0-MACMultiKeySecurity_Hybrid_0.smt2
+            ]
+            MAC_Gen: {
+                randomness: custom
+            }
+            MAC_Corrupt: {
+                randomness: custom
+            }
+            MAC_Mac: {
+                randomness: custom
+            }
+            MAC_Verify: {
+                randomness: custom
+            }
+        }
+        hybrid MACMultiKeySecurity_Hybrid_i {
+            reduction {
+                assumption MACSingleKey
+                map MACSingleKeyGame_0 MACMultiKeySecurity_Hybrid_i[false] {
+                    MACSingleKey: MACSingleKey
+                }
+                map MACSingleKeyGame_1 MACMultiKeySecurity_Hybrid_i[true] {
+                    MACSingleKey: MACSingleKey
+                }
+            }
+            equivalence {
+                invariant: [
+                    ./theorem/invariant-MACMultiKeySecurity_Hybrid_i.smt2
+                ]
+                MAC_Gen: {
+                    randomness: custom
+                }
+                MAC_Corrupt: {
+                    randomness: custom
+                }
+                MAC_Mac: {
+                    randomness: custom
+                }
+                MAC_Verify: {
+                    randomness: custom
+                }
+            }
+        }
+        equivalence MACMultiKeySecurity_Hybrid_1 MACMultiKeyBounded_1 {
+            invariant: [
+                ./theorem/invariant-MACMultiKeySecurity_Hybrid_1-MACMultiKeyBounded_1.smt2
+            ]
+            MAC_Gen: {
+                randomness: custom
+            }
+            MAC_Corrupt: {
+                randomness: custom
+            }
+            MAC_Mac: {
+                randomness: custom
+            }
+            MAC_Verify: {
+                randomness: custom
+            }
+        }
+    }
+
+    propositions {
+        MACMultiKeyToHybridEnd: MACMultiKeyBounded_0 ~ MACMultiKeySecurity_Hybrid_1
+        HybridEndToMACMultiKey: MACMultiKeySecurity_Hybrid_1 ~ MACMultiKeyBounded_1
+    }
+}

@@ -1,0 +1,45 @@
+composition MACMultiKeyBoundedGame {
+    /* The multi-key MAC game with the number of keys capped at n_ideal - n_real. */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    const b_mac:   Bool;
+    const n_real:  Integer;
+    const n_ideal: Integer;
+    const mac:     fn Psk, Msg -> Tag;
+
+    instance KeyBound = KeyBound {
+        params {
+            n_real:  n_real,
+            n_ideal: n_ideal,
+        }
+    }
+
+    instance MACMultiKey = MACMultiKey {
+        types {
+            Psk: Psk,
+            Msg: Msg,
+            Tag: Tag,
+        }
+        params {
+            b_mac: b_mac,
+            mac:   mac,
+        }
+    }
+
+    compose {
+        adversary: {
+            MAC_Gen:     KeyBound,
+            MAC_Corrupt: MACMultiKey,
+            MAC_Mac:     MACMultiKey,
+            MAC_Verify:  MACMultiKey,
+        },
+        KeyBound: {
+            MAC_Gen_Inner: MAC_Gen of MACMultiKey,
+        },
+    }
+}

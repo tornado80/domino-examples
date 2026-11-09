@@ -1,0 +1,65 @@
+composition MACMultiKeySecurity_Hybrid {
+    /* Hybrid over the key index: MACHybridReduction on top of MACSingleKey. */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    const i:      Integer;
+    const b:      Bool;
+    const n_real: Integer;
+    const n_ideal: Integer;
+    const mac:    fn Psk, Msg -> Tag;
+
+    instance KeyBound = KeyBound {
+        params {
+            n_real:  n_real,
+            n_ideal: n_ideal,
+        }
+    }
+
+    instance MACHybridReduction = MACHybridReduction {
+        types {
+            Psk: Psk,
+            Msg: Msg,
+            Tag: Tag,
+        }
+        params {
+            i:      i,
+            n_real: n_real,
+            mac:    mac,
+        }
+    }
+
+    instance MACSingleKey = MACSingleKey {
+        types {
+            Psk: Psk,
+            Msg: Msg,
+            Tag: Tag,
+        }
+        params {
+            b_mac: b,
+            mac:   mac,
+        }
+    }
+
+    compose {
+        adversary: {
+            MAC_Gen:     KeyBound,
+            MAC_Corrupt: MACHybridReduction,
+            MAC_Mac:     MACHybridReduction,
+            MAC_Verify:  MACHybridReduction,
+        },
+        KeyBound: {
+            MAC_Gen_Inner: MAC_Gen of MACHybridReduction,
+        },
+        MACHybridReduction: {
+            Single_Gen:     MACSingleKey,
+            Single_Corrupt: MACSingleKey,
+            Single_Mac:     MACSingleKey,
+            Single_Verify:  MACSingleKey,
+        },
+    }
+}

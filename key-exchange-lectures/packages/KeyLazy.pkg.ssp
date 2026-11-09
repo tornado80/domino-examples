@@ -1,0 +1,37 @@
+package KeyLazy {
+    /*
+     * Assumption KeyLazy: a registered random key can be sampled when it is
+     * registered or at its first use. b_lazy selects sampling at first use.
+     */
+
+    types {
+        Shk,
+    }
+
+    params {
+        b_lazy: Bool,
+    }
+
+    state {
+        Reg: Table(Integer, ()),
+        Key: Table(Integer, Shk),
+    }
+
+    oracle Lazy_Init(h: Integer) {
+        assert (Reg[h] == None);
+        Reg[h] <- Some(());
+        if not b_lazy {
+            k <-$ Shk sample-name eager_key;
+            Key[h] <- Some(k);
+        }
+    }
+
+    oracle Lazy_Get(h: Integer) -> Shk {
+        assert not (Reg[h] == None);
+        if (Key[h] == None) {
+            k <-$ Shk sample-name lazy_key;
+            Key[h] <- Some(k);
+        }
+        return Unwrap(Key[h]);
+    }
+}

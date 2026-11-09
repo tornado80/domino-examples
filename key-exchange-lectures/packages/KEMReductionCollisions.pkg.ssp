@@ -1,0 +1,71 @@
+package KEMReductionCollisions {
+    /*
+     * Reduction to KEMCollisions. Gives the protocol its handle-based KEM
+     * interface. Not an assumption: the equivalences around it are proved.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        EncRand,
+    }
+
+    params {
+        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
+        kem_decaps: fn Sk, Ctxt -> Shk,
+    }
+
+    state {
+        hk_ctr: Integer,
+        h_ctr:  Integer,
+        PK:     Table(Integer, Pk),
+        SK:     Table(Integer, Sk),
+        Hon:    Table(Pk, ()),
+        Key:    Table(Integer, Shk),
+        Valid:  Table(Integer, ()),
+    }
+
+    import oracles {
+        Coll_Gen() -> (Pk, Sk),
+        Coll_Mark(pk: Pk),
+        Coll_Encaps(pk: Pk) -> (Ctxt, Shk),
+    }
+
+    oracle KEM_Gen() -> (Pk, Integer) {
+        (pk, sk) <- parse invoke Coll_Gen();
+        hk_ctr <- (hk_ctr + 1);
+        PK[hk_ctr] <- Some(pk);
+        SK[hk_ctr] <- Some(sk);
+        Hon[pk] <- Some(());
+        return (pk, hk_ctr);
+    }
+
+    oracle KEM_Encaps(pk: Pk) -> (Ctxt, Integer) {
+        invoke Coll_Mark(pk);
+        h_ctr <- (h_ctr + 1);
+        Valid[h_ctr] <- Some(());
+        if not (Hon[pk] == None) {
+            (c, shk) <- parse invoke Coll_Encaps(pk);
+        } else {
+            r <-$ EncRand sample-name kem_encaps;
+            (c, shk) <- parse kem_encaps(r, pk);
+        }
+        Key[h_ctr] <- Some(shk);
+        return (c, h_ctr);
+    }
+
+    oracle KEM_Decaps(hk: Integer, c: Ctxt) -> Integer {
+        sk <- Unwrap(SK[hk]);
+        h_ctr <- (h_ctr + 1);
+        Valid[h_ctr] <- Some(());
+        Key[h_ctr] <- Some(kem_decaps(sk, c));
+        return h_ctr;
+    }
+
+    oracle KEM_Get(h: Integer) -> Shk {
+        assert not (Valid[h] == None);
+        return Unwrap(Key[h]);
+    }
+}

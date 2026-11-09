@@ -1,9 +1,9 @@
 package Model4Modular {
     /*
-     * Model4 written against the MACMultiKey and KEMHandles packages.
+     * Model4 written against the MACMultiKey package and a KEM handle interface.
      *
      * Same as Model4, except that psk lives in MACMultiKey and the session
-     * key field holds a KEMHandles handle, read through KEM_Get. Session
+     * key field holds a KEM handle, read through KEM_Get. Session
      * state:
      *   (role, kid, msg1, msg2, msg3, k, other, accepted)
      *

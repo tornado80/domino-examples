@@ -1,0 +1,40 @@
+composition KEMCollisionsGame {
+    /* Assumption game for KEMCollisions. */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        KgenRand,
+        EncRand,
+    }
+
+    const b_coll:     Bool;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+
+    instance KEMCollisions = KEMCollisions {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_coll: b_coll,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            Coll_Gen: KEMCollisions,
+            Coll_Mark: KEMCollisions,
+            Coll_Encaps: KEMCollisions,
+        },
+    }
+}

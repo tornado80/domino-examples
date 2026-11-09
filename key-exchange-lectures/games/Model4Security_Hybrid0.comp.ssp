@@ -1,0 +1,125 @@
+composition Model4Security_Hybrid0 {
+    /*
+     Hybrids of Model4Security around the assumption KEMCollisions.
+
+       Model4Modular --> Prot4Modular --> KEMReductionCollisions --> KEMCollisions
+
+     b is the Test bit. The MAC is real.
+     */
+
+    types {
+        Psk,
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b: Bool;
+    const b_coll: Bool;
+    const mac:        fn Psk, (Pk, Ctxt, Maybe(Tag)) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model4Modular = Model4Modular {
+        types {
+            Psk:  Psk,
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+            Shk:  Shk,
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot4Modular = Prot4Modular {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+        }
+    }
+
+    instance MACMultiKey = MACMultiKey {
+        types {
+            Psk: Psk,
+            Msg: (Pk, Ctxt, Maybe(Tag)),
+            Tag: Tag,
+        }
+        params {
+            b_mac: false,
+            mac:   mac,
+        }
+    }
+
+    instance KEMReductionCollisions = KEMReductionCollisions {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            EncRand: EncRand,
+        }
+        params {
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMCollisions = KEMCollisions {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_coll: b_coll,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model4Modular,
+            Corrupt:    Model4Modular,
+            NewSession: Model4Modular,
+            Send1:      Model4Modular,
+            Send2:      Model4Modular,
+            Send3:      Model4Modular,
+            Send4:      Model4Modular,
+            Reveal:     Model4Modular,
+            Test:       Model4Modular,
+        },
+        Model4Modular: {
+            MAC_Gen:     MACMultiKey,
+            MAC_Corrupt: MACMultiKey,
+            KEM_Get:     KEMReductionCollisions,
+            Run1:        Prot4Modular,
+            Run2:        Prot4Modular,
+            Run3:        Prot4Modular,
+            Run4:        Prot4Modular,
+        },
+        Prot4Modular: {
+            MAC_Mac:    MACMultiKey,
+            MAC_Verify: MACMultiKey,
+            KEM_Gen:    KEMReductionCollisions,
+            KEM_Encaps: KEMReductionCollisions,
+            KEM_Decaps: KEMReductionCollisions,
+        },
+        KEMReductionCollisions: {
+            Coll_Gen: KEMCollisions,
+            Coll_Mark: KEMCollisions,
+            Coll_Encaps: KEMCollisions,
+        },
+    }
+}

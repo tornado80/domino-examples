@@ -1,0 +1,76 @@
+package MACHybridReduction {
+    /*
+     * Key position kid is at hybrid position n_real + kid.
+     *   position == i: delegated to the single-key game below;
+     *   position <  i: locally ideal (table check while uncorrupted);
+     *   position >  i: locally real.
+     */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    params {
+        i:      Integer,
+        n_real: Integer,
+        mac:    fn Psk, Msg -> Tag,
+    }
+
+    state {
+        kid_ctr: Integer,
+        K:       Table(Integer, Psk),
+        C:       Table(Integer, ()),
+        T:       Table((Integer, Msg), Tag),
+    }
+
+    import oracles {
+        Single_Gen(),
+        Single_Corrupt() -> Psk,
+        Single_Mac(m: Msg) -> Tag,
+        Single_Verify(m: Msg, t: Tag) -> Bool,
+    }
+
+    oracle MAC_Gen() -> Integer {
+        kid_ctr <- (kid_ctr + 1);
+        if ((n_real + kid_ctr) == i) {
+            invoke Single_Gen();
+        } else {
+            k <-$ Psk sample-name psk;
+            K[kid_ctr] <- Some(k);
+        }
+        return kid_ctr;
+    }
+
+    oracle MAC_Corrupt(kid: Integer) -> Psk {
+        if ((n_real + kid) == i) {
+            psk <- invoke Single_Corrupt();
+            return psk;
+        }
+        C[kid] <- Some(());
+        return Unwrap(K[kid]);
+    }
+
+    oracle MAC_Mac(kid: Integer, m: Msg) -> Tag {
+        if ((n_real + kid) == i) {
+            tag <- invoke Single_Mac(m);
+            return tag;
+        }
+        t <- mac(Unwrap(K[kid]), m);
+        T[(kid, m)] <- Some(t);
+        return t;
+    }
+
+    oracle MAC_Verify(kid: Integer, m: Msg, t: Tag) -> Bool {
+        if ((n_real + kid) == i) {
+            ok <- invoke Single_Verify(m, t);
+            return ok;
+        }
+        k <- Unwrap(K[kid]);
+        if (((n_real + kid) < i) and (C[kid] == None)) {
+            return (T[(kid, m)] == Some(t));
+        }
+        return (mac(k, m) == t);
+    }
+}

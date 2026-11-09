@@ -1,6 +1,6 @@
 package Prot4Modular {
     /*
-     * Protocol IV written against the MACMultiKey and KEMHandles packages.
+     * Protocol IV written against the MACMultiKey package and a KEM handle interface.
      *
      * Same as Prot4, except that the session holds the key id kid instead of
      * psk, integer handles instead of sk_fs and shk_fs, and the MAC is called

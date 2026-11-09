@@ -1,21 +1,9 @@
-package KEMHandles {
+package KEMReductionLazy {
     /*
-     * Handle-based KEM package used by the hybrids of Model4Security and by
-     * the KEM assumptions.
-     *
-     * The caller never sees secret keys or shared keys. It holds an integer
-     * handle hk for a key pair and an integer handle h for a shared key, and
-     * reads shared keys through KEM_Get. Handles are allocated identically
-     * for all values of the booleans, because the adversary sees them in
-     * the assumption games.
-     *
-     *   b_correct: Decaps of an honest ciphertext aliases the handle of its
-     *              encapsulation instead of running kem_decaps.
-     *   b_coll:    Gen and Encaps abort on public-key and ciphertext
-     *              collisions.
-     *   b_ind:     Encaps to an honest public key uses a random shared key.
-     *   b_lazy:    that random shared key is sampled at the first KEM_Get
-     *              instead of in Encaps.
+     * Reduction to KeyLazy. Runs the KEM locally. The shared key of an
+     * encapsulation to an honest public key lives in KeyLazy, and
+     * decapsulation of that ciphertext aliases its handle.
+     * Not an assumption: the equivalences around it are proved.
      */
 
     types {
@@ -28,10 +16,6 @@ package KEMHandles {
     }
 
     params {
-        b_correct:  Bool,
-        b_coll:     Bool,
-        b_ind:      Bool,
-        b_lazy:     Bool,
         kem_kgen:   fn KgenRand -> (Pk, Sk),
         kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
         kem_decaps: fn Sk, Ctxt -> Shk,
@@ -50,13 +34,16 @@ package KEMHandles {
         Valid:  Table(Integer, ()),
     }
 
+    import oracles {
+        Lazy_Init(h: Integer),
+        Lazy_Get(h: Integer) -> Shk,
+    }
+
     oracle KEM_Gen() -> (Pk, Integer) {
         r <-$ KgenRand sample-name kem_kgen;
         (pk, sk) <- parse kem_kgen(r);
-        if b_coll {
-            assert (Hon[pk] == None);
-            assert (Seen[pk] == None);
-        }
+        assert (Hon[pk] == None);
+        assert (Seen[pk] == None);
         hk_ctr <- (hk_ctr + 1);
         PK[hk_ctr] <- Some(pk);
         SK[hk_ctr] <- Some(sk);
@@ -69,25 +56,14 @@ package KEMHandles {
         (c, shk) <- parse kem_encaps(r, pk);
         h_ctr <- (h_ctr + 1);
         Valid[h_ctr] <- Some(());
-        if b_coll {
-            if not (Hon[pk] == None) {
-                assert (HC[(pk, c)] == None);
-            }
-        }
-        Seen[pk] <- Some(());
         if not (Hon[pk] == None) {
+            assert (HC[(pk, c)] == None);
             HC[(pk, c)] <- Some(h_ctr);
-            if b_ind {
-                if not b_lazy {
-                    k <-$ Shk sample-name eager_key;
-                    Key[h_ctr] <- Some(k);
-                }
-            } else {
-                Key[h_ctr] <- Some(shk);
-            }
+            invoke Lazy_Init(h_ctr);
         } else {
             Key[h_ctr] <- Some(shk);
         }
+        Seen[pk] <- Some(());
         return (c, h_ctr);
     }
 
@@ -97,7 +73,7 @@ package KEMHandles {
         h_ctr <- (h_ctr + 1);
         Valid[h_ctr] <- Some(());
         e <- HC[(pk, c)];
-        if (b_correct and not (e == None)) {
+        if not (e == None) {
             Alias[h_ctr] <- e;
         } else {
             Key[h_ctr] <- Some(kem_decaps(sk, c));
@@ -111,10 +87,10 @@ package KEMHandles {
         if not (Alias[h] == None) {
             r <- Unwrap(Alias[h]);
         }
-        if (Key[r] == None) {
-            k <-$ Shk sample-name lazy_key;
-            Key[r] <- Some(k);
+        if not (Key[r] == None) {
+            return Unwrap(Key[r]);
         }
-        return Unwrap(Key[r]);
+        shk <- invoke Lazy_Get(r);
+        return shk;
     }
 }

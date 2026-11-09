@@ -1,0 +1,33 @@
+composition MACSingleKeyGame {
+    /* Assumption game: single-key MAC with corruption. */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    const b_mac: Bool;
+    const mac:   fn Psk, Msg -> Tag;
+
+    instance MACSingleKey = MACSingleKey {
+        types {
+            Psk: Psk,
+            Msg: Msg,
+            Tag: Tag,
+        }
+        params {
+            b_mac: b_mac,
+            mac:   mac,
+        }
+    }
+
+    compose {
+        adversary: {
+            Single_Gen:     MACSingleKey,
+            Single_Corrupt: MACSingleKey,
+            Single_Mac:     MACSingleKey,
+            Single_Verify:  MACSingleKey,
+        },
+    }
+}
