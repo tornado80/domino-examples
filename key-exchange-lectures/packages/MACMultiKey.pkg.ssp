@@ -1,0 +1,53 @@
+package MACMultiKey {
+    /*
+     * Multi-key MAC with adaptive corruption, in real/ideal form.
+     *
+     * b_mac = false: Verify recomputes the tag.
+     * b_mac = true : while a key is uncorrupted, Verify only accepts tags
+     *                that MAC_Mac returned for that key and message.
+     */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    params {
+        b_mac: Bool,
+        mac:   fn Psk, Msg -> Tag,
+    }
+
+    state {
+        kid_ctr: Integer,
+        K:       Table(Integer, Psk),
+        C:       Table(Integer, ()),
+        T:       Table((Integer, Msg), Tag),
+    }
+
+    oracle MAC_Gen() -> Integer {
+        kid_ctr <- (kid_ctr + 1);
+        k <-$ Psk sample-name psk;
+        K[kid_ctr] <- Some(k);
+        return kid_ctr;
+    }
+
+    oracle MAC_Corrupt(kid: Integer) -> Psk {
+        C[kid] <- Some(());
+        return Unwrap(K[kid]);
+    }
+
+    oracle MAC_Mac(kid: Integer, m: Msg) -> Tag {
+        t <- mac(Unwrap(K[kid]), m);
+        T[(kid, m)] <- Some(t);
+        return t;
+    }
+
+    oracle MAC_Verify(kid: Integer, m: Msg, t: Tag) -> Bool {
+        k <- Unwrap(K[kid]);
+        if (b_mac and (C[kid] == None)) {
+            return (T[(kid, m)] == Some(t));
+        }
+        return (mac(k, m) == t);
+    }
+}

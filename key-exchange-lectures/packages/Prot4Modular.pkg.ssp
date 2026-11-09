@@ -1,0 +1,104 @@
+package Prot4Modular {
+    /*
+     * Protocol IV written against the MACMultiKey and KEMHandles packages.
+     *
+     * Same as Prot4, except that the session holds the key id kid instead of
+     * psk, integer handles instead of sk_fs and shk_fs, and the MAC is called
+     * through imported oracles. Session state:
+     *   (role, kid, msg1, msg2, msg3, k, other, accepted)
+     * with other = (hk, None) for the initiator and (None, h) for the
+     * responder.
+     */
+
+    types {
+        Pk,
+        Ctxt,
+        Tag,
+    }
+
+    import oracles {
+        MAC_Mac(kid: Integer, m: (Pk, Ctxt, Maybe(Tag))) -> Tag,
+        MAC_Verify(kid: Integer, m: (Pk, Ctxt, Maybe(Tag)), t: Tag) -> Bool,
+        KEM_Gen() -> (Pk, Integer),
+        KEM_Encaps(pk: Pk) -> (Ctxt, Integer),
+        KEM_Decaps(hk: Integer, c: Ctxt) -> Integer,
+    }
+
+    /* Initiator: ephemeral key pair. */
+    oracle Run1(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)))
+        -> (Pk, (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)))
+    {
+        (role, kid, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, hk_fs) <- parse invoke KEM_Gen();
+
+        return (pk_fs, (role, kid, Some(pk_fs), msg2, msg3, k, Some((Some(hk_fs), None as Integer)), accepted));
+    }
+
+    /* Responder: encapsulate to pk_fs and authenticate. */
+    oracle Run2(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), pk_fs: Pk)
+        -> ((Ctxt, Tag), (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)))
+    {
+        (role, kid, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (c_fs, h_fs) <- parse invoke KEM_Encaps(pk_fs);
+        t_R <- invoke MAC_Mac(kid, (pk_fs, c_fs, None as Tag));
+        m2 <- (c_fs, t_R);
+
+        return (m2, (role, kid, Some(pk_fs), Some(m2), msg3, k, Some((None as Integer, Some(h_fs))), accepted));
+    }
+
+    /* Initiator: verify t_R, decapsulate, compute t_I, delete hk_fs and accept. */
+    oracle Run3(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), m2: (Ctxt, Tag))
+        -> (Maybe(Tag), (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)))
+    {
+        (role, kid, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        pk_fs <- Unwrap(msg1);
+        (hk_fs, unused) <- parse Unwrap(other);
+        (c_fs, t_R) <- parse m2;
+
+        ok <- invoke MAC_Verify(kid, (pk_fs, c_fs, None as Tag), t_R);
+        if ok {
+            h_fs <- invoke KEM_Decaps(Unwrap(hk_fs), c_fs);
+            t_I <- invoke MAC_Mac(kid, (pk_fs, c_fs, Some(t_R)));
+            return (Some(t_I), (role, kid, msg1, Some(m2), Some(t_I), Some(h_fs),
+                                Some((None as Integer, unused)), Some(true)));
+        }
+
+        return (None as Tag, (role, kid, msg1, Some(m2), msg3, k,
+                              Some((None as Integer, unused)), Some(false)));
+    }
+
+    /* Responder: verify t_I and accept. */
+    oracle Run4(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), t_I: Tag)
+        -> (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool))
+    {
+        (role, kid, msg1, msg2, msg3, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert not (msg2 == None);
+        assert (msg3 == None);
+
+        pk_fs <- Unwrap(msg1);
+        (c_fs, t_R) <- parse Unwrap(msg2);
+        (unused, h_fs) <- parse Unwrap(other);
+
+        ok <- invoke MAC_Verify(kid, (pk_fs, c_fs, Some(t_R)), t_I);
+        if ok {
+            return (role, kid, msg1, msg2, Some(t_I), h_fs, other, Some(true));
+        }
+
+        return (role, kid, msg1, msg2, Some(t_I), k, other, Some(false));
+    }
+}

@@ -1,0 +1,156 @@
+package Model4Modular {
+    /*
+     * Model4 written against the MACMultiKey and KEMHandles packages.
+     *
+     * Same as Model4, except that psk lives in MACMultiKey and the session
+     * key field holds a KEMHandles handle, read through KEM_Get. Session
+     * state:
+     *   (role, kid, msg1, msg2, msg3, k, other, accepted)
+     *
+     * InitOf and RespOf are ghost tables for the proof: they name the
+     * session that produced a given ephemeral public key or encapsulation.
+     */
+
+    params {
+        b: Bool,
+    }
+
+    types {
+        Psk,
+        Pk,
+        Ctxt,
+        Tag,
+        Shk,
+    }
+
+    state {
+        ctr_:   Integer,
+        PSK:    Table(Integer, Integer),
+        C:      Table(Integer, ()),
+        KID:    Table(Integer, Integer),
+        Fresh:  Table(Integer, ()),
+        TR:     Table((Pk, (Ctxt, Tag)), ()),
+        State:  Table(Integer, (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool))),
+        InitOf: Table(Pk, Integer),
+        RespOf: Table((Pk, Ctxt), Integer),
+    }
+
+    import oracles {
+        MAC_Gen() -> Integer,
+        MAC_Corrupt(kid: Integer) -> Psk,
+        KEM_Get(h: Integer) -> Shk,
+        Run1(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)))
+            -> (Pk, (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool))),
+        Run2(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), m1: Pk)
+            -> ((Ctxt, Tag), (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool))),
+        Run3(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), m2: (Ctxt, Tag))
+            -> (Maybe(Tag), (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool))),
+        Run4(st: (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)), m3: Tag)
+            -> (Bool, Integer, Maybe(Pk), Maybe((Ctxt, Tag)), Maybe(Tag), Maybe(Integer), Maybe((Maybe(Integer), Maybe(Integer))), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Integer {
+        kid <- invoke MAC_Gen();
+        PSK[kid] <- Some(kid);
+        return kid;
+    }
+
+    oracle Corrupt(kid: Integer) -> Psk {
+        C[kid] <- Some(());
+        assert not (PSK[kid] == None);
+        psk <- invoke MAC_Corrupt(kid);
+        return psk;
+    }
+
+    oracle NewSession(kid: Integer, role: Bool) -> Integer {
+        psk <- PSK[kid];
+        assert not (psk == None);
+        ctr_ <- (ctr_ + 1);
+        State[ctr_] <- Some((role, Unwrap(psk), None as Pk, None as (Ctxt, Tag), None as Tag, None as Integer, None as (Maybe(Integer), Maybe(Integer)), None as Bool));
+        KID[ctr_] <- Some(kid);
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> Pk {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        InitOf[m1] <- Some(ctr);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: Pk) -> (Ctxt, Tag) {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        (c, t) <- parse m2;
+        RespOf[(m1, c)] <- Some(ctr);
+        return m2;
+    }
+
+    /* Returns None when the initiator rejects: no third message is produced. */
+    oracle Send3(ctr: Integer, m2: (Ctxt, Tag)) -> Maybe(Tag) {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        (m3, st_) <- parse invoke Run3(st, m2);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        return m3;
+    }
+
+    oracle Send4(ctr: Integer, m3: Tag) {
+        st <- Unwrap(State[ctr]);
+        kid <- Unwrap(KID[ctr]);
+        st_ <- invoke Run4(st, m3);
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[kid] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Shk {
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        key <- invoke KEM_Get(Unwrap(k));
+        return key;
+    }
+
+    oracle Test(ctr: Integer) -> Shk {
+        (role, psk, msg1, msg2, msg3, k, other, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (Fresh[ctr] == Some(()));      /* restriction TC^fs */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+
+        if b {
+            k_ <-$ Shk sample-name test;
+        } else {
+            k_ <- invoke KEM_Get(Unwrap(k));
+        }
+        return k_;
+    }
+}

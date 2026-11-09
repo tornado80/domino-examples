@@ -5,8 +5,28 @@ theorem Model4Security {
      * Packages and games are generic in all types. The theorem instantiates
      * them with bitstrings, because abstract theorem-level types are not in
      * scope for the theorem's const declarations on this Domino branch.
+     *
+     * Hybrid booleans, in order: b, b_correct, b_coll, b_mac, b_ind, b_lazy.
+     * Hops 0 to 5 are proved for the symbolic Test bit b; the last hop
+     * switches b in the fully idealised game.
+     *
+     * Assumptions:
+     *
+     *   KEMCorrectness  Perfect correctness of the KEM: decapsulating an
+     *                   honest ciphertext yields the encapsulated key.
+     *   KEMCollisions   Statistical: public keys and ciphertexts have high
+     *                   min-entropy, so the collision aborts rarely fire.
+     *   KEMIndCca       Multi-key, multi-challenge IND-CCA of the KEM. Implied
+     *                   by the lecture's single-key game, with a loss of a
+     *                   factor of the number of keys.
+     *   KEMLazy         Perfect: sampling the random shared key at
+     *                   encapsulation or at first use is the same distribution.
+     *   MAC             Multi-key EUF-CMA with adaptive corruption, in
+     *                   real/ideal form. Before corruption, the two games
+     *                   differ only on a forgery for that key.
      */
 
+    const b:     Bool;
     const lpsk:  Integer;
     const lpk:   Integer;
     const lsk:   Integer;
@@ -61,8 +81,777 @@ theorem Model4Security {
         }
     }
 
+    instance KX4_b = KX4 {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b:          b,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_0_0_0_0_0 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: false,
+            b_coll: false,
+            b_mac: false,
+            b_ind: false,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_1_0_0_0_0 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: true,
+            b_coll: false,
+            b_mac: false,
+            b_ind: false,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_1_1_0_0_0 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: true,
+            b_coll: true,
+            b_mac: false,
+            b_ind: false,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_1_1_1_0_0 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: true,
+            b_coll: true,
+            b_mac: true,
+            b_ind: false,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_1_1_1_1_0 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: true,
+            b_coll: true,
+            b_mac: true,
+            b_ind: true,
+            b_lazy: false,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_b_1_1_1_1_1 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_correct: true,
+            b_coll: true,
+            b_mac: true,
+            b_ind: true,
+            b_lazy: true,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_0_1_1_1_1_1 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: false,
+            b_correct: true,
+            b_coll: true,
+            b_mac: true,
+            b_ind: true,
+            b_lazy: true,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model4Security_Hybrid_1_1_1_1_1_1 = Model4Security_Hybrid {
+        types {
+            Psk:      Bits(lpsk),
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Tag:      Bits(ltag),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: true,
+            b_correct: true,
+            b_coll: true,
+            b_mac: true,
+            b_ind: true,
+            b_lazy: true,
+            mac:        mac,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMHandlesGame_0_0_0_0 = KEMHandlesGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_correct: false,
+            b_coll: false,
+            b_ind: false,
+            b_lazy: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMHandlesGame_1_0_0_0 = KEMHandlesGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_correct: true,
+            b_coll: false,
+            b_ind: false,
+            b_lazy: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMHandlesGame_1_1_0_0 = KEMHandlesGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_correct: true,
+            b_coll: true,
+            b_ind: false,
+            b_lazy: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMHandlesGame_1_1_1_0 = KEMHandlesGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_correct: true,
+            b_coll: true,
+            b_ind: true,
+            b_lazy: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMHandlesGame_1_1_1_1 = KEMHandlesGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_correct: true,
+            b_coll: true,
+            b_ind: true,
+            b_lazy: true,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance MACMultiKeyGame_0 = MACMultiKeyGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: false,
+            mac:   mac,
+        }
+    }
+
+    instance MACMultiKeyGame_1 = MACMultiKeyGame {
+        types {
+            Psk: Bits(lpsk),
+            Msg: (Bits(lpk), Bits(lct), Maybe(Bits(ltag))),
+            Tag: Bits(ltag),
+        }
+        params {
+            b_mac: true,
+            mac:   mac,
+        }
+    }
+
+    assumptions {
+        KEMCorrectness: KEMHandlesGame_0_0_0_0 ~ KEMHandlesGame_1_0_0_0
+        KEMCollisions:  KEMHandlesGame_1_0_0_0 ~ KEMHandlesGame_1_1_0_0
+        KEMIndCca:      KEMHandlesGame_1_1_0_0 ~ KEMHandlesGame_1_1_1_0
+        KEMLazy:        KEMHandlesGame_1_1_1_0 ~ KEMHandlesGame_1_1_1_1
+        MAC:            MACMultiKeyGame_0 ~ MACMultiKeyGame_1
+    }
+
     gamehops {
-        conjecture KX4_0 KX4_1
+        equivalence KX4_b Model4Security_Hybrid_b_0_0_0_0_0 {
+            invariant: [
+                ./theorem/invariant-KX4_b-Model4Security_Hybrid_b_0_0_0_0_0.smt2
+            ]
+            NewKey: {
+                randomness: custom
+            }
+            Corrupt: {
+                randomness: custom
+            }
+            NewSession: {
+                randomness: custom
+            }
+            Send1: {
+                randomness: custom
+            }
+            Send2: {
+                randomness: custom
+            }
+            Send3: {
+                randomness: custom
+            }
+            Send4: {
+                randomness: custom
+            }
+            Reveal: {
+                randomness: custom
+            }
+            Test: {
+                randomness: custom
+            }
+        }
+
+        reduction Model4Security_Hybrid_b_0_0_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
+            assumption KEMCorrectness
+            map KEMHandlesGame_0_0_0_0 Model4Security_Hybrid_b_0_0_0_0_0 {
+                KEMHandles: KEMHandles
+            }
+            map KEMHandlesGame_1_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
+                KEMHandles: KEMHandles
+            }
+        }
+
+        reduction Model4Security_Hybrid_b_1_0_0_0_0 Model4Security_Hybrid_b_1_1_0_0_0 {
+            assumption KEMCollisions
+            map KEMHandlesGame_1_0_0_0 Model4Security_Hybrid_b_1_0_0_0_0 {
+                KEMHandles: KEMHandles
+            }
+            map KEMHandlesGame_1_1_0_0 Model4Security_Hybrid_b_1_1_0_0_0 {
+                KEMHandles: KEMHandles
+            }
+        }
+
+        reduction Model4Security_Hybrid_b_1_1_0_0_0 Model4Security_Hybrid_b_1_1_1_0_0 {
+            assumption MAC
+            map MACMultiKeyGame_0 Model4Security_Hybrid_b_1_1_0_0_0 {
+                MACMultiKey: MACMultiKey
+            }
+            map MACMultiKeyGame_1 Model4Security_Hybrid_b_1_1_1_0_0 {
+                MACMultiKey: MACMultiKey
+            }
+        }
+
+        reduction Model4Security_Hybrid_b_1_1_1_0_0 Model4Security_Hybrid_b_1_1_1_1_0 {
+            assumption KEMIndCca
+            map KEMHandlesGame_1_1_0_0 Model4Security_Hybrid_b_1_1_1_0_0 {
+                KEMHandles: KEMHandles
+            }
+            map KEMHandlesGame_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_0 {
+                KEMHandles: KEMHandles
+            }
+        }
+
+        reduction Model4Security_Hybrid_b_1_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_1 {
+            assumption KEMLazy
+            map KEMHandlesGame_1_1_1_0 Model4Security_Hybrid_b_1_1_1_1_0 {
+                KEMHandles: KEMHandles
+            }
+            map KEMHandlesGame_1_1_1_1 Model4Security_Hybrid_b_1_1_1_1_1 {
+                KEMHandles: KEMHandles
+            }
+        }
+
+        equivalence Model4Security_Hybrid_0_1_1_1_1_1 Model4Security_Hybrid_1_1_1_1_1_1 {
+            invariant: [
+                ./theorem/invariant-Model4Security_Hybrid_0_1_1_1_1_1-Model4Security_Hybrid_1_1_1_1_1_1.smt2
+            ]
+            NewKey: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Corrupt: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            NewSession: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Send1: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Send2: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Send3: {
+                randomness: custom
+                lemmas {
+                    send3-hc-instance: [no-abort]
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t, send3-hc-instance]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Send4: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Reveal: {
+                randomness: custom
+                lemmas {
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort]
+                    key-unset: [no-abort]
+                    equal-aborts: []
+                    same-output: [no-abort]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+            Test: {
+                randomness: custom
+                lemmas {
+                    test-resp-prov: [no-abort]
+                    test-init-prov: [no-abort]
+                    test-unset: [no-abort, test-resp-prov, test-init-prov]
+                    test-target: [no-abort, test-resp-prov, test-init-prov]
+                    eq-model: [no-abort]
+                    eq-mac: [no-abort]
+                    eq-kem: [no-abort]
+                    corr-eq: [no-abort]
+                    bound-kem: [no-abort]
+                    bound-alias: [no-abort]
+                    bound-hc: [no-abort]
+                    bound-pk: [no-abort]
+                    bound-sess: [no-abort]
+                    psk-self: [no-abort]
+                    sess-kid: [no-abort]
+                    fresh-accepted: [no-abort]
+                    resp-shape: [no-abort]
+                    resp-k: [no-abort]
+                    init-shape: [no-abort]
+                    init-m2-m1: [no-abort]
+                    init-accepted: [no-abort]
+                    hc-prov: [no-abort]
+                    resp-unique: [no-abort]
+                    t-none-seen: [no-abort]
+                    t-none-prov: [no-abort]
+                    t-none-hc: [no-abort]
+                    t-some-prov: [no-abort]
+                    fresh-init-t: [no-abort]
+                    fresh-init-alias: [no-abort, fresh-init-t]
+                    fresh-resp-t: [no-abort]
+                    key-rel: [no-abort, test-resp-prov, test-init-prov, test-unset, test-target]
+                    key-unset: [no-abort, test-unset]
+                    equal-aborts: []
+                    same-output: [no-abort, test-unset]
+                    invariant: [no-abort, eq-model, eq-mac, eq-kem, corr-eq, bound-kem, bound-alias, bound-hc, bound-pk, bound-sess, psk-self, sess-kid, fresh-accepted, resp-shape, resp-k, init-shape, init-m2-m1, init-accepted, hc-prov, resp-unique, t-none-seen, t-none-prov, t-none-hc, t-some-prov, fresh-init-t, fresh-init-alias, fresh-resp-t, key-rel, key-unset]
+                }
+            }
+        }
+
     }
 
     propositions {

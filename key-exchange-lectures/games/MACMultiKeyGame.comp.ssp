@@ -1,0 +1,33 @@
+composition MACMultiKeyGame {
+    /* Assumption game for the MAC: multi-key EUF-CMA with adaptive corruption. */
+
+    types {
+        Psk,
+        Msg,
+        Tag,
+    }
+
+    const b_mac: Bool;
+    const mac:   fn Psk, Msg -> Tag;
+
+    instance MACMultiKey = MACMultiKey {
+        types {
+            Psk: Psk,
+            Msg: Msg,
+            Tag: Tag,
+        }
+        params {
+            b_mac: b_mac,
+            mac:   mac,
+        }
+    }
+
+    compose {
+        adversary: {
+            MAC_Gen:     MACMultiKey,
+            MAC_Corrupt: MACMultiKey,
+            MAC_Mac:     MACMultiKey,
+            MAC_Verify:  MACMultiKey,
+        },
+    }
+}
