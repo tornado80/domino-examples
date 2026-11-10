@@ -1,0 +1,96 @@
+package KEMPrf {
+    /*
+     * Assumption KEMPrf: keys derived with a PRF from a KEM shared key are
+     * pseudorandom, for many public keys with adaptive corruption.
+     *
+     * The shared keys stay real everywhere, and only KP_Test depends on b_kp:
+     * b_kp = false returns the real derived key and b_kp = true a random key.
+     * A public key is either corrupted or tested, never both. A triple
+     * (pk, c, x) can be revealed or tested at most once.
+     *
+     * The real/ideal difference cannot be split into a KEM hop and a PRF hop,
+     * because encapsulation happens before it is known whether pk will be
+     * corrupted.
+     *
+     * Paper justification, for a bound of about n * (eps_cca + q_e * eps_prf)
+     * with n keys and q_e encapsulations: use a hybrid over the keys. For one
+     * key, a run that calls KP_Corrupt never completes a KP_Test, so the two
+     * games agree on it and the adversary can stop at KP_Corrupt without
+     * changing its advantage. Without corruption, apply single-key IND-CCA and
+     * then the PRF for every honest ciphertext.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Nonce,
+        Key,
+        KgenRand,
+        EncRand,
+    }
+
+    params {
+        b_kp:       Bool,
+        prf:        fn Shk, Nonce -> Key,
+        kem_kgen:   fn KgenRand -> (Pk, Sk),
+        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
+        kem_decaps: fn Sk, Ctxt -> Shk,
+    }
+
+    state {
+        SK: Table(Pk, Sk),
+        C:  Table(Pk, ()),
+        T:  Table(Pk, ()),
+        S:  Table((Pk, Ctxt), Shk),
+        TR: Table((Pk, Ctxt, Nonce), ()),
+    }
+
+    oracle KP_Gen() -> Pk {
+        r <-$ KgenRand sample-name kem_kgen;
+        (pk, sk) <- parse kem_kgen(r);
+        SK[pk] <- Some(sk);
+        return pk;
+    }
+
+    oracle KP_Corrupt(pk: Pk) -> Sk {
+        assert (T[pk] == None);
+        C[pk] <- Some(());
+        return Unwrap(SK[pk]);
+    }
+
+    oracle KP_Encaps(pk: Pk) -> Ctxt {
+        assert not (SK[pk] == None);
+        r <-$ EncRand sample-name kem_encaps;
+        (c, shk) <- parse kem_encaps(r, pk);
+        S[(pk, c)] <- Some(shk);
+        return c;
+    }
+
+    /* Reveal of a key derived from an honest encapsulation. */
+    oracle KP_RevealI(pk: Pk, c: Ctxt, x: Nonce) -> Key {
+        assert (TR[(pk, c, x)] == None);
+        TR[(pk, c, x)] <- Some(());
+        return prf(Unwrap(S[(pk, c)]), x);
+    }
+
+    /* Reveal of a key derived by decapsulating any ciphertext. */
+    oracle KP_RevealR(pk: Pk, c: Ctxt, x: Nonce) -> Key {
+        assert (TR[(pk, c, x)] == None);
+        TR[(pk, c, x)] <- Some(());
+        return prf(kem_decaps(Unwrap(SK[pk]), c), x);
+    }
+
+    oracle KP_Test(pk: Pk, c: Ctxt, x: Nonce) -> Key {
+        assert (C[pk] == None);
+        assert (TR[(pk, c, x)] == None);
+        TR[(pk, c, x)] <- Some(());
+        T[pk] <- Some(());
+        if b_kp {
+            k <-$ Key sample-name test;
+            return k;
+        }
+        return prf(Unwrap(S[(pk, c)]), x);
+    }
+}

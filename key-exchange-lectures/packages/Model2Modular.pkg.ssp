@@ -1,0 +1,132 @@
+package Model2Modular {
+    /*
+     * Model2 written against KEMMac for the long-term keys and a KEM handle
+     * interface for the session keys. Session state:
+     *   (role, pk, msg1, msg2, k, hk_fs, accepted)
+     *
+     * InitOf and RespOf are ghost tables for the proof: they name the session
+     * that produced a given ephemeral public key or encapsulation.
+     */
+
+    params {
+        b: Bool,
+    }
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Tag,
+        Shk,
+    }
+
+    state {
+        ctr_:   Integer,
+        Reg:    Table(Pk, ()),
+        C:      Table(Pk, ()),
+        Fresh:  Table(Integer, ()),
+        TR:     Table(((Pk, Ctxt), (Ctxt, Tag)), ()),
+        State:  Table(Integer, (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool))),
+        InitOf: Table(Pk, Integer),
+        RespOf: Table((Pk, Ctxt), Integer),
+    }
+
+    import oracles {
+        LT_Gen() -> Pk,
+        KM_Corrupt(pk: Pk) -> Sk,
+        KEM_Get(h: Integer) -> Shk,
+        Run1(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)))
+            -> ((Pk, Ctxt), (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool))),
+        Run2(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)), m1: (Pk, Ctxt))
+            -> ((Ctxt, Tag), (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool))),
+        Run3(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)), m2: (Ctxt, Tag))
+            -> (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Pk {
+        pk <- invoke LT_Gen();
+        Reg[pk] <- Some(());
+        return pk;
+    }
+
+    oracle Corrupt(pk: Pk) -> Sk {
+        C[pk] <- Some(());
+        sk <- invoke KM_Corrupt(pk);
+        return sk;
+    }
+
+    oracle NewSession(pk: Pk, role: Bool) -> Integer {
+        assert not (Reg[pk] == None);
+        ctr_ <- (ctr_ + 1);
+        State[ctr_] <- Some((role, pk, None as (Pk, Ctxt), None as (Ctxt, Tag), None as Integer, None as Integer, None as Bool));
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> (Pk, Ctxt) {
+        st <- Unwrap(State[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[pk] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        (pk_fs, c_R) <- parse m1;
+        InitOf[pk_fs] <- Some(ctr);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: (Pk, Ctxt)) -> (Ctxt, Tag) {
+        st <- Unwrap(State[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[pk] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+        (pk_fs, c_R) <- parse m1;
+        (c_fs, t_R) <- parse m2;
+        RespOf[(pk_fs, c_fs)] <- Some(ctr);
+        return m2;
+    }
+
+    oracle Send3(ctr: Integer, m2: (Ctxt, Tag)) {
+        st <- Unwrap(State[ctr]);
+        st_ <- invoke Run3(st, m2);
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st_;
+        if (accepted == Some(true)) {
+            if (C[pk] == None) {
+                Fresh[ctr] <- Some(());
+            }
+        }
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Shk {
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        key <- invoke KEM_Get(Unwrap(k));
+        return key;
+    }
+
+    oracle Test(ctr: Integer) -> Shk {
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (role == false);                 /* only initiators get guarantees */
+        assert (Fresh[ctr] == Some(()));      /* restriction TC^fs */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+
+        if b {
+            k_ <-$ Shk sample-name test;
+        } else {
+            k_ <- invoke KEM_Get(Unwrap(k));
+        }
+        return k_;
+    }
+}

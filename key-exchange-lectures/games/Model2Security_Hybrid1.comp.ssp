@@ -1,0 +1,143 @@
+composition Model2Security_Hybrid1 {
+    /*
+     Hybrids of Model2Security around the assumptions KEMMac and KEMIndCca.
+
+       Model2Modular --> Prot2Modular --> KEMReductionMac --> KEMMac
+                                     \--> KEMReductionIndCca --> KEMIndCca
+
+     b is the Test bit.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b:      Bool;
+    const b_km:   Bool;
+    const b_ind:  Bool;
+    const mac:        fn Shk, (Pk, Ctxt, Ctxt) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model2Modular = Model2Modular {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+            Shk:  Shk,
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot2Modular = Prot2Modular {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+        }
+    }
+
+    instance KEMReductionMac = KEMReductionMac {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+        }
+    }
+
+    instance KEMMac = KEMMac {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            Msg: (Pk, Ctxt, Ctxt),
+            Tag: Tag,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_km: b_km,
+            mac: mac,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMReductionIndCca = KEMReductionIndCca {
+        types {
+            Pk: Pk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            EncRand: EncRand,
+        }
+        params {
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    instance KEMIndCca = KEMIndCca {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_ind: b_ind,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model2Modular,
+            Corrupt:    Model2Modular,
+            NewSession: Model2Modular,
+            Send1:      Model2Modular,
+            Send2:      Model2Modular,
+            Send3:      Model2Modular,
+            Reveal:     Model2Modular,
+            Test:       Model2Modular,
+        },
+        Model2Modular: {
+            LT_Gen:     KEMReductionMac,
+            KM_Corrupt: KEMMac,
+            KEM_Get:    KEMReductionIndCca,
+            Run1:       Prot2Modular,
+            Run2:       Prot2Modular,
+            Run3:       Prot2Modular,
+        },
+        Prot2Modular: {
+            LT_Encaps:  KEMReductionMac,
+            KM_Tag:     KEMMac,
+            KM_Verify:  KEMMac,
+            KEM_Gen:    KEMReductionIndCca,
+            KEM_Encaps: KEMReductionIndCca,
+            KEM_Decaps: KEMReductionIndCca,
+        },
+        KEMReductionMac: {
+            KM_Gen:    KEMMac,
+            KM_Encaps: KEMMac,
+        },
+        KEMReductionIndCca: {
+            Ind_Gen:    KEMIndCca,
+            Ind_Encaps: KEMIndCca,
+            Ind_Decaps: KEMIndCca,
+        },
+    }
+}

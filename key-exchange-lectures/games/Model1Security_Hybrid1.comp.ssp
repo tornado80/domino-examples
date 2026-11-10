@@ -1,0 +1,101 @@
+composition Model1Security_Hybrid1 {
+    /*
+     Hybrid of Model1Security around the assumption KEMPrf.
+
+       Model1Modular --> Prot1Modular --> KEMReductionPrf --> KEMPrf
+
+     The Test bit is the bit b_kp of KEMPrf.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Nonce,
+        Key,
+        KgenRand,
+        EncRand,
+    }
+
+    const b_kp:       Bool;
+    const prf:        fn Shk, Nonce -> Key;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model1Modular = Model1Modular {
+        types {
+            Pk:    Pk,
+            Sk:    Sk,
+            Ctxt:  Ctxt,
+            Nonce: Nonce,
+            Key:   Key,
+        }
+    }
+
+    instance Prot1Modular = Prot1Modular {
+        types {
+            Pk:    Pk,
+            Ctxt:  Ctxt,
+            Nonce: Nonce,
+        }
+    }
+
+    instance KEMReductionPrf = KEMReductionPrf {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+        }
+    }
+
+    instance KEMPrf = KEMPrf {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            Nonce: Nonce,
+            Key: Key,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_kp: b_kp,
+            prf: prf,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model1Modular,
+            Corrupt:    Model1Modular,
+            NewSession: Model1Modular,
+            Send1:      Model1Modular,
+            Send2:      Model1Modular,
+            Send3:      Model1Modular,
+            Reveal:     Model1Modular,
+            Test:       Model1Modular,
+        },
+        Model1Modular: {
+            KEM_Gen:    KEMReductionPrf,
+            KP_Corrupt: KEMPrf,
+            KP_RevealI: KEMPrf,
+            KP_RevealR: KEMPrf,
+            KP_Test:    KEMPrf,
+            Run1:       Prot1Modular,
+            Run2:       Prot1Modular,
+            Run3:       Prot1Modular,
+        },
+        Prot1Modular: {
+            KEM_Encaps: KEMReductionPrf,
+        },
+        KEMReductionPrf: {
+            KP_Gen:    KEMPrf,
+            KP_Encaps: KEMPrf,
+        },
+    }
+}

@@ -1,0 +1,85 @@
+package Prot2Split {
+    /*
+     * Protocol II with separate imports for the long-term KEM key (LT_*) and
+     * the ephemeral KEM key (KEM_*). Otherwise identical to Prot2.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+    }
+
+    params {
+        mac: fn Shk, (Pk, Ctxt, Ctxt) -> Tag,
+    }
+
+    import oracles {
+        LT_Gen() -> (Pk, Sk),
+        LT_Encaps(pk: Pk) -> (Ctxt, Shk),
+        LT_Decaps(sk: Sk, c: Ctxt) -> Shk,
+        KEM_Gen() -> (Pk, Sk),
+        KEM_Encaps(pk: Pk) -> (Ctxt, Shk),
+        KEM_Decaps(sk: Sk, c: Ctxt) -> Shk,
+    }
+
+    oracle Kgen() -> (Pk, Sk) {
+        (pk, sk) <- parse invoke LT_Gen();
+        return (pk, sk);
+    }
+
+    oracle Run1(st: (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool)))
+        -> ((Pk, Ctxt), (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool)))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, sk_fs) <- parse invoke KEM_Gen();
+        (c_R, shk_R) <- parse invoke LT_Encaps(pk);
+        m1 <- (pk_fs, c_R);
+
+        return (m1, (role, pk, sk, Some(m1), msg2, k, Some((Some(sk_fs), shk_R)), accepted));
+    }
+
+    oracle Run2(st: (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool)), m1: (Pk, Ctxt))
+        -> ((Ctxt, Tag), (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool)))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, c_R) <- parse m1;
+        shk_R <- invoke LT_Decaps(Unwrap(sk), c_R);
+        (c_fs, shk_fs) <- parse invoke KEM_Encaps(pk_fs);
+        t_R <- mac(shk_R, (pk_fs, c_R, c_fs));
+        m2 <- (c_fs, t_R);
+
+        return (m2, (role, pk, sk, Some(m1), Some(m2), Some(shk_fs), other, Some(true)));
+    }
+
+    oracle Run3(st: (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool)), m2: (Ctxt, Tag))
+        -> (Bool, Pk, Maybe(Sk), Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Shk), Maybe((Maybe(Sk), Shk)), Maybe(Bool))
+    {
+        (role, pk, sk, msg1, msg2, k, other, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        (pk_fs, c_R) <- parse Unwrap(msg1);
+        (sk_fs, shk_R) <- parse Unwrap(other);
+        (c_fs, t_R) <- parse m2;
+
+        if (mac(shk_R, (pk_fs, c_R, c_fs)) == t_R) {
+            shk_fs <- invoke KEM_Decaps(Unwrap(sk_fs), c_fs);
+            return (role, pk, sk, msg1, Some(m2), Some(shk_fs), Some((None as Sk, shk_R)), Some(true));
+        }
+
+        return (role, pk, sk, msg1, Some(m2), k, Some((None as Sk, shk_R)), Some(false));
+    }
+}

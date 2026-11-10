@@ -1,0 +1,36 @@
+package KEMReductionMac {
+    /*
+     * Reduction to KEMMac for the long-term keys. The collision aborts
+     * established by KEMCollisions stay here. Not an assumption: the
+     * equivalences around it are proved.
+     */
+
+    types {
+        Pk,
+        Ctxt,
+    }
+
+    state {
+        Hon: Table(Pk, ()),
+        HC:  Table((Pk, Ctxt), ()),
+    }
+
+    import oracles {
+        KM_Gen() -> Pk,
+        KM_Encaps(pk: Pk) -> Ctxt,
+    }
+
+    oracle LT_Gen() -> Pk {
+        pk <- invoke KM_Gen();
+        assert (Hon[pk] == None);
+        Hon[pk] <- Some(());
+        return pk;
+    }
+
+    oracle LT_Encaps(pk: Pk) -> Ctxt {
+        c <- invoke KM_Encaps(pk);
+        assert (HC[(pk, c)] == None);
+        HC[(pk, c)] <- Some(());
+        return c;
+    }
+}

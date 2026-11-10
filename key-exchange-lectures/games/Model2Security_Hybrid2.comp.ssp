@@ -1,0 +1,137 @@
+composition Model2Security_Hybrid2 {
+    /*
+     Hybrids of Model2Security around the assumption KEMLazy.
+
+       Model2Modular --> Prot2Modular --> KEMReductionMac --> KEMMac
+                                     \--> KEMReductionLazy --> KeyLazy
+
+     b is the Test bit. Verification of long-term tags is ideal.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b:       Bool;
+    const b_lazy:  Bool;
+    const mac:        fn Shk, (Pk, Ctxt, Ctxt) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model2Modular = Model2Modular {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+            Shk:  Shk,
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot2Modular = Prot2Modular {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+            Tag:  Tag,
+        }
+    }
+
+    instance KEMReductionMac = KEMReductionMac {
+        types {
+            Pk:   Pk,
+            Ctxt: Ctxt,
+        }
+    }
+
+    instance KEMMac = KEMMac {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            Msg: (Pk, Ctxt, Ctxt),
+            Tag: Tag,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_km: true,
+            mac: mac,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMReductionLazy = KEMReductionLazy {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KeyLazy = KeyLazy {
+        types {
+            Shk: Shk,
+        }
+        params {
+            b_lazy: b_lazy,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model2Modular,
+            Corrupt:    Model2Modular,
+            NewSession: Model2Modular,
+            Send1:      Model2Modular,
+            Send2:      Model2Modular,
+            Send3:      Model2Modular,
+            Reveal:     Model2Modular,
+            Test:       Model2Modular,
+        },
+        Model2Modular: {
+            LT_Gen:     KEMReductionMac,
+            KM_Corrupt: KEMMac,
+            KEM_Get:    KEMReductionLazy,
+            Run1:       Prot2Modular,
+            Run2:       Prot2Modular,
+            Run3:       Prot2Modular,
+        },
+        Prot2Modular: {
+            LT_Encaps:  KEMReductionMac,
+            KM_Tag:     KEMMac,
+            KM_Verify:  KEMMac,
+            KEM_Gen:    KEMReductionLazy,
+            KEM_Encaps: KEMReductionLazy,
+            KEM_Decaps: KEMReductionLazy,
+        },
+        KEMReductionMac: {
+            KM_Gen:    KEMMac,
+            KM_Encaps: KEMMac,
+        },
+        KEMReductionLazy: {
+            Lazy_Init: KeyLazy,
+            Lazy_Get:  KeyLazy,
+        },
+    }
+}

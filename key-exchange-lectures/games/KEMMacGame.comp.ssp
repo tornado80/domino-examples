@@ -1,0 +1,50 @@
+composition KEMMacGame {
+    /* Assumption game for KEMMac. */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Msg,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b_km:       Bool;
+    const mac:        fn Shk, Msg -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance KEMMac = KEMMac {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            Msg: Msg,
+            Tag: Tag,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_km: b_km,
+            mac: mac,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            KM_Gen:     KEMMac,
+            KM_Corrupt: KEMMac,
+            KM_Encaps:  KEMMac,
+            KM_Tag:     KEMMac,
+            KM_Verify:  KEMMac,
+        },
+    }
+}

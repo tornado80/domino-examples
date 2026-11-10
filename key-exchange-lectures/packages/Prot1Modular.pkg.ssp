@@ -1,0 +1,59 @@
+package Prot1Modular {
+    /*
+     * Protocol I written against the KEMPrf package. The session keeps no
+     * secret and no key: both are computed inside KEMPrf from (pk, c, nc).
+     * Session state:
+     *   (role, pk, msg1, msg2, accepted)
+     */
+
+    types {
+        Pk,
+        Ctxt,
+        Nonce,
+    }
+
+    import oracles {
+        KEM_Encaps(pk: Pk) -> Ctxt,
+    }
+
+    /* Initiator: encapsulate to the responder's public key. */
+    oracle Run1(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)))
+        -> (Ctxt, (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)))
+    {
+        (role, pk, msg1, msg2, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        c <- invoke KEM_Encaps(pk);
+
+        return (c, (role, pk, Some(c), msg2, accepted));
+    }
+
+    /* Responder: pick the nonce and accept. */
+    oracle Run2(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)), c: Ctxt)
+        -> (Nonce, (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)))
+    {
+        (role, pk, msg1, msg2, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        nc <-$ Nonce sample-name nc;
+
+        return (nc, (role, pk, Some(c), Some(nc), Some(true)));
+    }
+
+    /* Initiator: accept the received nonce. */
+    oracle Run3(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)), nc: Nonce)
+        -> (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool))
+    {
+        (role, pk, msg1, msg2, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        return (role, pk, msg1, Some(nc), Some(true));
+    }
+}

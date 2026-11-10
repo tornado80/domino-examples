@@ -6,8 +6,24 @@ theorem Model1Security {
      * Packages and games are generic in all types. The theorem instantiates
      * them with bitstrings, because abstract theorem-level types are not in
      * scope for the theorem's const declarations on this Domino branch.
+     *
+     * The first three hops are proved for the symbolic Test bit b. The last
+     * hop switches the bit, which is the bit of the assumption KEMPrf.
+     *
+     * No correctness assumption is needed: the proof never relates the
+     * initiator's and the responder's shared keys.
+     *
+     * Assumptions:
+     *
+     *   KEMCollisions  Statistical, from the min-entropy of public keys and
+     *                  ciphertexts. Same game as in Model4Security.
+     *   KEMPrf         Keys derived from KEM shared keys with a PRF are
+     *                  pseudorandom, for many public keys with adaptive
+     *                  corruption. Follows on paper from single-key IND-CCA
+     *                  and the PRF, see KEMPrf.
      */
 
+    const b:      Bool;
     const lpk:    Integer;
     const lsk:    Integer;
     const lct:    Integer;
@@ -34,7 +50,7 @@ theorem Model1Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b:          false,
+            b: false,
             prf:        prf,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -54,7 +70,7 @@ theorem Model1Security {
             EncRand:  Bits(lencr),
         }
         params {
-            b:          true,
+            b: true,
             prf:        prf,
             kem_kgen:   kem_kgen,
             kem_encaps: kem_encaps,
@@ -62,8 +78,285 @@ theorem Model1Security {
         }
     }
 
+    instance KX1_b = KX1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model1Security_Hybrid0_b_0 = Model1Security_Hybrid0 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_coll: false,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model1Security_Hybrid0_b_1 = Model1Security_Hybrid0 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b: b,
+            b_coll: true,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model1Security_Hybrid1_b = Model1Security_Hybrid1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_kp: b,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model1Security_Hybrid1_0 = Model1Security_Hybrid1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_kp: false,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance Model1Security_Hybrid1_1 = Model1Security_Hybrid1 {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_kp: true,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMCollisionsGame_0 = KEMCollisionsGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_coll: false,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    instance KEMCollisionsGame_1 = KEMCollisionsGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_coll: true,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    instance KEMPrfGame_0 = KEMPrfGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_kp: false,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMPrfGame_1 = KEMPrfGame {
+        types {
+            Pk:       Bits(lpk),
+            Sk:       Bits(lsk),
+            Ctxt:     Bits(lct),
+            Shk:      Bits(lshk),
+            Nonce:    Bits(lnonce),
+            Key:      Bits(lkey),
+            KgenRand: Bits(lkgr),
+            EncRand:  Bits(lencr),
+        }
+        params {
+            b_kp: true,
+            prf:        prf,
+            kem_kgen:   kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    assumptions {
+        KEMCollisions: KEMCollisionsGame_0 ~ KEMCollisionsGame_1
+        KEMPrf:        KEMPrfGame_0        ~ KEMPrfGame_1
+    }
+
     gamehops {
-        conjecture KX1_0 KX1_1
+        equivalence KX1_b Model1Security_Hybrid0_b_0 {
+            invariant: [
+                ./theorem/invariant-KX1_b-Model1Security_Hybrid0_b_0.smt2
+            ]
+            NewKey: {
+                randomness: custom
+            }
+            Corrupt: {
+                randomness: custom
+            }
+            NewSession: {
+                randomness: custom
+            }
+            Send1: {
+                randomness: custom
+            }
+            Send2: {
+                randomness: custom
+            }
+            Send3: {
+                randomness: custom
+            }
+            Reveal: {
+                randomness: custom
+            }
+            Test: {
+                randomness: custom
+            }
+        }
+
+        reduction Model1Security_Hybrid0_b_0 Model1Security_Hybrid0_b_1 {
+            assumption KEMCollisions
+            map KEMCollisionsGame_0 Model1Security_Hybrid0_b_0 {
+                KEMCollisions: KEMCollisions
+            }
+            map KEMCollisionsGame_1 Model1Security_Hybrid0_b_1 {
+                KEMCollisions: KEMCollisions
+            }
+        }
+
+        equivalence Model1Security_Hybrid0_b_1 Model1Security_Hybrid1_b {
+            invariant: [
+                ./theorem/invariant-Model1Security_Hybrid0_b_1-Model1Security_Hybrid1_b.smt2
+            ]
+            NewKey: {
+                randomness: custom
+            }
+            Corrupt: {
+                randomness: custom
+            }
+            NewSession: {
+                randomness: custom
+            }
+            Send1: {
+                randomness: custom
+            }
+            Send2: {
+                randomness: custom
+            }
+            Send3: {
+                randomness: custom
+            }
+            Reveal: {
+                randomness: custom
+            }
+            Test: {
+                randomness: custom
+            }
+        }
+
+        reduction Model1Security_Hybrid1_0 Model1Security_Hybrid1_1 {
+            assumption KEMPrf
+            map KEMPrfGame_0 Model1Security_Hybrid1_0 {
+                KEMPrf: KEMPrf
+            }
+            map KEMPrfGame_1 Model1Security_Hybrid1_1 {
+                KEMPrf: KEMPrf
+            }
+        }
     }
 
     propositions {

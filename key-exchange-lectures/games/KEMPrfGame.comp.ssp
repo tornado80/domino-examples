@@ -1,0 +1,51 @@
+composition KEMPrfGame {
+    /* Assumption game for KEMPrf. */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Nonce,
+        Key,
+        KgenRand,
+        EncRand,
+    }
+
+    const b_kp:       Bool;
+    const prf:        fn Shk, Nonce -> Key;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance KEMPrf = KEMPrf {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            Nonce: Nonce,
+            Key: Key,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_kp: b_kp,
+            prf: prf,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            KP_Gen:     KEMPrf,
+            KP_Corrupt: KEMPrf,
+            KP_Encaps:  KEMPrf,
+            KP_RevealI: KEMPrf,
+            KP_RevealR: KEMPrf,
+            KP_Test:    KEMPrf,
+        },
+    }
+}

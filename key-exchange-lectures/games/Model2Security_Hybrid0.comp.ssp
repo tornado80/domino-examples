@@ -1,0 +1,146 @@
+composition Model2Security_Hybrid0 {
+    /*
+     Hybrid of Model2Security around the assumption KEMCollisions, applied
+     separately to the long-term and to the ephemeral KEM keys.
+
+       Model2 --> Prot2Split --> KEMReductionCollisionsSk --> KEMCollisions
+
+     b is the Test bit.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    const b:           Bool;
+    const b_coll_lt:   Bool;
+    const b_coll_eph:  Bool;
+    const mac:        fn Shk, (Pk, Ctxt, Ctxt) -> Tag;
+    const kem_kgen:   fn KgenRand -> (Pk, Sk);
+    const kem_encaps: fn EncRand, Pk -> (Ctxt, Shk);
+    const kem_decaps: fn Sk, Ctxt -> Shk;
+
+    instance Model2 = Model2 {
+        types {
+            Pk:    Pk,
+            Sk:    Sk,
+            Msg1:  (Pk, Ctxt),
+            Msg2:  (Ctxt, Tag),
+            Key:   Shk,
+            Other: (Maybe(Sk), Shk),
+        }
+        params {
+            b: b,
+        }
+    }
+
+    instance Prot2Split = Prot2Split {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Shk:  Shk,
+            Tag:  Tag,
+        }
+        params {
+            mac: mac,
+        }
+    }
+
+    instance KEMReductionCollisionsSk_lt = KEMReductionCollisionsSk {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Shk:  Shk,
+        }
+        params {
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMReductionCollisionsSk_eph = KEMReductionCollisionsSk {
+        types {
+            Pk:   Pk,
+            Sk:   Sk,
+            Ctxt: Ctxt,
+            Shk:  Shk,
+        }
+        params {
+            kem_decaps: kem_decaps,
+        }
+    }
+
+    instance KEMCollisions_lt = KEMCollisions {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_coll: b_coll_lt,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    instance KEMCollisions_eph = KEMCollisions {
+        types {
+            Pk: Pk,
+            Sk: Sk,
+            Ctxt: Ctxt,
+            Shk: Shk,
+            KgenRand: KgenRand,
+            EncRand: EncRand,
+        }
+        params {
+            b_coll: b_coll_eph,
+            kem_kgen: kem_kgen,
+            kem_encaps: kem_encaps,
+        }
+    }
+
+    compose {
+        adversary: {
+            NewKey:     Model2,
+            Corrupt:    Model2,
+            NewSession: Model2,
+            Send1:      Model2,
+            Send2:      Model2,
+            Send3:      Model2,
+            Reveal:     Model2,
+            Test:       Model2,
+        },
+        Model2: {
+            Kgen: Prot2Split,
+            Run1: Prot2Split,
+            Run2: Prot2Split,
+            Run3: Prot2Split,
+        },
+        Prot2Split: {
+            LT_Gen:     KEM_Gen of KEMReductionCollisionsSk_lt,
+            LT_Encaps:  KEM_Encaps of KEMReductionCollisionsSk_lt,
+            LT_Decaps:  KEM_Decaps of KEMReductionCollisionsSk_lt,
+            KEM_Gen:    KEMReductionCollisionsSk_eph,
+            KEM_Encaps: KEMReductionCollisionsSk_eph,
+            KEM_Decaps: KEMReductionCollisionsSk_eph,
+        },
+        KEMReductionCollisionsSk_lt: {
+            Coll_Gen:    KEMCollisions_lt,
+            Coll_Encaps: KEMCollisions_lt,
+        },
+        KEMReductionCollisionsSk_eph: {
+            Coll_Gen:    KEMCollisions_eph,
+            Coll_Encaps: KEMCollisions_eph,
+        },
+    }
+}

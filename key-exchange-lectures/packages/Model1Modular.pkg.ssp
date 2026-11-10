@@ -1,0 +1,98 @@
+package Model1Modular {
+    /*
+     * Model1 written against the KEMPrf package. The corruption and test
+     * tables, the secret keys and the session keys live in KEMPrf. Session
+     * state:
+     *   (role, pk, msg1, msg2, accepted)
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Nonce,
+        Key,
+    }
+
+    state {
+        ctr_:  Integer,
+        Reg:   Table(Pk, ()),
+        TR:    Table((Ctxt, Nonce), ()),
+        State: Table(Integer, (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool))),
+    }
+
+    import oracles {
+        KEM_Gen() -> Pk,
+        KP_Corrupt(pk: Pk) -> Sk,
+        KP_RevealI(pk: Pk, c: Ctxt, x: Nonce) -> Key,
+        KP_RevealR(pk: Pk, c: Ctxt, x: Nonce) -> Key,
+        KP_Test(pk: Pk, c: Ctxt, x: Nonce) -> Key,
+        Run1(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)))
+            -> (Ctxt, (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool))),
+        Run2(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)), m1: Ctxt)
+            -> (Nonce, (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool))),
+        Run3(st: (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)), m2: Nonce)
+            -> (Bool, Pk, Maybe(Ctxt), Maybe(Nonce), Maybe(Bool)),
+    }
+
+    oracle NewKey() -> Pk {
+        pk <- invoke KEM_Gen();
+        Reg[pk] <- Some(());
+        return pk;
+    }
+
+    oracle Corrupt(pk: Pk) -> Sk {
+        sk <- invoke KP_Corrupt(pk);
+        return sk;
+    }
+
+    oracle NewSession(pk: Pk, role: Bool) -> Integer {
+        assert not (Reg[pk] == None);
+        ctr_ <- (ctr_ + 1);
+        State[ctr_] <- Some((role, pk, None as Ctxt, None as Nonce, None as Bool));
+        return ctr_;
+    }
+
+    oracle Send1(ctr: Integer) -> Ctxt {
+        st <- Unwrap(State[ctr]);
+        (m1, st_) <- parse invoke Run1(st);
+        State[ctr] <- Some(st_);
+        return m1;
+    }
+
+    oracle Send2(ctr: Integer, m1: Ctxt) -> Nonce {
+        st <- Unwrap(State[ctr]);
+        (m2, st_) <- parse invoke Run2(st, m1);
+        State[ctr] <- Some(st_);
+        return m2;
+    }
+
+    oracle Send3(ctr: Integer, m2: Nonce) {
+        st <- Unwrap(State[ctr]);
+        st_ <- invoke Run3(st, m2);
+        State[ctr] <- Some(st_);
+    }
+
+    oracle Reveal(ctr: Integer) -> Key {
+        (role, pk, msg1, msg2, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        if (role == false) {
+            k <- invoke KP_RevealI(pk, Unwrap(msg1), Unwrap(msg2));
+            return k;
+        }
+        k <- invoke KP_RevealR(pk, Unwrap(msg1), Unwrap(msg2));
+        return k;
+    }
+
+    oracle Test(ctr: Integer) -> Key {
+        (role, pk, msg1, msg2, accepted) <- parse Unwrap(State[ctr]);
+        assert (accepted == Some(true));
+        assert (role == false);                 /* only initiators get guarantees */
+        assert (TR[(Unwrap(msg1), Unwrap(msg2))] == None);  /* restrictions TR1, TR2 */
+        TR[(Unwrap(msg1), Unwrap(msg2))] <- Some(());
+        k <- invoke KP_Test(pk, Unwrap(msg1), Unwrap(msg2));
+        return k;
+    }
+}

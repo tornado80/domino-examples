@@ -1,0 +1,76 @@
+package Prot2Modular {
+    /*
+     * Protocol II written against KEMMac for the long-term key and a KEM
+     * handle interface for the ephemeral key. Session state:
+     *   (role, pk, msg1, msg2, k, hk_fs, accepted)
+     * k is the handle of the session key. hk_fs is set to None when the
+     * initiator finishes, modelling the deletion of the ephemeral key.
+     */
+
+    types {
+        Pk,
+        Ctxt,
+        Tag,
+    }
+
+    import oracles {
+        LT_Encaps(pk: Pk) -> Ctxt,
+        KM_Tag(pk: Pk, c: Ctxt, m: (Pk, Ctxt, Ctxt)) -> Tag,
+        KM_Verify(pk: Pk, c: Ctxt, m: (Pk, Ctxt, Ctxt), t: Tag) -> Bool,
+        KEM_Gen() -> (Pk, Integer),
+        KEM_Encaps(pk: Pk) -> (Ctxt, Integer),
+        KEM_Decaps(hk: Integer, c: Ctxt) -> Integer,
+    }
+
+    oracle Run1(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)))
+        -> ((Pk, Ctxt), (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)))
+    {
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, hk_fs) <- parse invoke KEM_Gen();
+        c_R <- invoke LT_Encaps(pk);
+        m1 <- (pk_fs, c_R);
+
+        return (m1, (role, pk, Some(m1), msg2, k, Some(hk_fs), accepted));
+    }
+
+    oracle Run2(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)), m1: (Pk, Ctxt))
+        -> ((Ctxt, Tag), (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)))
+    {
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st;
+        assert (role == true);
+        assert (accepted == None);
+        assert (msg1 == None);
+
+        (pk_fs, c_R) <- parse m1;
+        (c_fs, h_fs) <- parse invoke KEM_Encaps(pk_fs);
+        t_R <- invoke KM_Tag(pk, c_R, (pk_fs, c_R, c_fs));
+        m2 <- (c_fs, t_R);
+
+        return (m2, (role, pk, Some(m1), Some(m2), Some(h_fs), hk, Some(true)));
+    }
+
+    oracle Run3(st: (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool)), m2: (Ctxt, Tag))
+        -> (Bool, Pk, Maybe((Pk, Ctxt)), Maybe((Ctxt, Tag)), Maybe(Integer), Maybe(Integer), Maybe(Bool))
+    {
+        (role, pk, msg1, msg2, k, hk, accepted) <- parse st;
+        assert (role == false);
+        assert (accepted == None);
+        assert not (msg1 == None);
+        assert (msg2 == None);
+
+        (pk_fs, c_R) <- parse Unwrap(msg1);
+        (c_fs, t_R) <- parse m2;
+
+        ok <- invoke KM_Verify(pk, c_R, (pk_fs, c_R, c_fs), t_R);
+        if ok {
+            h_fs <- invoke KEM_Decaps(Unwrap(hk), c_fs);
+            return (role, pk, msg1, Some(m2), Some(h_fs), None as Integer, Some(true));
+        }
+
+        return (role, pk, msg1, Some(m2), k, None as Integer, Some(false));
+    }
+}

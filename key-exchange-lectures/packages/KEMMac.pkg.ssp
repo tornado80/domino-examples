@@ -1,0 +1,84 @@
+package KEMMac {
+    /*
+     * Assumption KEMMac: a MAC keyed with a KEM shared key is unforgeable, for
+     * many public keys with adaptive corruption.
+     *
+     * The shared keys stay real everywhere, and only KM_Verify depends on
+     * b_km: with b_km and pk uncorrupted, it accepts only tags that KM_Tag
+     * returned for that (pk, c, m).
+     *
+     * The real/ideal difference cannot be split into a KEM hop and a MAC hop.
+     * pk can be corrupted after the encapsulation, so the encapsulation
+     * cannot be idealised.
+     *
+     * Paper justification, for a bound of about n * q_e * (eps_cca + eps_mac)
+     * with n keys and q_e encapsulations: the games differ only on the first
+     * KM_Verify that is accepted by exactly one of them, while pk is
+     * uncorrupted. Guess the key and the encapsulation. Replace its shared key
+     * by a random one with single-key IND-CCA, which stops at KM_Corrupt
+     * because that event cannot happen afterwards. The difference is then a
+     * MAC forgery.
+     */
+
+    types {
+        Pk,
+        Sk,
+        Ctxt,
+        Shk,
+        Msg,
+        Tag,
+        KgenRand,
+        EncRand,
+    }
+
+    params {
+        b_km:       Bool,
+        mac:        fn Shk, Msg -> Tag,
+        kem_kgen:   fn KgenRand -> (Pk, Sk),
+        kem_encaps: fn EncRand, Pk -> (Ctxt, Shk),
+        kem_decaps: fn Sk, Ctxt -> Shk,
+    }
+
+    state {
+        SK: Table(Pk, Sk),
+        C:  Table(Pk, ()),
+        S:  Table((Pk, Ctxt), Shk),
+        T:  Table((Pk, Ctxt, Msg), Tag),
+    }
+
+    oracle KM_Gen() -> Pk {
+        r <-$ KgenRand sample-name kem_kgen;
+        (pk, sk) <- parse kem_kgen(r);
+        SK[pk] <- Some(sk);
+        return pk;
+    }
+
+    oracle KM_Corrupt(pk: Pk) -> Sk {
+        C[pk] <- Some(());
+        return Unwrap(SK[pk]);
+    }
+
+    oracle KM_Encaps(pk: Pk) -> Ctxt {
+        assert not (SK[pk] == None);
+        r <-$ EncRand sample-name kem_encaps;
+        (c, shk) <- parse kem_encaps(r, pk);
+        S[(pk, c)] <- Some(shk);
+        return c;
+    }
+
+    /* Tag under the key decapsulated from any ciphertext. */
+    oracle KM_Tag(pk: Pk, c: Ctxt, m: Msg) -> Tag {
+        t <- mac(kem_decaps(Unwrap(SK[pk]), c), m);
+        T[(pk, c, m)] <- Some(t);
+        return t;
+    }
+
+    /* Verification under the key of an honest encapsulation. */
+    oracle KM_Verify(pk: Pk, c: Ctxt, m: Msg, t: Tag) -> Bool {
+        shk <- Unwrap(S[(pk, c)]);
+        if (b_km and (C[pk] == None)) {
+            return (T[(pk, c, m)] == Some(t));
+        }
+        return (mac(shk, m) == t);
+    }
+}
